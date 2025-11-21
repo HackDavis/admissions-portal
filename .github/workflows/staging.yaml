@@ -1,0 +1,41 @@
+name: Staging Deployment
+
+on:
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+jobs:
+  deploy_staging:
+    name: Deploy Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ vars.ENV_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21.7.3'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint and build code, then publish to Vercel
+        run: npx vercel --debug --token ${{ secrets.VERCEL_TOKEN }} -n ${{ vars.VERCEL_PROJECT }} --yes --prod
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          BASE_URL: ${{ vars.ENV_URL }}
+          TITO_AUTH_TOKEN: ${{ secrets.TITO_AUTH_TOKEN }}
+          TITO_EVENT_BASE_URL: ${{ vars.TITO_AUTH_TOKEN }}
+          HACKDAVIS_HUB_BASE_URL: ${{ vars.ENV_URL }}
+          HUB_ADMIN_EMAIL: ${{ vars.HUB_ADMIN_EMAIL }}
+          HUB_ADMIN_PASSWORD: ${{ secrets.HUB_ADMIN_EMAIL }}
+
+      - name: Success
+        run: echo "🚀  Deploy successful - BLAST OFF WOO! (woot woot) !!! 🐕 🐕 🐕 🚀 "
