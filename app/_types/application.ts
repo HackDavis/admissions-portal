@@ -11,7 +11,7 @@ export interface Application {
   major: string; //drop down options
   minorOrDoubleMajor?: string; //drop down options
   college: string[];
-  year: '1' | '2' | '3' | '4' | '5+';
+  year: number;
   shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL';
   dietaryRestrictions: string[]; //section of options
   connectWithSponsors: boolean;
