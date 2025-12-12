@@ -30,7 +30,9 @@ jobs:
         run: npx vercel --debug --token ${{ secrets.VERCEL_TOKEN }} -n ${{ vars.VERCEL_PROJECT }} --yes --prod
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           BASE_URL: ${{ vars.ENV_URL }}
+          NEXTAUTH_URL: ${{ vars.ENV_URL }}
           TITO_AUTH_TOKEN: ${{ secrets.TITO_AUTH_TOKEN }}
           TITO_EVENT_BASE_URL: ${{ vars.TITO_AUTH_TOKEN }}
           HACKDAVIS_HUB_BASE_URL: ${{ vars.ENV_URL }}
