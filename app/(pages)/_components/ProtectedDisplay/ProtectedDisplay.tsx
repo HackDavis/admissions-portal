@@ -11,7 +11,7 @@ export default async function ProtectedDisplay({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  
+
   if (!session) {
     redirect(failRedirectRoute);
   }

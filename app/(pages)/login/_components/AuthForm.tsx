@@ -17,7 +17,7 @@ export default function AuthForm({ onSubmit, onSuccess }: AuthFormProps) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       const result = await onSubmit({ email, password });
       if (result.ok) {
@@ -35,7 +35,7 @@ export default function AuthForm({ onSubmit, onSuccess }: AuthFormProps) {
   return (
     <form onSubmit={handleSubmit}>
       {error && <p>{error}</p>}
-      
+
       <div>
         <label>Email:</label>
         <input
@@ -45,7 +45,7 @@ export default function AuthForm({ onSubmit, onSuccess }: AuthFormProps) {
           required
         />
       </div>
-      
+
       <div>
         <label>Password:</label>
         <input
@@ -55,7 +55,7 @@ export default function AuthForm({ onSubmit, onSuccess }: AuthFormProps) {
           required
         />
       </div>
-      
+
       <button type="submit" disabled={loading}>
         {loading ? 'Loading...' : 'Login'}
       </button>
