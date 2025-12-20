@@ -8,33 +8,35 @@ import FiltersBar from "./_components/FiltersBar";
 import useApplications from "./_hooks/useApplications";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const POOLS = [
-  { id: "to-be-processed", label: "to be processed" },
-  { id: "accepted", label: "accepted" },
-  { id: "waitlisted", label: "waitlisted" },
-  { id: "rejected", label: "rejected" },
-];
+type Phase = "unseen" | "tentative" | "processed";
 
-type Track = "best hack for social good" | "track2" | "track3";
+type Status =
+  | "pending"
+  | "tentatively_accepted"
+  | "tentatively_rejected"
+  | "tentatively_waitlisted"
+  | "accepted"
+  | "rejected"
+  | "waitlisted";
 
-interface Applicant {
+type UcdParam = "all" | "true" | "false";
+
+interface Application {
   id: string;
   email: string;
-  is18plus: boolean;
-  track: Track;
-  pool: string;
+  isUCDavisStudent: boolean;
+  status: Status;
+  submittedAt?: string;
+  reviewedAt?: string;
+  processedAt?: string;
 }
 
-const INITIAL_APPLICANTS: Applicant[] = [
-  {
-    id: "1",
-    email: "placeholder@hackdavis.io",
-    is18plus: true,
-    track: "best hack for social good",
-    pool: "to-be-processed",
-  },
+const PHASES: { id: Phase; label: string }[] = [
+  { id: "unseen", label: "unseen" },
+  { id: "tentative", label: "tentative" },
+  { id: "processed", label: "processed" },
 ];
 
 export default function AdminPage() {
@@ -65,6 +67,7 @@ export default function AdminPage() {
         <div className="mb-4 border-2 border-black p-3">
           <p className="text-xs font-semibold uppercase">error</p>
           <p className="text-xs">{error}</p>
+
         </div>
       )}
 
@@ -79,3 +82,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+
