@@ -1,5 +1,5 @@
 import type { Application } from '../../_types/application';
-import mockApplications from '../_data/mock-applications.json';
+// import mockApplications from '../_data/mock-applications.json';
 
 export interface SplitApplicationsResult {
   ucdStudents: Application[];
@@ -24,10 +24,10 @@ export function splitApplicationsByUCDavis(
   return { ucdStudents, nonUcdStudents };
 }
 
-// use the mock JSON as the "raw" input for testing
-const mockApps = mockApplications as Application[];
+// // use the mock JSON as the "raw" input for testing
+// // const mockApps = mockApplications as Application[];
 
-export const {
-  ucdStudents: mockUcdStudents,
-  nonUcdStudents: mockNonUcdStudents,
-} = splitApplicationsByUCDavis(mockApps);
+// export const {
+//   ucdStudents: mockUcdStudents,
+//   nonUcdStudents: mockNonUcdStudents,
+// } = splitApplicationsByUCDavis(mockApps);
