@@ -20,7 +20,15 @@ export interface Application {
   githubOrPortfolio?: string;
   connectWithHackDavis: boolean;
   connectWithMLH?: boolean;
-  status: 'pending' | 'accepted' | 'rejected' | 'waitlisted';
+  status:
+    | 'pending'
+    | 'tentatively_accepted'
+    | 'tentatively_rejected'
+    | 'tentatively_waitlisted'
+    | 'accepted'
+    | 'rejected'
+    | 'waitlisted';
   submittedAt: string;
   reviewedAt?: string;
+  processedAt: string;
 }
