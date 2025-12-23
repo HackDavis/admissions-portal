@@ -102,7 +102,7 @@ export default function PhaseColumn({
         )}
       </div>
 
-      {footer && <div className="mt-3">{footer}</div>}
+      {footer && <div className="mt-3 flex justify-center">{footer}</div>}
 
       {selectedApplicant && (
         <ApplicantDetailsModal

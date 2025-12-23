@@ -2,6 +2,7 @@
 
 import { Application, Phase, Status, StatusFilter } from "../_types";
 import { PHASES, PROCESSED_STATUSES, TENTATIVE_STATUSES } from "../_utils/constants";
+import FinalizeButton from "./FinalizeButton";
 import PhaseColumn from "./PhaseColumn";
 
 interface ApplicationsGridProps {
@@ -11,7 +12,12 @@ interface ApplicationsGridProps {
   processedStatus: StatusFilter;
   onTentativeStatusChange: (value: StatusFilter) => void;
   onProcessedStatusChange: (value: StatusFilter) => void;
-  onUpdateStatus: (appId: string, nextStatus: Status, fromPhase: Phase) => void;
+  onUpdateStatus: (
+    appId: string,
+    nextStatus: Status,
+    fromPhase: Phase,
+    options?: { wasWaitlisted?: boolean }
+  ) => void;
 }
 
 export default function ApplicationsGrid({
@@ -52,16 +58,7 @@ export default function ApplicationsGrid({
                     undo selection
                   </button>
                 )}
-                footer={
-                  <button
-                    type="button"
-                    className="border-2 border-black px-3 py-1 text-xs font-medium uppercase"
-                    disabled
-                    title="wip"
-                  >
-                    finalize
-                  </button>
-                }
+                footer={<FinalizeButton apps={apps} onFinalizeStatus={onUpdateStatus} />}
               />
             );
           }
@@ -77,6 +74,30 @@ export default function ApplicationsGrid({
                 statusFilter={processedStatus}
                 statusOptions={PROCESSED_STATUSES}
                 onStatusChange={onProcessedStatusChange}
+                renderActions={(app) =>
+                  app.status === "waitlisted" ? (
+                    <>
+                      <button
+                        type="button"
+                        className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
+                        onClick={() =>
+                          onUpdateStatus(app.id, "tentatively_accepted", "processed")
+                        }
+                      >
+                        waitlist accept
+                      </button>
+                      <button
+                        type="button"
+                        className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
+                        onClick={() =>
+                          onUpdateStatus(app.id, "tentatively_rejected", "processed")
+                        }
+                      >
+                        waitlist reject
+                      </button>
+                    </>
+                  ) : null
+                }
               />
             );
           }

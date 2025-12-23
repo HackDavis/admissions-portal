@@ -194,6 +194,7 @@ export const PATCH = authenticated(async (req: NextRequest) => {
     const body = await req.json();
     const id = body?.id as string | undefined;
     const status = body?.status as string | undefined;
+    const wasWaitlisted = body?.wasWaitlisted as boolean | undefined;
 
     if (!id) {
       return NextResponse.json(
@@ -202,7 +203,10 @@ export const PATCH = authenticated(async (req: NextRequest) => {
       );
     }
 
-    if (!status || !ALL_STATUSES.includes(status as (typeof ALL_STATUSES)[number])) {
+    if (
+      !status ||
+      !ALL_STATUSES.includes(status as (typeof ALL_STATUSES)[number])
+    ) {
       return NextResponse.json(
         { ok: false, error: 'Invalid status.' },
         { status: 400 }
@@ -216,8 +220,12 @@ export const PATCH = authenticated(async (req: NextRequest) => {
     const collectionName = process.env.MONGODB_COLLECTION ?? 'applications';
     const col = db.collection(collectionName);
 
-    const filter = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { _id: id };
-    const result = await col.updateOne(filter, { $set: { status } });
+    const filter = ObjectId.isValid(id)
+      ? { $or: [{ _id: new ObjectId(id) }, { _id: id }] }
+      : { _id: id };
+    const update: Record<string, unknown> = { status };
+    if (typeof wasWaitlisted === 'boolean') update.wasWaitlisted = wasWaitlisted;
+    const result = await col.updateOne(filter, { $set: update });
 
     if (result.matchedCount === 0) {
       return NextResponse.json(

@@ -97,12 +97,21 @@ export default function useApplications() {
   }, [loadPhase, processedStatus]);
 
   const updateApplicantStatus = useCallback(
-    async (appId: string, nextStatus: Status, fromPhase: Phase) => {
+    async (
+      appId: string,
+      nextStatus: Status,
+      fromPhase: Phase,
+      options?: { wasWaitlisted?: boolean }
+    ) => {
       setError(null);
       const res = await fetch('/applications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: appId, status: nextStatus }),
+        body: JSON.stringify({
+          id: appId,
+          status: nextStatus,
+          ...(options ?? {}),
+        }),
       });
 
       if (!res.ok) {
