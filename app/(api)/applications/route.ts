@@ -6,6 +6,8 @@
 
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
+import { link } from 'fs';
+import { connect } from 'http2';
 
 type Phase = 'unseen' | 'tentative' | 'processed';
 type UcdParam = 'all' | 'true' | 'false';
@@ -104,8 +106,27 @@ export async function GET(req: Request) {
     // projection keeps payload smaller (adjust as you need)
     const projection = {
       email: 1,
+      firstName: 1,
+      lastName: 1,
+      phone: 1,
+      age: 1,
       isUCDavisStudent: 1,
+      university: 1,
+      levelOfStudy: 1,
+      major: 1,
+      minorOrDoubleMajor: 1,
+      college: 1,
+      year: 1,
+      shirtSize: 1,
+      dietaryRestrictions: 1,
+      connectWithSponsors: 1,
+      resume: 1,
+      linkedin: 1,
+      githubOrPortfolio: 1,
+      connectWithHackDavis: 1,
+      connectWithMLH: 1,
       status: 1,
+      wasWaitlisted: 1,
       submittedAt: 1,
       reviewedAt: 1,
       processedAt: 1,
@@ -121,9 +142,28 @@ export async function GET(req: Request) {
     // Normalize _id to string id for frontend
     const applications = docs.map((d: any) => ({
       id: String(d._id),
+      firstName: d.firstName,
+      lastName: d.lastName,
       email: d.email,
+      phone: d.phone,
+      age: d.age,
       isUCDavisStudent: d.isUCDavisStudent,
+      university: d.university,
+      levelOfStudy: d.levelOfStudy,
+      major: d.major,
+      minorOrDoubleMajor: d.minorOrDoubleMajor,
+      college: d.college,
+      year: d.year,
+      shirtSize: d.shirtSize,
+      dietaryRestrictions: d.dietaryRestrictions,
+      connectWithSponsors: d.connectWithSponsors,
+      resume: d.resume,
+      linkedin: d.linkedin,
+      githubOrPortfolio: d.githubOrPortfolio,
+      connectWithHackDavis: d.connectWithHackDavis,
+      connectWithMLH: d.connectWithMLH,
       status: d.status,
+      wasWaitlisted: d.wasWaitlisted,
       submittedAt: d.submittedAt,
       reviewedAt: d.reviewedAt,
       processedAt: d.processedAt,

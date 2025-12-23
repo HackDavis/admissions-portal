@@ -27,6 +27,7 @@ interface Application {
   id: string;
   email: string;
   isUCDavisStudent: boolean;
+  wasWaitlisted: boolean;
   status: Status;
   submittedAt?: string;
   reviewedAt?: string;
