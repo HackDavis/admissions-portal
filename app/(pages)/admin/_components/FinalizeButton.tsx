@@ -2,13 +2,15 @@
 
 import { Application, Status } from "../_types";
 
+// TODO: Add Mailchimp + HackerHub invite flow here.
+
 interface FinalizeButtonProps {
   apps: Application[];
   onFinalizeStatus: (
     appId: string,
     nextStatus: Status,
     fromPhase: "tentative",
-    options?: { wasWaitlisted?: boolean }
+    options?: { wasWaitlisted?: boolean; refreshPhase?: "processed" }
   ) => void;
 }
 
@@ -23,12 +25,12 @@ export default function FinalizeButton({
   onFinalizeStatus,
 }: FinalizeButtonProps) {
   const handleFinalize = async () => {
-    // TODO: Add Mailchimp + HackerHub invite flow here.
     const updates = apps
       .filter((app) => app.status in FINAL_STATUS_MAP)
       .map((app) =>
         onFinalizeStatus(app.id, FINAL_STATUS_MAP[app.status], "tentative", {
           wasWaitlisted: app.status === "tentatively_waitlisted",
+          refreshPhase: "processed",
         })
       );
 

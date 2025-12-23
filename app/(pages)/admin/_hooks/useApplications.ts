@@ -101,7 +101,7 @@ export default function useApplications() {
       appId: string,
       nextStatus: Status,
       fromPhase: Phase,
-      options?: { wasWaitlisted?: boolean }
+      options?: { wasWaitlisted?: boolean; refreshPhase?: Phase }
     ) => {
       setError(null);
       const res = await fetch('/applications', {
@@ -121,13 +121,11 @@ export default function useApplications() {
         throw new Error(message);
       }
 
-      if (fromPhase === 'unseen') {
-        await Promise.all([loadPhase('unseen'), loadPhase('tentative')]);
-      } else if (fromPhase === 'tentative') {
-        await Promise.all([loadPhase('tentative'), loadPhase('processed')]);
-      } else {
-        await loadPhase('processed');
-      }
+      const phasesToRefresh = new Set<Phase>([
+        fromPhase,
+        options?.refreshPhase ?? fromPhase,
+      ]);
+      await Promise.all([...phasesToRefresh].map((phase) => loadPhase(phase)));
     },
     [loadPhase]
   );

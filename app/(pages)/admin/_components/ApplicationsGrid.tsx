@@ -16,7 +16,7 @@ interface ApplicationsGridProps {
     appId: string,
     nextStatus: Status,
     fromPhase: Phase,
-    options?: { wasWaitlisted?: boolean }
+    options?: { wasWaitlisted?: boolean; refreshPhase?: Phase }
   ) => void;
 }
 
@@ -53,7 +53,11 @@ export default function ApplicationsGrid({
                   <button
                     type="button"
                     className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
-                    onClick={() => onUpdateStatus(app.id, "pending", "tentative")}
+                    onClick={() =>
+                      onUpdateStatus(app.id, "pending", "tentative", {
+                        refreshPhase: "unseen",
+                      })
+                    }
                   >
                     undo selection
                   </button>
@@ -81,7 +85,9 @@ export default function ApplicationsGrid({
                         type="button"
                         className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
                         onClick={() =>
-                          onUpdateStatus(app.id, "tentatively_accepted", "processed")
+                          onUpdateStatus(app.id, "tentatively_accepted", "processed", {
+                            refreshPhase: "tentative",
+                          })
                         }
                       >
                         waitlist accept
@@ -90,7 +96,9 @@ export default function ApplicationsGrid({
                         type="button"
                         className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
                         onClick={() =>
-                          onUpdateStatus(app.id, "tentatively_rejected", "processed")
+                          onUpdateStatus(app.id, "tentatively_rejected", "processed", {
+                            refreshPhase: "tentative",
+                          })
                         }
                       >
                         waitlist reject
@@ -115,7 +123,9 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, "tentatively_accepted", "unseen")
+                      onUpdateStatus(app.id, "tentatively_accepted", "unseen", {
+                        refreshPhase: "tentative",
+                      })
                     }
                   >
                     accept
@@ -124,7 +134,9 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, "tentatively_rejected", "unseen")
+                      onUpdateStatus(app.id, "tentatively_rejected", "unseen", {
+                        refreshPhase: "tentative",
+                      })
                     }
                   >
                     reject
@@ -133,7 +145,9 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-yellow-700 bg-yellow-100 px-2 py-1 text-[10px] font-semibold uppercase text-yellow-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, "tentatively_waitlisted", "unseen")
+                      onUpdateStatus(app.id, "tentatively_waitlisted", "unseen", {
+                        refreshPhase: "tentative",
+                      })
                     }
                   >
                     waitlist

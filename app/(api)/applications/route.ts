@@ -225,6 +225,12 @@ export const PATCH = authenticated(async (req: NextRequest) => {
       : { _id: id };
     const update: Record<string, unknown> = { status };
     if (typeof wasWaitlisted === 'boolean') update.wasWaitlisted = wasWaitlisted;
+    if (TENTATIVE_STATUSES.includes(status as (typeof TENTATIVE_STATUSES)[number])) {
+      update.reviewedAt = new Date().toISOString();
+    }
+    if (PROCESSED_STATUSES.includes(status as (typeof PROCESSED_STATUSES)[number])) {
+      update.processedAt = new Date().toISOString();
+    }
     const result = await col.updateOne(filter, { $set: update });
 
     if (result.matchedCount === 0) {
