@@ -4,10 +4,9 @@
 // - tentative status filter (via ?status=tentatively_accepted|tentatively_rejected|tentatively_waitlisted)
 // - processed status filter (via ?status=accepted|rejected|waitlisted)
 
-import { NextResponse } from 'next/server';
-import { MongoClient } from 'mongodb';
-import { link } from 'fs';
-import { connect } from 'http2';
+import { NextRequest, NextResponse } from 'next/server';
+import { MongoClient, ObjectId } from 'mongodb';
+import authenticated from '@utils/authentication/authenticated';
 
 type Phase = 'unseen' | 'tentative' | 'processed';
 type UcdParam = 'all' | 'true' | 'false';
@@ -19,6 +18,11 @@ const TENTATIVE_STATUSES = [
 ] as const;
 
 const PROCESSED_STATUSES = ['accepted', 'rejected', 'waitlisted'] as const;
+const ALL_STATUSES = [
+  'pending',
+  ...TENTATIVE_STATUSES,
+  ...PROCESSED_STATUSES,
+] as const;
 
 const PHASE_TO_STATUSES: Record<Phase, readonly string[]> = {
   unseen: ['pending'],
@@ -184,3 +188,49 @@ export async function GET(req: Request) {
     );
   }
 }
+
+export const PATCH = authenticated(async (req: NextRequest) => {
+  try {
+    const body = await req.json();
+    const id = body?.id as string | undefined;
+    const status = body?.status as string | undefined;
+
+    if (!id) {
+      return NextResponse.json(
+        { ok: false, error: 'Invalid applicant id.' },
+        { status: 400 }
+      );
+    }
+
+    if (!status || !ALL_STATUSES.includes(status as (typeof ALL_STATUSES)[number])) {
+      return NextResponse.json(
+        { ok: false, error: 'Invalid status.' },
+        { status: 400 }
+      );
+    }
+
+    const client = await getMongoClient();
+    const dbName = process.env.MONGODB_DB;
+    const db = dbName ? client.db(dbName) : client.db();
+
+    const collectionName = process.env.MONGODB_COLLECTION ?? 'applications';
+    const col = db.collection(collectionName);
+
+    const filter = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { _id: id };
+    const result = await col.updateOne(filter, { $set: { status } });
+
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { ok: false, error: 'Applicant not found.' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ ok: true, id, status });
+  } catch (err: any) {
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? 'Unknown error' },
+      { status: 500 }
+    );
+  }
+});

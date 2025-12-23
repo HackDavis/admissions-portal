@@ -23,16 +23,6 @@ export default function FiltersBar({ ucd, onUcdChange }: FiltersBarProps) {
         </select>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
-        <button
-          type="button"
-          className="border-2 border-black px-3 py-1 text-xs font-medium uppercase"
-          disabled
-          title="wip"
-        >
-          done
-        </button>
-      </div>
     </section>
   );
 }

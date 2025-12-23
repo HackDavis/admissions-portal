@@ -5,6 +5,7 @@ import { signOut } from "next-auth/react";
 import AdminHeader from "./_components/AdminHeader";
 import ApplicationsGrid from "./_components/ApplicationsGrid";
 import FiltersBar from "./_components/FiltersBar";
+import ProgressBar from "./_components/ProgressBar";
 import useApplications from "./_hooks/useApplications";
 
 import Link from "next/link";
@@ -56,11 +57,20 @@ export default function AdminPage() {
     tentativeStatus,
     totalCount,
     ucd,
+    updateApplicantStatus,
   } = useApplications();
+  const processedCount = appsByPhase.processed.length;
+  const tentativeCount = appsByPhase.tentative.length;
 
   return (
     <div className="min-h-screen p-6 text-sm text-black">
       <AdminHeader totalCount={totalCount} onLogout={handleLogout} />
+
+      <ProgressBar
+        processedCount={processedCount}
+        tentativeCount={tentativeCount}
+        totalCount={totalCount}
+      />
 
       <FiltersBar ucd={ucd} onUcdChange={setUcd} />
 
@@ -79,9 +89,8 @@ export default function AdminPage() {
         processedStatus={processedStatus}
         onTentativeStatusChange={setTentativeStatus}
         onProcessedStatusChange={setProcessedStatus}
+        onUpdateStatus={updateApplicantStatus}
       />
     </div>
   );
 }
-
-

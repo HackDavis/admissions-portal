@@ -14,6 +14,8 @@ interface PhaseColumnProps {
   statusFilter?: StatusFilter;
   statusOptions?: Status[];
   onStatusChange?: (value: StatusFilter) => void;
+  footer?: React.ReactNode;
+  renderActions?: (app: Application) => React.ReactNode;
 }
 
 export default function PhaseColumn({
@@ -24,13 +26,15 @@ export default function PhaseColumn({
   phase,
   statusFilter,
   statusOptions,
+  footer,
+  renderActions,
 }: PhaseColumnProps) {
   const [selectedApplicant, setSelectedApplicant] = useState<Application | null>(
     null
   );
 
   return (
-    <div className="border-2 border-black p-3 flex flex-col">
+    <div className="border-2 border-black p-3 flex h-screen flex-col">
       <div className="mb-2 flex items-start justify-between gap-3">
         <div>
           <h3 className="text-xs font-semibold uppercase">{label}</h3>
@@ -60,7 +64,7 @@ export default function PhaseColumn({
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 flex-1 overflow-y-auto">
         {!isLoading && apps.length === 0 ? (
           <p className="text-xs">no applicants here yet...</p>
         ) : (
@@ -76,7 +80,16 @@ export default function PhaseColumn({
               <p className="text-xs">
                 status: <span className="font-medium">{prettyStatus(a.status)}</span>
               </p>
-              <p className="text-xs">was waitlisted: {a.wasWaitlisted ? "yes" : "no"}</p>
+              <p
+                className={`text-xs ${
+                  a.wasWaitlisted ? "font-bold text-red-600" : ""
+                }`}
+              >
+                was waitlisted: {a.wasWaitlisted ? "yes" : "no"}
+              </p>
+              {renderActions && (
+                <div className="mt-1 flex flex-wrap gap-2">{renderActions(a)}</div>
+              )}
               <button
                 type="button"
                 className="mt-1 border border-black px-2 py-1 text-[10px] uppercase"
@@ -88,6 +101,8 @@ export default function PhaseColumn({
           ))
         )}
       </div>
+
+      {footer && <div className="mt-3">{footer}</div>}
 
       {selectedApplicant && (
         <ApplicantDetailsModal

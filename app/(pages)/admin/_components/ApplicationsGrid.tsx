@@ -1,6 +1,6 @@
 "use client";
 
-import { Application, Phase, StatusFilter } from "../_types";
+import { Application, Phase, Status, StatusFilter } from "../_types";
 import { PHASES, PROCESSED_STATUSES, TENTATIVE_STATUSES } from "../_utils/constants";
 import PhaseColumn from "./PhaseColumn";
 
@@ -11,6 +11,7 @@ interface ApplicationsGridProps {
   processedStatus: StatusFilter;
   onTentativeStatusChange: (value: StatusFilter) => void;
   onProcessedStatusChange: (value: StatusFilter) => void;
+  onUpdateStatus: (appId: string, nextStatus: Status, fromPhase: Phase) => void;
 }
 
 export default function ApplicationsGrid({
@@ -18,12 +19,13 @@ export default function ApplicationsGrid({
   loading,
   onProcessedStatusChange,
   onTentativeStatusChange,
+  onUpdateStatus,
   processedStatus,
   tentativeStatus,
 }: ApplicationsGridProps) {
   return (
     <section className="space-y-3">
-      <h2 className="font-medium">applications</h2>
+      <h2 className="pb-2 font-medium">applications</h2>
 
       <div className="grid gap-4 md:grid-cols-3">
         {PHASES.map((phase) => {
@@ -41,6 +43,25 @@ export default function ApplicationsGrid({
                 statusFilter={tentativeStatus}
                 statusOptions={TENTATIVE_STATUSES}
                 onStatusChange={onTentativeStatusChange}
+                renderActions={(app) => (
+                  <button
+                    type="button"
+                    className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
+                    onClick={() => onUpdateStatus(app.id, "pending", "tentative")}
+                  >
+                    undo selection
+                  </button>
+                )}
+                footer={
+                  <button
+                    type="button"
+                    className="border-2 border-black px-3 py-1 text-xs font-medium uppercase"
+                    disabled
+                    title="wip"
+                  >
+                    finalize
+                  </button>
+                }
               />
             );
           }
@@ -67,6 +88,37 @@ export default function ApplicationsGrid({
               label={phase.label}
               apps={apps}
               isLoading={isLoading}
+              renderActions={(app) => (
+                <>
+                  <button
+                    type="button"
+                    className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
+                    onClick={() =>
+                      onUpdateStatus(app.id, "tentatively_accepted", "unseen")
+                    }
+                  >
+                    accept
+                  </button>
+                  <button
+                    type="button"
+                    className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
+                    onClick={() =>
+                      onUpdateStatus(app.id, "tentatively_rejected", "unseen")
+                    }
+                  >
+                    reject
+                  </button>
+                  <button
+                    type="button"
+                    className="border border-yellow-700 bg-yellow-100 px-2 py-1 text-[10px] font-semibold uppercase text-yellow-800"
+                    onClick={() =>
+                      onUpdateStatus(app.id, "tentatively_waitlisted", "unseen")
+                    }
+                  >
+                    waitlist
+                  </button>
+                </>
+              )}
             />
           );
         })}

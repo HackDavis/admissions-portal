@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Application, Phase, StatusFilter, UcdParam } from '../_types';
+import { Application, Phase, Status, StatusFilter, UcdParam } from '../_types';
 import { PHASES } from '../_utils/constants';
 
 async function fetchApplications(params: {
@@ -47,88 +47,81 @@ export default function useApplications() {
     processed: [],
   });
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function run() {
-      setError(null);
-      setLoading((p) => ({ ...p, unseen: true }));
-      try {
-        const apps = await fetchApplications({
-          phase: 'unseen',
-          ucd,
-          status: null,
-        });
-        if (!cancelled) setAppsByPhase((p) => ({ ...p, unseen: apps }));
-      } catch (e: any) {
-        if (!cancelled)
-          setError(e?.message ?? 'Failed to load unseen applications');
-      } finally {
-        if (!cancelled) setLoading((p) => ({ ...p, unseen: false }));
+  const getStatusForPhase = useCallback(
+    (phase: Phase) => {
+      if (phase === 'tentative') {
+        return tentativeStatus === 'all' ? null : tentativeStatus;
       }
-    }
-
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, [ucd]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function run() {
-      setError(null);
-      setLoading((p) => ({ ...p, tentative: true }));
-      try {
-        const status = tentativeStatus === 'all' ? null : tentativeStatus;
-        const apps = await fetchApplications({
-          phase: 'tentative',
-          ucd,
-          status,
-        });
-        if (!cancelled) setAppsByPhase((p) => ({ ...p, tentative: apps }));
-      } catch (e: any) {
-        if (!cancelled)
-          setError(e?.message ?? 'Failed to load tentative applications');
-      } finally {
-        if (!cancelled) setLoading((p) => ({ ...p, tentative: false }));
+      if (phase === 'processed') {
+        return processedStatus === 'all' ? null : processedStatus;
       }
-    }
+      return null;
+    },
+    [processedStatus, tentativeStatus]
+  );
 
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, [ucd, tentativeStatus]);
+  const loadPhase = useCallback(
+    async (phase: Phase) => {
+      let cancelled = false;
+      setError(null);
+      setLoading((p) => ({ ...p, [phase]: true }));
+      try {
+        const status = getStatusForPhase(phase);
+        const apps = await fetchApplications({ phase, ucd, status });
+        if (!cancelled) setAppsByPhase((p) => ({ ...p, [phase]: apps }));
+      } catch (e: any) {
+        if (!cancelled) {
+          setError(e?.message ?? `Failed to load ${phase} applications`);
+        }
+      } finally {
+        if (!cancelled) setLoading((p) => ({ ...p, [phase]: false }));
+      }
+
+      return () => {
+        cancelled = true;
+      };
+    },
+    [getStatusForPhase, ucd]
+  );
 
   useEffect(() => {
-    let cancelled = false;
+    loadPhase('unseen');
+  }, [loadPhase]);
 
-    async function run() {
+  useEffect(() => {
+    loadPhase('tentative');
+  }, [loadPhase, tentativeStatus]);
+
+  useEffect(() => {
+    loadPhase('processed');
+  }, [loadPhase, processedStatus]);
+
+  const updateApplicantStatus = useCallback(
+    async (appId: string, nextStatus: Status, fromPhase: Phase) => {
       setError(null);
-      setLoading((p) => ({ ...p, processed: true }));
-      try {
-        const status = processedStatus === 'all' ? null : processedStatus;
-        const apps = await fetchApplications({
-          phase: 'processed',
-          ucd,
-          status,
-        });
-        if (!cancelled) setAppsByPhase((p) => ({ ...p, processed: apps }));
-      } catch (e: any) {
-        if (!cancelled)
-          setError(e?.message ?? 'Failed to load processed applications');
-      } finally {
-        if (!cancelled) setLoading((p) => ({ ...p, processed: false }));
-      }
-    }
+      const res = await fetch('/applications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: appId, status: nextStatus }),
+      });
 
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, [ucd, processedStatus]);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const message = err?.error ?? `Request failed: ${res.status}`;
+        setError(message);
+        throw new Error(message);
+      }
+
+      if (fromPhase === 'unseen') {
+        await Promise.all([loadPhase('unseen'), loadPhase('tentative')]);
+      } else if (fromPhase === 'tentative') {
+        await Promise.all([loadPhase('tentative'), loadPhase('processed')]);
+      } else {
+        await loadPhase('processed');
+      }
+    },
+    [loadPhase]
+  );
 
   const totalCount = useMemo(
     () => PHASES.reduce((sum, ph) => sum + appsByPhase[ph.id].length, 0),
@@ -146,5 +139,6 @@ export default function useApplications() {
     tentativeStatus,
     totalCount,
     ucd,
+    updateApplicantStatus,
   };
 }
