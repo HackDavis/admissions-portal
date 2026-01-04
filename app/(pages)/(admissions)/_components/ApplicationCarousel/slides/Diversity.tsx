@@ -1,11 +1,10 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 
-const LOREM =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+const LOREM = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
 
-type SectionKey = "gender" | "race" | "attended";
+type SectionKey = 'gender' | 'race' | 'attended';
 
 type FormState = {
   gender: string[];
@@ -85,7 +84,6 @@ export default function Diversity() {
   );
 }
 
-
 function Question({
   title,
   section,
@@ -99,9 +97,7 @@ function Question({
 }) {
   return (
     <div>
-      <p className="mb-5 text-base font-semibold text-[#0F2530]">
-        {title}
-      </p>
+      <p className="mb-5 text-base font-semibold text-[#0F2530]">{title}</p>
 
       <div className="space-y-4">
         {[0, 1, 2].map((i) => (

@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import Image from "next/image";
-import useEmblaCarousel from "embla-carousel-react";
-import AutoHeight from "embla-carousel-auto-height";
+import * as React from 'react';
+import Image from 'next/image';
+import useEmblaCarousel from 'embla-carousel-react';
+import AutoHeight from 'embla-carousel-auto-height';
 
-import { ApplicationFrame } from "./ApplicationFrame";
+import { ApplicationFrame } from './ApplicationFrame';
 
-import Email from "./slides/Email";
-import Contact from "./slides/Contact";
-import Diversity from "./slides/Diversity";
-import NearlySet from "./slides/NearlySet";
-import Confirmation from "./slides/Confirmation";
-import LastPage from "./slides/LastPage";
+import Email from './slides/Email';
+import Contact from './slides/Contact';
+import Diversity from './slides/Diversity';
+import NearlySet from './slides/NearlySet';
+import Confirmation from './slides/Confirmation';
+import LastPage from './slides/LastPage';
 
 type SlideDef = {
   key: string;
@@ -20,19 +20,19 @@ type SlideDef = {
 };
 
 const SLIDES: SlideDef[] = [
-  { key: "email", node: <Email /> },
-  { key: "contact", node: <Contact /> },
-  { key: "nearly-set", node: <NearlySet /> },
-  { key: "diversity", node: <Diversity /> },
-  { key: "last-page", node: <LastPage /> },
-  { key: "confirmation", node: <Confirmation /> },
+  { key: 'email', node: <Email /> },
+  { key: 'contact', node: <Contact /> },
+  { key: 'nearly-set', node: <NearlySet /> },
+  { key: 'diversity', node: <Diversity /> },
+  { key: 'last-page', node: <LastPage /> },
+  { key: 'confirmation', node: <Confirmation /> },
 ];
 
 export default function ApplicationCarousel() {
   const [viewportRef, api] = useEmblaCarousel(
     {
       loop: false,
-      align: "start",
+      align: 'start',
       skipSnaps: false,
       watchDrag: false,
     },
@@ -47,12 +47,12 @@ export default function ApplicationCarousel() {
     const update = () => setIndex(api.selectedScrollSnap());
     update();
 
-    api.on("select", update);
-    api.on("reInit", update);
+    api.on('select', update);
+    api.on('reInit', update);
 
     return () => {
-      api.off("select", update);
-      api.off("reInit", update);
+      api.off('select', update);
+      api.off('reInit', update);
     };
   }, [api]);
 
@@ -70,11 +70,11 @@ export default function ApplicationCarousel() {
               <div
                 key={i}
                 className={[
-                  "h-2.5 rounded-full",
-                  "border border-[#005271]",
-                  "transition-all duration-300 ease-out",
-                  active ? "w-8 bg-[#9EE7E5]" : "w-2.5 bg-[#005271]",
-                ].join(" ")}
+                  'h-2.5 rounded-full',
+                  'border border-[#005271]',
+                  'transition-all duration-300 ease-out',
+                  active ? 'w-8 bg-[#9EE7E5]' : 'w-2.5 bg-[#005271]',
+                ].join(' ')}
               />
             );
           })}
@@ -134,7 +134,7 @@ export default function ApplicationCarousel() {
           disabled={!canNext}
           className="rounded-full bg-[#005271] px-5 py-2 text-sm font-semibold text-white disabled:opacity-40"
         >
-          {canNext ? "Next →" : "Finish"}
+          {canNext ? 'Next →' : 'Finish'}
         </button>
       </div>
 

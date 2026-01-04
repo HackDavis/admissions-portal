@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import Image from "next/image";
+import React from 'react';
+import Image from 'next/image';
 
 export default function Confirmation() {
   return (
@@ -24,9 +24,12 @@ export default function Confirmation() {
         </p>
 
         <p className="mx-auto mt-4 max-w-[460px] text-sm leading-snug text-[#0F2530]">
-          <span className="font-bold">Please note that your participation is not yet</span>
+          <span className="font-bold">
+            Please note that your participation is not yet
+          </span>
           <br />
-          <span className="font-bold">confirmed.</span> We’ll be in touch soon with more details,
+          <span className="font-bold">confirmed.</span> We’ll be in touch soon
+          with more details,
           <br />
           updates, and important information as the event
           <br />

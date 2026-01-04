@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 
 export default function LastPage() {
-  const [githubOrPortfolio, setGithubOrPortfolio] = React.useState("");
-  const [linkedin, setLinkedin] = React.useState("");
-  const [devpost, setDevpost] = React.useState("");
+  const [githubOrPortfolio, setGithubOrPortfolio] = React.useState('');
+  const [linkedin, setLinkedin] = React.useState('');
+  const [devpost, setDevpost] = React.useState('');
   const [fileName, setFileName] = React.useState<string | null>(null);
 
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -53,50 +53,49 @@ export default function LastPage() {
 
           <Field label="or devpost" value={devpost} onChange={setDevpost} />
 
-        {/* Upload */}
-        <div className="pt-2">
-        <p className="mb-4 text-base font-semibold text-[#0F2530]">
-            Feel free to share your resume.
-        </p>
+          {/* Upload */}
+          <div className="pt-2">
+            <p className="mb-4 text-base font-semibold text-[#0F2530]">
+              Feel free to share your resume.
+            </p>
 
-        <div
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={onDrop}
-            className="relative w-full rounded-[22px] border-2 border-dashed border-[#B7CBD2] bg-white px-10 py-12 text-center"
-        >
-            <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            onChange={onFileChange}
-            />
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={onDrop}
+              className="relative w-full rounded-[22px] border-2 border-dashed border-[#B7CBD2] bg-white px-10 py-12 text-center"
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                onChange={onFileChange}
+              />
 
-            {fileName ? (
-            <div className="space-y-2">
-                <p className="text-sm text-[#0F2530]">{fileName}</p>
-                <button
-                type="button"
-                onClick={onPickFile}
-                className="text-sm font-semibold text-[#005271] underline underline-offset-2"
-                >
-                choose a different file
-                </button>
-            </div>
-            ) : (
-            <p className="text-[18px] font-medium text-[#7B8F97] whitespace-nowrap">
-                Drag or drop a file or{" "}
-                <button
+              {fileName ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-[#0F2530]">{fileName}</p>
+                  <button
+                    type="button"
+                    onClick={onPickFile}
+                    className="text-sm font-semibold text-[#005271] underline underline-offset-2"
+                  >
+                    choose a different file
+                  </button>
+                </div>
+              ) : (
+                <p className="text-[18px] font-medium text-[#7B8F97] whitespace-nowrap">
+                  Drag or drop a file or{' '}
+                  <button
                     type="button"
                     onClick={onPickFile}
                     className="inline underline underline-offset-2 align-baseline"
-                >
+                  >
                     browse
-                </button>
-            </p>
-            )}
-        </div>
-        </div>
-
+                  </button>
+                </p>
+              )}
+            </div>
+          </div>
 
           {/* Finish */}
           <div className="pt-6 flex justify-center">

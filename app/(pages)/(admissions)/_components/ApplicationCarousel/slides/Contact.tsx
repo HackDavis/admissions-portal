@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 
-type FieldId = "firstName" | "lastName" | "phone" | "position";
+type FieldId = 'firstName' | 'lastName' | 'phone' | 'position';
 
 type Question = {
   id: FieldId;
@@ -11,18 +11,18 @@ type Question = {
 };
 
 const QUESTIONS: Question[] = [
-  { id: "firstName", label: "First Name", required: true },
-  { id: "lastName", label: "Last Name", required: true },
-  { id: "phone", label: "Phone number", required: true },
-  { id: "position", label: "Position", required: false },
+  { id: 'firstName', label: 'First Name', required: true },
+  { id: 'lastName', label: 'Last Name', required: true },
+  { id: 'phone', label: 'Phone number', required: true },
+  { id: 'position', label: 'Position', required: false },
 ];
 
 export default function Contact() {
   const [values, setValues] = React.useState<Record<FieldId, string>>({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    position: "",
+    firstName: '',
+    lastName: '',
+    phone: '',
+    position: '',
   });
 
   const [submitted, setSubmitted] = React.useState(false);
@@ -36,40 +36,40 @@ export default function Contact() {
     setSubmitted(true);
 
     const missingRequired = QUESTIONS.some(
-      (q) => q.required && values[q.id].trim() === ""
+      (q) => q.required && values[q.id].trim() === ''
     );
     if (missingRequired) return;
-
   };
 
   return (
     <section className="w-full">
-        <header className="text-center">
-            <h1 className="text-center text-[48px] text-[#005271] font-bold leading-[1] tracking-[0.01em]">
-            Help us get to
-            <br />
-            know you better!
-            </h1>
-        </header>
+      <header className="text-center">
+        <h1 className="text-center text-[48px] text-[#005271] font-bold leading-[1] tracking-[0.01em]">
+          Help us get to
+          <br />
+          know you better!
+        </h1>
+      </header>
 
       <div className="mx-auto mt-12 w-full max-w-lg space-y-10">
         {QUESTIONS.map((q) => {
-          const showError = submitted && q.required && values[q.id].trim() === "";
+          const showError =
+            submitted && q.required && values[q.id].trim() === '';
 
           return (
             <div key={q.id}>
               <label className="block text-sm font-semibold text-[#0F2530]">
                 {q.label}
-                {q.required ? "*" : ""}
+                {q.required ? '*' : ''}
               </label>
 
               <input
                 value={values[q.id]}
                 onChange={onChange(q.id)}
                 className={[
-                  "mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-base text-[#0F2530] outline-none",
-                  showError ? "ring-1 ring-red-400" : "",
-                ].join(" ")}
+                  'mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-base text-[#0F2530] outline-none',
+                  showError ? 'ring-1 ring-red-400' : '',
+                ].join(' ')}
               />
 
               {showError ? (

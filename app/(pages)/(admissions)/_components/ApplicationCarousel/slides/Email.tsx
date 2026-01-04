@@ -1,17 +1,19 @@
-import Image from "next/image";
+import Image from 'next/image';
 
 export default function Email() {
   return (
     <section className="relative w-full">
       <header className="text-center">
         <Image
-            src="/Images/HDLogo.svg"
-            alt="HackDavis Logo"
-            width={100}
-            height={100}
-            className="mx-auto py-6"
+          src="/Images/HDLogo.svg"
+          alt="HackDavis Logo"
+          width={100}
+          height={100}
+          className="mx-auto py-6"
         />
-        <p className="text-sm tracking-wide text-[#005271]">APPLY TO PARTICIPATE IN</p>
+        <p className="text-sm tracking-wide text-[#005271]">
+          APPLY TO PARTICIPATE IN
+        </p>
         <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-[#005271]">
           HACKDAVIS 2026
         </h1>
@@ -29,7 +31,10 @@ export default function Email() {
           />
         </div>
 
-        <button type="button" className="rounded-full bg-[#9FB6BE] px-8 py-3 text-white">
+        <button
+          type="button"
+          className="rounded-full bg-[#9FB6BE] px-8 py-3 text-white"
+        >
           Continue →
         </button>
       </div>
