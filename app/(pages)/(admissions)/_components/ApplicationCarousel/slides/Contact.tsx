@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import React from "react";
 
 type FieldId = "firstName" | "lastName" | "phone" | "position";
 
