@@ -60,21 +60,39 @@ export default function ApplicationCarousel() {
   const canNext = index < total - 1;
 
   return (
-    <ApplicationFrame>
-      {/* Inner carousel viewport */}
+    <ApplicationFrame
+      topRight={
+        <div className="flex items-center gap-2">
+          {SLIDES.map((_, i) => {
+            const active = i === index;
+            return (
+              <div
+                key={i}
+                className={[
+                "h-2.5 rounded-full",
+                "border border-[#005271]", 
+                "transition-all duration-300 ease-out",
+                active
+                    ? "w-8 bg-[#9EE7E5]"
+                    : "w-2.5 bg-[#005271]",
+                ].join(" ")}
+            />
+            );
+          })}
+        </div>
+      }
+    >
       <div ref={viewportRef} className="overflow-hidden">
-        {/* Track */}
         <div className="flex touch-pan-y">
           {SLIDES.map((s) => (
             <div key={s.key} className="min-w-0 flex-[0_0_100%]">
-              {/* keep consistent padding so slides feel uniform */}
               <div className="px-2 sm:px-4">{s.node}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* back and next buttons (for dev) */}
+      {/* back/next buttons (for dev) */}
       <div className="mt-8 flex items-center justify-between gap-4">
         <button
           type="button"
@@ -85,26 +103,6 @@ export default function ApplicationCarousel() {
           Back
         </button>
 
-        {/* indicators, to be moved to top right */}
-        <div className="flex items-center gap-2">
-          {SLIDES.map((_, i) => {
-            const active = i === index;
-            return (
-              <button
-                key={i}
-                type="button"
-                aria-label={`Go to step ${i + 1}`}
-                aria-current={active ? "step" : undefined}
-                onClick={() => api?.scrollTo(i)}
-                className={[
-                  "h-3 rounded-full border border-[#005271] transition-all duration-300",
-                  active ? "w-10 bg-[#9EE7E5]" : "w-3 bg-[#005271]",
-                ].join(" ")}
-              />
-            );
-          })}
-        </div>
-
         <button
           type="button"
           onClick={() => api?.scrollNext()}
@@ -114,6 +112,10 @@ export default function ApplicationCarousel() {
           {canNext ? "Next →" : "Finish"}
         </button>
       </div>
+
+      <p className="mt-3 text-center text-xs text-[#173B47]/70">
+        Step {index + 1} of {total}
+      </p>
     </ApplicationFrame>
   );
 }
