@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 
-const LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+const LOREM = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
 
-type SectionKey = "gender" | "race" | "attended";
+type SectionKey = 'gender' | 'race' | 'attended';
 
 type FormState = {
   gender: string[];
