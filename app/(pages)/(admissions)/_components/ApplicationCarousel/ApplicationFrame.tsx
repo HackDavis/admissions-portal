@@ -1,9 +1,10 @@
 type ApplicationFrameProps = {
   children: React.ReactNode;
   topRight?: React.ReactNode; // for the indicators 
+  leftDecor?: React.ReactNode; // for the animals
 };
 
-export function ApplicationFrame({ children, topRight }: ApplicationFrameProps) {
+export function ApplicationFrame({ children, topRight, leftDecor }: ApplicationFrameProps) {
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-10">
       <div className="relative rounded-[28px] border-[#A6BFC7] border bg-[#E5EEF1] p-3 shadow-[18px_18px_0_#A6BFC7]">
@@ -16,13 +17,10 @@ export function ApplicationFrame({ children, topRight }: ApplicationFrameProps) 
           ) : null}
         </div>
 
-        <div className="relative mt-3 rounded-[22px] bg-white px-6 py-10 sm:px-10 sm:py-14 overflow-hidden">
-          {/* testing out no animals */}
-          {/* <div className="pointer-events-none absolute -left-10 top-6 hidden sm:block">
-            <div className="h-44 w-44 rounded-full bg-[#FFD84D]">
-              placehodler for the animals
-            </div>
-          </div> */}
+        {/* white panel */}
+        <div className="relative mt-30 rounded-[22px] bg-white px-6 py-10 sm:px-10 sm:py-14 overflow-visible">
+          {/* decor sits OUTSIDE embla viewport so it won't be clipped */}
+          {leftDecor}
 
           <div className="w-full">{children}</div>
         </div>

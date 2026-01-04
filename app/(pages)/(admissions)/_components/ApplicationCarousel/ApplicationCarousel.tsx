@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoHeight from "embla-carousel-auto-height";
 
@@ -69,30 +70,52 @@ export default function ApplicationCarousel() {
               <div
                 key={i}
                 className={[
-                "h-2.5 rounded-full",
-                "border border-[#005271]", 
-                "transition-all duration-300 ease-out",
-                active
-                    ? "w-8 bg-[#9EE7E5]"
-                    : "w-2.5 bg-[#005271]",
+                  "h-2.5 rounded-full",
+                  "border border-[#005271]",
+                  "transition-all duration-300 ease-out",
+                  active ? "w-8 bg-[#9EE7E5]" : "w-2.5 bg-[#005271]",
                 ].join(" ")}
-            />
+              />
             );
           })}
         </div>
       }
+      leftDecor={
+        index === 0 ? (
+          <div
+            className="
+              pointer-events-none
+              absolute
+              left-0
+              top-0
+              hidden sm:block
+              -translate-x-[55%]
+              -translate-y-[18%]
+              w-56 h-56
+              md:w-64 md:h-64
+              lg:w-80 lg:h-80
+            "
+          >
+            <Image
+              src="/Images/Peeping.svg"
+              alt="Animals peering from behind a wall."
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        ) : null
+      }
     >
-    <div ref={viewportRef} className="overflow-hidden">
+      <div ref={viewportRef} className="overflow-hidden">
         <div className="flex items-start">
-            {SLIDES.map((s) => (
+          {SLIDES.map((s) => (
             <div key={s.key} className="min-w-0 flex-[0_0_100%]">
-                <div className="px-2 sm:px-4 h-auto">{s.node}</div>
+              <div className="px-2 sm:px-4 h-auto">{s.node}</div>
             </div>
-            ))}
+          ))}
         </div>
-    </div>
-
-
+      </div>
 
       {/* back/next buttons (for dev) */}
       <div className="mt-8 flex items-center justify-between gap-4">
