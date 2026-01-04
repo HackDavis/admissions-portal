@@ -18,7 +18,7 @@ export function ApplicationFrame({ children, topRight, leftDecor }: ApplicationF
         </div>
 
         {/* white panel */}
-        <div className="relative mt-30 rounded-[22px] bg-white px-6 py-10 sm:px-10 sm:py-14 overflow-visible">
+        <div className="relative mt-3 rounded-[22px] bg-white px-6 py-10 sm:px-10 sm:py-14 overflow-visible">
           {/* decor sits OUTSIDE embla viewport so it won't be clipped */}
           {leftDecor}
 

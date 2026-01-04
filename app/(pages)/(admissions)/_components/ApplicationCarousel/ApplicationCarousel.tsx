@@ -86,11 +86,11 @@ export default function ApplicationCarousel() {
             className="
               pointer-events-none
               absolute
-              left-0
+              left-32
               top-0
               hidden sm:block
-              -translate-x-[55%]
-              -translate-y-[18%]
+              -translate-x-[61%]
+              -translate-y-[17%]
               w-56 h-56
               md:w-64 md:h-64
               lg:w-80 lg:h-80
