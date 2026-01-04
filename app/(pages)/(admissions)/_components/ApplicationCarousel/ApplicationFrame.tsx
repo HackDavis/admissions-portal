@@ -24,7 +24,7 @@ export function ApplicationFrame({ children, topRight }: ApplicationFrameProps) 
             </div>
           </div> */}
 
-          <div className="h-full w-full">{children}</div>
+          <div className="w-full">{children}</div>
         </div>
       </div>
     </div>

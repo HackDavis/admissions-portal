@@ -82,15 +82,17 @@ export default function ApplicationCarousel() {
         </div>
       }
     >
-      <div ref={viewportRef} className="overflow-hidden">
-        <div className="flex touch-pan-y">
-          {SLIDES.map((s) => (
+    <div ref={viewportRef} className="overflow-hidden">
+        <div className="flex items-start">
+            {SLIDES.map((s) => (
             <div key={s.key} className="min-w-0 flex-[0_0_100%]">
-              <div className="px-2 sm:px-4">{s.node}</div>
+                <div className="px-2 sm:px-4 h-auto">{s.node}</div>
             </div>
-          ))}
+            ))}
         </div>
-      </div>
+    </div>
+
+
 
       {/* back/next buttons (for dev) */}
       <div className="mt-8 flex items-center justify-between gap-4">
