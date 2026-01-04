@@ -21,8 +21,8 @@ type SlideDef = {
 const SLIDES: SlideDef[] = [
   { key: "email", node: <Email /> },
   { key: "contact", node: <Contact /> },
-  { key: "diversity", node: <Diversity /> },
   { key: "nearly-set", node: <NearlySet /> },
+  { key: "diversity", node: <Diversity /> },
   { key: "confirmation", node: <Confirmation /> },
   { key: "last-page", node: <LastPage /> },
 ];
