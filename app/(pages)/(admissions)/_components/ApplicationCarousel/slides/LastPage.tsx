@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 
 export default function LastPage() {
-  const [githubOrPortfolio, setGithubOrPortfolio] = React.useState('');
-  const [linkedin, setLinkedin] = React.useState('');
-  const [devpost, setDevpost] = React.useState('');
+  const [githubOrPortfolio, setGithubOrPortfolio] = React.useState("");
+  const [linkedin, setLinkedin] = React.useState("");
+  const [devpost, setDevpost] = React.useState("");
   const [fileName, setFileName] = React.useState<string | null>(null);
 
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -84,7 +84,7 @@ export default function LastPage() {
                 </div>
               ) : (
                 <p className="text-[18px] font-medium text-[#7B8F97] whitespace-nowrap">
-                  Drag or drop a file or{' '}
+                  Drag or drop a file or{" "}
                   <button
                     type="button"
                     onClick={onPickFile}

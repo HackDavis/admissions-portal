@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
-type YesNo = 'yes' | 'no' | null;
+type YesNo = "yes" | "no" | null;
 
 type FormState = {
   is18: YesNo;
@@ -13,10 +13,10 @@ type FormState = {
 
 export default function NearlySet() {
   const [state, setState] = React.useState<FormState>({
-    is18: 'yes',
-    isUCD: 'yes',
-    university: '',
-    notes: '',
+    is18: "yes",
+    isUCD: "yes",
+    university: "",
+    notes: "",
   });
 
   return (
@@ -115,20 +115,20 @@ function YesNoGroup({
   value,
   onChange,
 }: {
-  value: 'yes' | 'no' | null;
-  onChange: (v: 'yes' | 'no') => void;
+  value: "yes" | "no" | null;
+  onChange: (v: "yes" | "no") => void;
 }) {
   return (
     <div className="mt-4 flex flex-col gap-3">
       <YesNoOption
         label="Yes"
-        active={value === 'yes'}
-        onClick={() => onChange('yes')}
+        active={value === "yes"}
+        onClick={() => onChange("yes")}
       />
       <YesNoOption
         label="No"
-        active={value === 'no'}
-        onClick={() => onChange('no')}
+        active={value === "no"}
+        onClick={() => onChange("no")}
       />
     </div>
   );
@@ -148,17 +148,17 @@ function YesNoOption({
       type="button"
       onClick={onClick}
       className={[
-        'flex w-fit items-center gap-3 rounded-full transition',
+        "flex w-fit items-center gap-3 rounded-full transition",
         active
-          ? 'bg-[#173B47] px-4 py-2 text-white shadow-[4px_4px_0_rgba(159,182,190,0.8)]'
-          : 'px-1 py-1 text-[#005271]',
-      ].join(' ')}
+          ? "bg-[#173B47] px-4 py-2 text-white shadow-[4px_4px_0_rgba(159,182,190,0.8)]"
+          : "px-1 py-1 text-[#005271]",
+      ].join(" ")}
     >
       <span
         className={[
-          'h-4 w-4 rounded-full border-2',
-          active ? 'border-white bg-[#9FB6BE]' : 'border-[#9FB6BE]',
-        ].join(' ')}
+          "h-4 w-4 rounded-full border-2",
+          active ? "border-white bg-[#9FB6BE]" : "border-[#9FB6BE]",
+        ].join(" ")}
       />
       <span className="text-sm font-medium leading-none">{label}</span>
     </button>
