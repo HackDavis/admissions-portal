@@ -35,6 +35,7 @@ export const UpdateApplication = async (id: string, body: object) => {
                 { lastName: parsedBody.lastName },
               ],
             },
+            { phone: parsedBody.phone },
           ],
         },
       ],

@@ -31,6 +31,7 @@ export const CreateApplication = async (body: object) => {
             { lastName: parsedBody.lastName },
           ],
         },
+        { phone: parsedBody.phone },
       ],
     });
 
