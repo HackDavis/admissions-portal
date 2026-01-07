@@ -8,7 +8,11 @@ interface LastPageProps {
   onNext?: () => void;
 }
 
-export default function LastPage({ formData, setFormData, onNext }: LastPageProps) {
+export default function LastPage({
+  formData,
+  setFormData,
+  onNext,
+}: LastPageProps) {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleFinish = async () => {
@@ -55,7 +59,11 @@ export default function LastPage({ formData, setFormData, onNext }: LastPageProp
             onChange={(v) => setFormData({ ...formData, githubOrPortfolio: v })}
           />
 
-          <Field label="or linkedIn" value={formData.linkedin} onChange={(v) => setFormData({ ...formData, linkedin: v })} />
+          <Field
+            label="or linkedIn"
+            value={formData.linkedin}
+            onChange={(v) => setFormData({ ...formData, linkedin: v })}
+          />
 
           {/* Upload */}
           <div className="pt-2">

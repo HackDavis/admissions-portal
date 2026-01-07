@@ -7,7 +7,8 @@ interface EmailProps {
 }
 
 export default function Email({ formData, setFormData, onNext }: EmailProps) {
-  const isValidEdu = formData.email.endsWith('.edu') && formData.email.includes('@');
+  const isValidEdu =
+    formData.email.endsWith('.edu') && formData.email.includes('@');
 
   return (
     <section className="relative w-full">
@@ -25,9 +26,7 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
         <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-[#005271]">
           HACKDAVIS 2026
         </h1>
-        <p className="mt-3 text-base font-medium text-[#173B47]">
-          as a hacker
-        </p>
+        <p className="mt-3 text-base font-medium text-[#173B47]">as a hacker</p>
       </header>
 
       <div className="mt-12 flex flex-col items-center gap-8">
@@ -35,7 +34,9 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
           <input
             type="email"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
             placeholder="Enter School Email (.edu)"
             className="w-full border-b-2 border-[#005271]/60 bg-transparent py-3 text-center text-xl outline-none placeholder:text-[#9FB6BE]"
           />

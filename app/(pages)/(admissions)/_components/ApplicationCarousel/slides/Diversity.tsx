@@ -2,17 +2,23 @@
 
 import React from 'react';
 
-const GENDER_OPTIONS = ['Woman', 'Man', 'Transgender', 'Non-Binary or Non-Conforming', 'Prefer not to answer', 'Other'];
-const RACE_OPTIONS = ['American Indian or Alaska Native', 'Asian or Pacific Islander', 'Black or African American', 'Hispanic or Latinx or Chicanx', 'White or Caucasian', 'Prefer not to answer', 'Other'];
-
-type SectionKey = 'gender' | 'race' | 'attendedHackDavis' | 'firstHackathon';
-
-type FormState = {
-  gender: string[];
-  race: string[];
-  attendedHackDavis: 'yes' | 'no' | null;
-  firstHackathon: 'yes' | 'no' | null;
-};
+const GENDER_OPTIONS = [
+  'Woman',
+  'Man',
+  'Transgender',
+  'Non-Binary or Non-Conforming',
+  'Prefer not to answer',
+  'Other',
+];
+const RACE_OPTIONS = [
+  'American Indian or Alaska Native',
+  'Asian or Pacific Islander',
+  'Black or African American',
+  'Hispanic or Latinx or Chicanx',
+  'White or Caucasian',
+  'Prefer not to answer',
+  'Other',
+];
 
 interface DiversityProps {
   formData: any;
@@ -20,7 +26,11 @@ interface DiversityProps {
   onNext?: () => void;
 }
 
-export default function Diversity({ formData, setFormData, onNext }: DiversityProps) {
+export default function Diversity({
+  formData,
+  setFormData,
+  onNext,
+}: DiversityProps) {
   const toggleOption = (section: 'gender' | 'race', value: string) => {
     const currentArray = formData[section] || [];
     const exists = currentArray.includes(value);
@@ -32,7 +42,8 @@ export default function Diversity({ formData, setFormData, onNext }: DiversityPr
     });
   };
 
-  const isValid = formData.attendedHackDavis !== null && formData.firstHackathon !== null;
+  const isValid =
+    formData.attendedHackDavis !== null && formData.firstHackathon !== null;
 
   return (
     <section className="w-full">
@@ -73,7 +84,9 @@ export default function Diversity({ formData, setFormData, onNext }: DiversityPr
 
             <YesNoGroup
               value={formData.attendedHackDavis}
-              onChange={(v) => setFormData({ ...formData, attendedHackDavis: v })}
+              onChange={(v) =>
+                setFormData({ ...formData, attendedHackDavis: v })
+              }
             />
           </div>
 
@@ -119,7 +132,7 @@ function Question({
 }) {
   const options = section === 'gender' ? GENDER_OPTIONS : RACE_OPTIONS;
   const currentArray = formData[section] || [];
-  
+
   return (
     <div>
       <p className="mb-5 text-base font-semibold text-[#0F2530]">{title}</p>

@@ -1,5 +1,5 @@
 // WIP WILL ADD COW ICON LATER
-import Image from "next/image";
+import Image from 'next/image';
 
 export default function Loading() {
   return (
@@ -33,7 +33,7 @@ export default function Loading() {
         {/* progress bar: BTW i manually made the pg load for 2 secs to get this viewable for dev */}
         <div className="relative h-4 w-72 rounded-full bg-[#E5E5E5]">
           <div className="progress-fill absolute left-0 top-0 h-full rounded-full bg-[#9FB6BE] flex items-center justify-end">
-            <Image 
+            <Image
               src="/Images/CowHead.svg"
               alt="HackDavis cow mascot head."
               width={40}

@@ -23,7 +23,11 @@ interface ContactProps {
   onNext?: () => void;
 }
 
-export default function Contact({ formData, setFormData, onNext }: ContactProps) {
+export default function Contact({
+  formData,
+  setFormData,
+  onNext,
+}: ContactProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
   const onChange =
@@ -38,7 +42,7 @@ export default function Contact({ formData, setFormData, onNext }: ContactProps)
       (q) => q.required && (formData[q.id] || '').trim() === ''
     );
     if (missingRequired) return;
-    
+
     onNext?.();
   };
 

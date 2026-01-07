@@ -33,7 +33,7 @@ export default function ApplicationCarousel() {
   );
 
   const [index, setIndex] = React.useState(0);
-  
+
   // Centralized form state
   const [formData, setFormData] = React.useState({
     firstName: '',
@@ -76,7 +76,10 @@ export default function ApplicationCarousel() {
       phone: formData.phone,
       age: parseInt(formData.age.toString()) || 0,
       isUCDavisStudent: formData.isUCDavisStudent === true,
-      university: formData.university === 'Other' ? formData.customUniversity : formData.university,
+      university:
+        formData.university === 'Other'
+          ? formData.customUniversity
+          : formData.university,
       levelOfStudy: formData.levelOfStudy,
       major: formData.major,
       college: formData.college,
@@ -92,9 +95,9 @@ export default function ApplicationCarousel() {
       status: 'pending',
       wasWaitlisted: false,
     };
-    
+
     console.log('Submitting to database:', dbData);
-    
+
     try {
       const response = await fetch('/api/applications', {
         method: 'POST',
@@ -103,11 +106,11 @@ export default function ApplicationCarousel() {
         },
         body: JSON.stringify(dbData),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to submit application');
       }
-      
+
       console.log('Application submitted successfully');
     } catch (error) {
       console.error('Error submitting application:', error);
@@ -115,11 +118,59 @@ export default function ApplicationCarousel() {
   };
 
   const SLIDES: SlideDef[] = [
-    { key: 'email', node: <Email formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} /> },
-    { key: 'contact', node: <Contact formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} /> },
-    { key: 'nearly-set', node: <NearlySet formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} /> },
-    { key: 'diversity', node: <Diversity formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} /> },
-    { key: 'last-page', node: <LastPage formData={formData} setFormData={setFormData} onNext={() => { submitToDatabase(); api?.scrollNext(); }} /> },
+    {
+      key: 'email',
+      node: (
+        <Email
+          formData={formData}
+          setFormData={setFormData}
+          onNext={() => api?.scrollNext()}
+        />
+      ),
+    },
+    {
+      key: 'contact',
+      node: (
+        <Contact
+          formData={formData}
+          setFormData={setFormData}
+          onNext={() => api?.scrollNext()}
+        />
+      ),
+    },
+    {
+      key: 'nearly-set',
+      node: (
+        <NearlySet
+          formData={formData}
+          setFormData={setFormData}
+          onNext={() => api?.scrollNext()}
+        />
+      ),
+    },
+    {
+      key: 'diversity',
+      node: (
+        <Diversity
+          formData={formData}
+          setFormData={setFormData}
+          onNext={() => api?.scrollNext()}
+        />
+      ),
+    },
+    {
+      key: 'last-page',
+      node: (
+        <LastPage
+          formData={formData}
+          setFormData={setFormData}
+          onNext={() => {
+            submitToDatabase();
+            api?.scrollNext();
+          }}
+        />
+      ),
+    },
     { key: 'confirmation', node: <Confirmation /> },
   ];
 
@@ -138,9 +189,9 @@ export default function ApplicationCarousel() {
     };
   }, [api]);
 
-  const total = SLIDES.length;
-  const canPrev = index > 0;
-  const canNext = index < total - 1;
+  // const total = SLIDES.length;
+  // const canPrev = index > 0;
+  // const canNext = index < total - 1;
 
   return (
     <ApplicationFrame

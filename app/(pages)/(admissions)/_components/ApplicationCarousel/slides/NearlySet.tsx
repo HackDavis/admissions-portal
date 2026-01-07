@@ -2,23 +2,17 @@
 
 import React from 'react';
 
-type YesNo = 'yes' | 'no' | null;
-
-type FormState = {
-  is18: YesNo;
-  isUCD: YesNo;
-  university: string;
-  notes: string;
-};
-
 interface NearlySetProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
 }
 
-export default function NearlySet({ formData, setFormData, onNext }: NearlySetProps) {
-
+export default function NearlySet({
+  formData,
+  setFormData,
+  onNext,
+}: NearlySetProps) {
   return (
     <section className="w-full">
       <div className="mx-auto w-full max-w-[520px] text-center">
@@ -39,8 +33,16 @@ export default function NearlySet({ formData, setFormData, onNext }: NearlySetPr
             </p>
 
             <YesNoGroup
-              value={formData.isOver18 ? 'yes' : formData.isOver18 === false ? 'no' : null}
-              onChange={(v) => setFormData({ ...formData, isOver18: v === 'yes' })}
+              value={
+                formData.isOver18
+                  ? 'yes'
+                  : formData.isOver18 === false
+                  ? 'no'
+                  : null
+              }
+              onChange={(v) =>
+                setFormData({ ...formData, isOver18: v === 'yes' })
+              }
             />
           </div>
 
@@ -50,8 +52,16 @@ export default function NearlySet({ formData, setFormData, onNext }: NearlySetPr
             </p>
 
             <YesNoGroup
-              value={formData.isUCDavisStudent ? 'yes' : formData.isUCDavisStudent === false ? 'no' : null}
-              onChange={(v) => setFormData({ ...formData, isUCDavisStudent: v === 'yes' })}
+              value={
+                formData.isUCDavisStudent
+                  ? 'yes'
+                  : formData.isUCDavisStudent === false
+                  ? 'no'
+                  : null
+              }
+              onChange={(v) =>
+                setFormData({ ...formData, isUCDavisStudent: v === 'yes' })
+              }
             />
           </div>
 
@@ -92,7 +102,10 @@ export default function NearlySet({ formData, setFormData, onNext }: NearlySetPr
                   <textarea
                     value={formData.customUniversity}
                     onChange={(e) =>
-                      setFormData({ ...formData, customUniversity: e.target.value })
+                      setFormData({
+                        ...formData,
+                        customUniversity: e.target.value,
+                      })
                     }
                     placeholder="Please specify your school"
                     className="mt-4 h-24 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
