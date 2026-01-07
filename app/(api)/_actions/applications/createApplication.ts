@@ -5,6 +5,6 @@ import { revalidatePath } from 'next/cache';
 
 export async function createApplication(body: object) {
   const res = await CreateApplication(body);
-  revalidatePath('/', 'layout');
+  revalidatePath('/admin', 'layout');
   return res;
 }

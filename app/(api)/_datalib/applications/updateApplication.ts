@@ -22,27 +22,16 @@ export const UpdateApplication = async (id: string, body: object) => {
 
     const db = await getDatabase();
 
-    // unique values have duplicate, other than the application we are updating
-    const hasDuplicate = await db.collection('applications').findOne({
-      $and: [
-        { _id: { $ne: object_id } },
-        {
-          $or: [
-            { email: parsedBody.email },
-            {
-              $and: [
-                { firstName: parsedBody.firstName },
-                { lastName: parsedBody.lastName },
-              ],
-            },
-            { phone: parsedBody.phone },
-          ],
-        },
-      ],
-    });
-
-    if (hasDuplicate) {
-      throw new DuplicateError('Duplicate Error: applicant already submitted.');
+    // Only check duplicates if updating email
+    if (parsedBody.email) {
+      const hasDuplicate = await db.collection('applications').findOne({
+        $and: [{ _id: { $ne: object_id } }, { email: parsedBody.email }],
+      });
+      if (hasDuplicate) {
+        throw new DuplicateError(
+          'Duplicate Error: applicant already submitted.'
+        );
+      }
     }
 
     const application = await db

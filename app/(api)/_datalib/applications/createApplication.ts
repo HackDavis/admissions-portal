@@ -9,7 +9,6 @@ import {
   DuplicateError,
 } from '@utils/response/Errors';
 
-//import { UpdateApplication } from '@datalib/applications/updateApplication';
 export const CreateApplication = async (body: object) => {
   try {
     // empty
@@ -23,23 +22,11 @@ export const CreateApplication = async (body: object) => {
 
     // unique values have duplicate
     const hasDuplicate = await db.collection('applications').findOne({
-      $or: [
-        { email: parsedBody.email },
-        {
-          $and: [
-            { firstName: parsedBody.firstName },
-            { lastName: parsedBody.lastName },
-          ],
-        },
-        { phone: parsedBody.phone },
-      ],
+      email: parsedBody.email,
     });
 
     if (hasDuplicate) {
       throw new DuplicateError('Duplicate Error: applicant already submitted.');
-      /*console.log("Has duplicate, updating application instead.");
-        const result = await UpdateApplication(parsedBody.id, parsedBody);
-        return result;*/
     }
 
     const creationStatus = await db

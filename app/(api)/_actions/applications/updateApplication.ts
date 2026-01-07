@@ -5,6 +5,6 @@ import { revalidatePath } from 'next/cache';
 
 export async function updateApplication(id: string, body: object) {
   const res = await UpdateApplication(id, body);
-  revalidatePath('/', 'layout');
+  revalidatePath('/admin', 'layout');
   return res;
 }

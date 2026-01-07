@@ -31,19 +31,7 @@ export const GetManyApplications = async (query: object = {}) => {
 
     const applications = await db
       .collection('applications')
-      .aggregate([
-        {
-          $match: parsedQuery,
-        },
-        /*{
-          $lookup: {
-            from: '<table>',
-            localField: '<field here>',
-            foreignField: '<field there>',
-            as: '<name of array>',
-          },
-        }*/
-      ])
+      .find(parsedQuery)
       .toArray();
 
     return { ok: true, body: applications, error: null };
