@@ -1,5 +1,7 @@
 'use client';
 
+//TODO: ADD BACK BUTTON AND PROFILE THING, and file saving feature
+
 import React from 'react';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
@@ -19,15 +21,6 @@ type SlideDef = {
   node: React.ReactNode;
 };
 
-const SLIDES: SlideDef[] = [
-  { key: 'email', node: <Email /> },
-  { key: 'contact', node: <Contact /> },
-  { key: 'nearly-set', node: <NearlySet /> },
-  { key: 'diversity', node: <Diversity /> },
-  { key: 'last-page', node: <LastPage /> },
-  { key: 'confirmation', node: <Confirmation /> },
-];
-
 export default function ApplicationCarousel() {
   const [viewportRef, api] = useEmblaCarousel(
     {
@@ -40,6 +33,95 @@ export default function ApplicationCarousel() {
   );
 
   const [index, setIndex] = React.useState(0);
+  
+  // Centralized form state
+  const [formData, setFormData] = React.useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    age: 0,
+    isUCDavisStudent: true,
+    isOver18: true,
+    university: '',
+    levelOfStudy: '',
+    major: '',
+    college: [] as string[],
+    year: 0,
+    shirtSize: '',
+    dietaryRestrictions: [] as string[],
+    connectWithSponsors: false,
+    resume: '',
+    linkedin: '',
+    githubOrPortfolio: '',
+    connectWithHackDavis: false,
+    connectWithMLH: false,
+    status: 'pending',
+    wasWaitlisted: false,
+    customUniversity: '',
+    gender: [] as string[],
+    race: [] as string[],
+    attendedHackDavis: 'yes',
+    firstHackathon: 'yes',
+  });
+
+  console.log('All form fields:', formData);
+
+  const submitToDatabase = async () => {
+    // Transform form data for DB
+    const dbData = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      age: parseInt(formData.age.toString()) || 0,
+      isUCDavisStudent: formData.isUCDavisStudent === true,
+      university: formData.university === 'Other' ? formData.customUniversity : formData.university,
+      levelOfStudy: formData.levelOfStudy,
+      major: formData.major,
+      college: formData.college,
+      year: formData.year,
+      shirtSize: formData.shirtSize,
+      dietaryRestrictions: formData.dietaryRestrictions,
+      connectWithSponsors: formData.connectWithSponsors,
+      resume: formData.resume,
+      linkedin: formData.linkedin,
+      githubOrPortfolio: formData.githubOrPortfolio,
+      connectWithHackDavis: formData.connectWithHackDavis,
+      connectWithMLH: formData.connectWithMLH,
+      status: 'pending',
+      wasWaitlisted: false,
+    };
+    
+    console.log('Submitting to database:', dbData);
+    
+    try {
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dbData),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit application');
+      }
+      
+      console.log('Application submitted successfully');
+    } catch (error) {
+      console.error('Error submitting application:', error);
+    }
+  };
+
+  const SLIDES: SlideDef[] = [
+    { key: 'email', node: <Email formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} /> },
+    { key: 'contact', node: <Contact formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} /> },
+    { key: 'nearly-set', node: <NearlySet formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} /> },
+    { key: 'diversity', node: <Diversity formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} /> },
+    { key: 'last-page', node: <LastPage formData={formData} setFormData={setFormData} onNext={() => { submitToDatabase(); api?.scrollNext(); }} /> },
+    { key: 'confirmation', node: <Confirmation /> },
+  ];
 
   React.useEffect(() => {
     if (!api) return;
@@ -118,7 +200,7 @@ export default function ApplicationCarousel() {
       </div>
 
       {/* back/next buttons (for dev) */}
-      <div className="mt-8 flex items-center justify-between gap-4">
+      {/* <div className="mt-8 flex items-center justify-between gap-4">
         <button
           type="button"
           onClick={() => api?.scrollPrev()}
@@ -136,11 +218,11 @@ export default function ApplicationCarousel() {
         >
           {canNext ? 'Next →' : 'Finish'}
         </button>
-      </div>
+      </div> */}
 
-      <p className="mt-3 text-center text-xs text-[#173B47]/70">
+      {/* <p className="mt-3 text-center text-xs text-[#173B47]/70">
         Step {index + 1} of {total}
-      </p>
+      </p> */}
     </ApplicationFrame>
   );
 }

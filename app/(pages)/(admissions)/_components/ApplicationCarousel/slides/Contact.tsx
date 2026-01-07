@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-type FieldId = 'firstName' | 'lastName' | 'phone' | 'position';
+type FieldId = 'firstName' | 'lastName' | 'phone' | 'age';
 
 type Question = {
   id: FieldId;
@@ -14,31 +14,32 @@ const QUESTIONS: Question[] = [
   { id: 'firstName', label: 'First Name', required: true },
   { id: 'lastName', label: 'Last Name', required: true },
   { id: 'phone', label: 'Phone number', required: true },
-  { id: 'position', label: 'Position', required: false },
+  { id: 'age', label: 'Age', required: false },
 ];
 
-export default function Contact() {
-  const [values, setValues] = React.useState<Record<FieldId, string>>({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    position: '',
-  });
+interface ContactProps {
+  formData: any;
+  setFormData: (data: any) => void;
+  onNext?: () => void;
+}
 
+export default function Contact({ formData, setFormData, onNext }: ContactProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
   const onChange =
     (id: FieldId) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setValues((v) => ({ ...v, [id]: e.target.value }));
+      setFormData({ ...formData, [id]: e.target.value });
     };
 
   const handleNext = () => {
     setSubmitted(true);
 
     const missingRequired = QUESTIONS.some(
-      (q) => q.required && values[q.id].trim() === ''
+      (q) => q.required && (formData[q.id] || '').trim() === ''
     );
     if (missingRequired) return;
+    
+    onNext?.();
   };
 
   return (
@@ -54,7 +55,7 @@ export default function Contact() {
       <div className="mx-auto mt-12 w-full max-w-lg space-y-10">
         {QUESTIONS.map((q) => {
           const showError =
-            submitted && q.required && values[q.id].trim() === '';
+            submitted && q.required && (formData[q.id] || '').trim() === '';
 
           return (
             <div key={q.id}>
@@ -64,7 +65,7 @@ export default function Contact() {
               </label>
 
               <input
-                value={values[q.id]}
+                value={formData[q.id] || ''}
                 onChange={onChange(q.id)}
                 className={[
                   'mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-base text-[#0F2530] outline-none',

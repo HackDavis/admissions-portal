@@ -11,13 +11,13 @@ type FormState = {
   notes: string;
 };
 
-export default function NearlySet() {
-  const [state, setState] = React.useState<FormState>({
-    is18: 'yes',
-    isUCD: 'yes',
-    university: '',
-    notes: '',
-  });
+interface NearlySetProps {
+  formData: any;
+  setFormData: (data: any) => void;
+  onNext?: () => void;
+}
+
+export default function NearlySet({ formData, setFormData, onNext }: NearlySetProps) {
 
   return (
     <section className="w-full">
@@ -39,8 +39,8 @@ export default function NearlySet() {
             </p>
 
             <YesNoGroup
-              value={state.is18}
-              onChange={(v) => setState((s) => ({ ...s, is18: v }))}
+              value={formData.isOver18 ? 'yes' : formData.isOver18 === false ? 'no' : null}
+              onChange={(v) => setFormData({ ...formData, isOver18: v === 'yes' })}
             />
           </div>
 
@@ -50,8 +50,8 @@ export default function NearlySet() {
             </p>
 
             <YesNoGroup
-              value={state.isUCD}
-              onChange={(v) => setState((s) => ({ ...s, isUCD: v }))}
+              value={formData.isUCDavisStudent ? 'yes' : formData.isUCDavisStudent === false ? 'no' : null}
+              onChange={(v) => setFormData({ ...formData, isUCDavisStudent: v === 'yes' })}
             />
           </div>
 
@@ -63,9 +63,9 @@ export default function NearlySet() {
             <div className="mt-4">
               <div className="relative">
                 <select
-                  value={state.university}
+                  value={formData.university}
                   onChange={(e) =>
-                    setState((s) => ({ ...s, university: e.target.value }))
+                    setFormData({ ...formData, university: e.target.value })
                   }
                   className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
                 >
@@ -87,13 +87,18 @@ export default function NearlySet() {
                 </svg>
               </div>
 
-              <textarea
-                value={state.notes}
-                onChange={(e) =>
-                  setState((s) => ({ ...s, notes: e.target.value }))
-                }
-                className="mt-4 h-48 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
-              />
+              <div className="h-32">
+                {formData.university === 'Other' && (
+                  <textarea
+                    value={formData.customUniversity}
+                    onChange={(e) =>
+                      setFormData({ ...formData, customUniversity: e.target.value })
+                    }
+                    placeholder="Please specify your school"
+                    className="mt-4 h-24 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -101,7 +106,8 @@ export default function NearlySet() {
         <div className="mt-14 flex justify-center">
           <button
             type="button"
-            className="flex items-center gap-3 rounded-full bg-[#9FB6BE] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
+            onClick={onNext}
+            className="flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
           >
             Next <span aria-hidden>→</span>
           </button>
@@ -151,7 +157,7 @@ function YesNoOption({
         'flex w-fit items-center gap-3 rounded-full transition',
         active
           ? 'bg-[#173B47] px-4 py-2 text-white shadow-[4px_4px_0_rgba(159,182,190,0.8)]'
-          : 'px-1 py-1 text-[#005271]',
+          : 'px-1 py-1 text-[#005271] ml-3',
       ].join(' ')}
     >
       <span

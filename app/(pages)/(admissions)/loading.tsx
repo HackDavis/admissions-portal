@@ -1,4 +1,6 @@
 // WIP WILL ADD COW ICON LATER
+import Image from "next/image";
+
 export default function Loading() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white">
@@ -29,8 +31,16 @@ export default function Loading() {
         </p>
 
         {/* progress bar: BTW i manually made the pg load for 2 secs to get this viewable for dev */}
-        <div className="relative h-4 w-72 overflow-hidden rounded-full bg-[#E5E5E5]">
-          <div className="progress-fill absolute left-0 top-0 h-full rounded-full bg-[#9FB6BE]" />
+        <div className="relative h-4 w-72 rounded-full bg-[#E5E5E5]">
+          <div className="progress-fill absolute left-0 top-0 h-full rounded-full bg-[#9FB6BE] flex items-center justify-end">
+            <Image 
+              src="/Images/CowHead.svg"
+              alt="HackDavis cow mascot head."
+              width={40}
+              height={40}
+              className="h-19 w-19"
+            />
+          </div>
         </div>
       </div>
     </div>

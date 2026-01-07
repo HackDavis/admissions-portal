@@ -21,6 +21,7 @@ export interface Application {
   connectWithHackDavis: boolean;
   connectWithMLH?: boolean;
   status: 'pending' | 'accepted' | 'rejected' | 'waitlisted';
+  wasWaitlisted: boolean;
   submittedAt: string;
   reviewedAt?: string;
 }

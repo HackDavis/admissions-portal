@@ -1,6 +1,14 @@
 import Image from 'next/image';
 
-export default function Email() {
+interface EmailProps {
+  formData: any;
+  setFormData: (data: any) => void;
+  onNext?: () => void;
+}
+
+export default function Email({ formData, setFormData, onNext }: EmailProps) {
+  const isValidEdu = formData.email.endsWith('.edu') && formData.email.includes('@');
+
   return (
     <section className="relative w-full">
       <header className="text-center">
@@ -18,7 +26,7 @@ export default function Email() {
           HACKDAVIS 2026
         </h1>
         <p className="mt-3 text-base font-medium text-[#173B47]">
-          as a hacker, judge, mentor, or volunteer
+          as a hacker
         </p>
       </header>
 
@@ -26,16 +34,22 @@ export default function Email() {
         <div className="w-full max-w-md">
           <input
             type="email"
-            placeholder="Enter Email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            placeholder="Enter School Email (.edu)"
             className="w-full border-b-2 border-[#005271]/60 bg-transparent py-3 text-center text-xl outline-none placeholder:text-[#9FB6BE]"
           />
         </div>
 
         <button
           type="button"
-          className="rounded-full bg-[#9FB6BE] px-8 py-3 text-white"
+          disabled={!isValidEdu}
+          onClick={onNext}
+          className={`rounded-full px-8 py-3 text-white ${
+            isValidEdu ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
+          }`}
         >
-          Continue →
+          Access Portal →
         </button>
       </div>
     </section>

@@ -2,26 +2,32 @@
 
 import * as React from 'react';
 
-export default function LastPage() {
-  const [githubOrPortfolio, setGithubOrPortfolio] = React.useState('');
-  const [linkedin, setLinkedin] = React.useState('');
-  const [devpost, setDevpost] = React.useState('');
-  const [fileName, setFileName] = React.useState<string | null>(null);
+interface LastPageProps {
+  formData: any;
+  setFormData: (data: any) => void;
+  onNext?: () => void;
+}
 
+export default function LastPage({ formData, setFormData, onNext }: LastPageProps) {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const handleFinish = async () => {
+    // Navigate to next slide (confirmation)
+    onNext?.();
+  };
 
   const onPickFile = () => fileInputRef.current?.click();
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    setFileName(f ? f.name : null);
+    setFormData({ ...formData, resume: f ? f.name : '' });
   };
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const f = e.dataTransfer.files?.[0];
     if (!f) return;
-    setFileName(f.name);
+    setFormData({ ...formData, resume: f.name });
   };
 
   return (
@@ -45,13 +51,11 @@ export default function LastPage() {
                 one)!
               </>
             }
-            value={githubOrPortfolio}
-            onChange={setGithubOrPortfolio}
+            value={formData.githubOrPortfolio}
+            onChange={(v) => setFormData({ ...formData, githubOrPortfolio: v })}
           />
 
-          <Field label="or linkedIn" value={linkedin} onChange={setLinkedin} />
-
-          <Field label="or devpost" value={devpost} onChange={setDevpost} />
+          <Field label="or linkedIn" value={formData.linkedin} onChange={(v) => setFormData({ ...formData, linkedin: v })} />
 
           {/* Upload */}
           <div className="pt-2">
@@ -71,9 +75,9 @@ export default function LastPage() {
                 onChange={onFileChange}
               />
 
-              {fileName ? (
+              {formData.resume ? (
                 <div className="space-y-2">
-                  <p className="text-sm text-[#0F2530]">{fileName}</p>
+                  <p className="text-sm text-[#0F2530]">{formData.resume}</p>
                   <button
                     type="button"
                     onClick={onPickFile}
@@ -101,7 +105,8 @@ export default function LastPage() {
           <div className="pt-6 flex justify-center">
             <button
               type="button"
-              className="flex items-center gap-3 rounded-full bg-[#9FB6BE] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
+              onClick={handleFinish}
+              className="flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
             >
               Finish <span aria-hidden>→</span>
             </button>
