@@ -28,6 +28,7 @@ export interface Application {
     | 'accepted'
     | 'rejected'
     | 'waitlisted';
+  wasWaitlisted: boolean;
   submittedAt: string;
   reviewedAt?: string;
   processedAt: string;
