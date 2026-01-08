@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
-import { Application, Phase, Status, StatusFilter } from "../_types";
-import { prettyStatus } from "../_utils/format";
-import ApplicantDetailsModal from "./ApplicantDetailsModal";
+import { Application, Phase, Status, StatusFilter } from '../_types';
+import { prettyStatus } from '../_utils/format';
+import ApplicantDetailsModal from './ApplicantDetailsModal';
 
 interface PhaseColumnProps {
   phase: Phase;
@@ -19,19 +19,18 @@ interface PhaseColumnProps {
 }
 
 export default function PhaseColumn({
+  phase: _,
   apps,
   isLoading,
   label,
   onStatusChange,
-  phase,
   statusFilter,
   statusOptions,
   footer,
   renderActions,
 }: PhaseColumnProps) {
-  const [selectedApplicant, setSelectedApplicant] = useState<Application | null>(
-    null
-  );
+  const [selectedApplicant, setSelectedApplicant] =
+    useState<Application | null>(null);
 
   return (
     <div className="border-2 border-black p-3 flex h-screen flex-col">
@@ -40,8 +39,8 @@ export default function PhaseColumn({
           <h3 className="text-xs font-semibold uppercase">{label}</h3>
           <p className="text-xs">
             {isLoading
-              ? "loading..."
-              : `${apps.length} applicant${apps.length === 1 ? "" : "s"}`}
+              ? 'loading...'
+              : `${apps.length} applicant${apps.length === 1 ? '' : 's'}`}
           </p>
         </div>
 
@@ -69,26 +68,36 @@ export default function PhaseColumn({
           <p className="text-xs">no applicants here yet...</p>
         ) : (
           apps.map((a) => (
-            <div key={a.id} className="border-2 border-black p-2 flex flex-col gap-1">
+            <div
+              key={a.id}
+              className="border-2 border-black p-2 flex flex-col gap-1"
+            >
               <p className="text-xs">id: {a.id}</p>
-              <p className="text-xs">name: {a.firstName ?? "-"} {a.lastName ?? ""}</p>
-              <p className="text-xs">email: {a.email}</p>
-              <p className="text-xs">ucd: {a.isUCDavisStudent ? "yes" : "no"}</p>
-              <p className="text-xs">school: {a.university ?? "-"}</p>
-              <p className="text-xs">major: {a.major ?? "-"}</p>
-              <p className="text-xs">year: {a.year ?? "-"}</p>
               <p className="text-xs">
-                status: <span className="font-medium">{prettyStatus(a.status)}</span>
+                name: {a.firstName ?? '-'} {a.lastName ?? ''}
+              </p>
+              <p className="text-xs">email: {a.email}</p>
+              <p className="text-xs">
+                ucd: {a.isUCDavisStudent ? 'yes' : 'no'}
+              </p>
+              <p className="text-xs">school: {a.university ?? '-'}</p>
+              <p className="text-xs">major: {a.major ?? '-'}</p>
+              <p className="text-xs">year: {a.year ?? '-'}</p>
+              <p className="text-xs">
+                status:{' '}
+                <span className="font-medium">{prettyStatus(a.status)}</span>
               </p>
               <p
                 className={`text-xs ${
-                  a.wasWaitlisted ? "font-bold text-red-600" : ""
+                  a.wasWaitlisted ? 'font-bold text-red-600' : ''
                 }`}
               >
-                was waitlisted: {a.wasWaitlisted ? "yes" : "no"}
+                was waitlisted: {a.wasWaitlisted ? 'yes' : 'no'}
               </p>
               {renderActions && (
-                <div className="mt-1 flex flex-wrap gap-2">{renderActions(a)}</div>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {renderActions(a)}
+                </div>
               )}
               <button
                 type="button"

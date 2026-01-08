@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface ProgressBarProps {
   processedCount: number;
@@ -20,11 +20,11 @@ export default function ProgressBar({
       <h2 className="pb-4 font-medium">progress</h2>
       <div className="mb-2 flex items-center justify-between text-xs">
         <span>
-          processed:{" "}
+          processed:{' '}
           <span className="font-semibold text-blue-900">{processedCount}</span>
         </span>
         <span>
-          tentative:{" "}
+          tentative:{' '}
           <span className="font-semibold text-blue-400">{tentativeCount}</span>
         </span>
         <span>total: {totalCount}</span>

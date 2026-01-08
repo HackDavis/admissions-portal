@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Application, Status } from "../_types";
+import { Application, Status } from '../_types';
 
 // TODO: Add Mailchimp + HackerHub invite flow here.
 
@@ -9,15 +9,15 @@ interface FinalizeButtonProps {
   onFinalizeStatus: (
     appId: string,
     nextStatus: Status,
-    fromPhase: "tentative",
-    options?: { wasWaitlisted?: boolean; refreshPhase?: "processed" }
+    fromPhase: 'tentative',
+    options?: { wasWaitlisted?: boolean; refreshPhase?: 'processed' }
   ) => void;
 }
 
 const FINAL_STATUS_MAP: Record<string, Status> = {
-  tentatively_accepted: "accepted",
-  tentatively_rejected: "rejected",
-  tentatively_waitlisted: "waitlisted",
+  tentatively_accepted: 'accepted',
+  tentatively_rejected: 'rejected',
+  tentatively_waitlisted: 'waitlisted',
 };
 
 export default function FinalizeButton({
@@ -28,9 +28,9 @@ export default function FinalizeButton({
     const updates = apps
       .filter((app) => app.status in FINAL_STATUS_MAP)
       .map((app) =>
-        onFinalizeStatus(app.id, FINAL_STATUS_MAP[app.status], "tentative", {
-          wasWaitlisted: app.status === "tentatively_waitlisted",
-          refreshPhase: "processed",
+        onFinalizeStatus(app.id, FINAL_STATUS_MAP[app.status], 'tentative', {
+          wasWaitlisted: app.status === 'tentatively_waitlisted',
+          refreshPhase: 'processed',
         })
       );
 

@@ -1,5 +1,5 @@
-import Footer from './(admissions)/_components/Footer/Footer';
-import Navbar from './(admissions)/_components/Navbar/Navbar';
+import Footer from './_components/Footer/Footer';
+import Navbar from './_components/Navbar/Navbar';
 
 export default function Home() {
   return (

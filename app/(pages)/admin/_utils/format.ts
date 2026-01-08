@@ -1,3 +1,3 @@
 export function prettyStatus(status: string) {
-  return status.replaceAll("_", " ");
+  return status.replaceAll('_', ' ');
 }

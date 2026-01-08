@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Application } from "../_types";
+import { Application } from '../_types';
 
 interface ApplicantDetailsModalProps {
   applicant: Application;
@@ -8,17 +8,18 @@ interface ApplicantDetailsModalProps {
 }
 
 function formatValue(value: unknown) {
-  if (value === null || value === undefined) return "-";
-  if (Array.isArray(value)) return value.length ? value.join(", ") : "-";
-  if (typeof value === "boolean") return value ? "yes" : "no";
+  if (value === null || value === undefined) return '-';
+  if (Array.isArray(value)) return value.length ? value.join(', ') : '-';
+  if (typeof value === 'boolean') return value ? 'yes' : 'no';
   return String(value);
 }
 
 function toUrl(value: unknown) {
-  if (typeof value !== "string") return null;
+  if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://'))
+    return trimmed;
   return `https://${trimmed}`;
 }
 
@@ -27,38 +28,42 @@ export default function ApplicantDetailsModal({
   onClose,
 }: ApplicantDetailsModalProps) {
   const rows = [
-    { label: "id", value: applicant.id },
+    { label: 'id', value: applicant.id },
     {
-      label: "name",
-      value: `${applicant.firstName ?? "-"} ${applicant.lastName ?? ""}`.trim(),
+      label: 'name',
+      value: `${applicant.firstName ?? '-'} ${applicant.lastName ?? ''}`.trim(),
     },
-    { label: "email", value: applicant.email },
-    { label: "phone", value: applicant.phone },
-    { label: "age", value: applicant.age },
-    { label: "ucd", value: applicant.isUCDavisStudent },
-    { label: "university", value: applicant.university },
-    { label: "level of study", value: applicant.levelOfStudy },
-    { label: "major", value: applicant.major },
-    { label: "minor / double major", value: applicant.minorOrDoubleMajor },
-    { label: "college", value: applicant.college },
-    { label: "year", value: applicant.year },
-    { label: "shirt size", value: applicant.shirtSize },
-    { label: "dietary restrictions", value: applicant.dietaryRestrictions },
-    { label: "connect with sponsors", value: applicant.connectWithSponsors },
-    { label: "resume", value: applicant.resume },
-    { label: "linkedin", value: applicant.linkedin, href: toUrl(applicant.linkedin) },
+    { label: 'email', value: applicant.email },
+    { label: 'phone', value: applicant.phone },
+    { label: 'age', value: applicant.age },
+    { label: 'ucd', value: applicant.isUCDavisStudent },
+    { label: 'university', value: applicant.university },
+    { label: 'level of study', value: applicant.levelOfStudy },
+    { label: 'major', value: applicant.major },
+    { label: 'minor / double major', value: applicant.minorOrDoubleMajor },
+    { label: 'college', value: applicant.college },
+    { label: 'year', value: applicant.year },
+    { label: 'shirt size', value: applicant.shirtSize },
+    { label: 'dietary restrictions', value: applicant.dietaryRestrictions },
+    { label: 'connect with sponsors', value: applicant.connectWithSponsors },
+    { label: 'resume', value: applicant.resume },
     {
-      label: "github / portfolio",
+      label: 'linkedin',
+      value: applicant.linkedin,
+      href: toUrl(applicant.linkedin),
+    },
+    {
+      label: 'github / portfolio',
       value: applicant.githubOrPortfolio,
       href: toUrl(applicant.githubOrPortfolio),
     },
-    { label: "connect with hackdavis", value: applicant.connectWithHackDavis },
-    { label: "connect with mlh", value: applicant.connectWithMLH },
-    { label: "status", value: applicant.status },
-    { label: "was waitlisted", value: applicant.wasWaitlisted },
-    { label: "submitted at", value: applicant.submittedAt },
-    { label: "reviewed at", value: applicant.reviewedAt },
-    { label: "processed at", value: applicant.processedAt },
+    { label: 'connect with hackdavis', value: applicant.connectWithHackDavis },
+    { label: 'connect with mlh', value: applicant.connectWithMLH },
+    { label: 'status', value: applicant.status },
+    { label: 'was waitlisted', value: applicant.wasWaitlisted },
+    { label: 'submitted at', value: applicant.submittedAt },
+    { label: 'reviewed at', value: applicant.reviewedAt },
+    { label: 'processed at', value: applicant.processedAt },
   ];
 
   return (
@@ -80,7 +85,9 @@ export default function ApplicantDetailsModal({
           x
         </button>
 
-        <h3 className="mb-3 text-sm font-semibold uppercase">applicant details</h3>
+        <h3 className="mb-3 text-sm font-semibold uppercase">
+          applicant details
+        </h3>
 
         <div className="grid gap-2 md:grid-cols-2">
           {rows.map((row) => (

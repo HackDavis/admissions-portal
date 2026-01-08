@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { UcdParam } from "../_types";
+import { UcdParam } from '../_types';
 
 interface FiltersBarProps {
   ucd: UcdParam;
@@ -22,7 +22,6 @@ export default function FiltersBar({ ucd, onUcdChange }: FiltersBarProps) {
           <option value="false">non-ucd students</option>
         </select>
       </div>
-
     </section>
   );
 }

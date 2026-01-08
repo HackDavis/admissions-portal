@@ -220,15 +220,20 @@ export const PATCH = authenticated(async (req: NextRequest) => {
     const collectionName = process.env.MONGODB_COLLECTION ?? 'applications';
     const col = db.collection(collectionName);
 
-    const filter = ObjectId.isValid(id)
+    const filter: any = ObjectId.isValid(id)
       ? { $or: [{ _id: new ObjectId(id) }, { _id: id }] }
       : { _id: id };
     const update: Record<string, unknown> = { status };
-    if (typeof wasWaitlisted === 'boolean') update.wasWaitlisted = wasWaitlisted;
-    if (TENTATIVE_STATUSES.includes(status as (typeof TENTATIVE_STATUSES)[number])) {
+    if (typeof wasWaitlisted === 'boolean')
+      update.wasWaitlisted = wasWaitlisted;
+    if (
+      TENTATIVE_STATUSES.includes(status as (typeof TENTATIVE_STATUSES)[number])
+    ) {
       update.reviewedAt = new Date().toISOString();
     }
-    if (PROCESSED_STATUSES.includes(status as (typeof PROCESSED_STATUSES)[number])) {
+    if (
+      PROCESSED_STATUSES.includes(status as (typeof PROCESSED_STATUSES)[number])
+    ) {
       update.processedAt = new Date().toISOString();
     }
     const result = await col.updateOne(filter, { $set: update });

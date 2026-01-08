@@ -1,9 +1,13 @@
-"use client";
+'use client';
 
-import { Application, Phase, Status, StatusFilter } from "../_types";
-import { PHASES, PROCESSED_STATUSES, TENTATIVE_STATUSES } from "../_utils/constants";
-import FinalizeButton from "./FinalizeButton";
-import PhaseColumn from "./PhaseColumn";
+import { Application, Phase, Status, StatusFilter } from '../_types';
+import {
+  PHASES,
+  PROCESSED_STATUSES,
+  TENTATIVE_STATUSES,
+} from '../_utils/constants';
+import FinalizeButton from './FinalizeButton';
+import PhaseColumn from './PhaseColumn';
 
 interface ApplicationsGridProps {
   appsByPhase: Record<Phase, Application[]>;
@@ -38,7 +42,7 @@ export default function ApplicationsGrid({
           const apps = appsByPhase[phase.id];
           const isLoading = loading[phase.id];
 
-          if (phase.id === "tentative") {
+          if (phase.id === 'tentative') {
             return (
               <PhaseColumn
                 key={phase.id}
@@ -54,20 +58,25 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, "pending", "tentative", {
-                        refreshPhase: "unseen",
+                      onUpdateStatus(app.id, 'pending', 'tentative', {
+                        refreshPhase: 'unseen',
                       })
                     }
                   >
                     undo selection
                   </button>
                 )}
-                footer={<FinalizeButton apps={apps} onFinalizeStatus={onUpdateStatus} />}
+                footer={
+                  <FinalizeButton
+                    apps={apps}
+                    onFinalizeStatus={onUpdateStatus}
+                  />
+                }
               />
             );
           }
 
-          if (phase.id === "processed") {
+          if (phase.id === 'processed') {
             return (
               <PhaseColumn
                 key={phase.id}
@@ -79,15 +88,20 @@ export default function ApplicationsGrid({
                 statusOptions={PROCESSED_STATUSES}
                 onStatusChange={onProcessedStatusChange}
                 renderActions={(app) =>
-                  app.status === "waitlisted" ? (
+                  app.status === 'waitlisted' ? (
                     <>
                       <button
                         type="button"
                         className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
                         onClick={() =>
-                          onUpdateStatus(app.id, "tentatively_accepted", "processed", {
-                            refreshPhase: "tentative",
-                          })
+                          onUpdateStatus(
+                            app.id,
+                            'tentatively_accepted',
+                            'processed',
+                            {
+                              refreshPhase: 'tentative',
+                            }
+                          )
                         }
                       >
                         waitlist accept
@@ -96,9 +110,14 @@ export default function ApplicationsGrid({
                         type="button"
                         className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
                         onClick={() =>
-                          onUpdateStatus(app.id, "tentatively_rejected", "processed", {
-                            refreshPhase: "tentative",
-                          })
+                          onUpdateStatus(
+                            app.id,
+                            'tentatively_rejected',
+                            'processed',
+                            {
+                              refreshPhase: 'tentative',
+                            }
+                          )
                         }
                       >
                         waitlist reject
@@ -123,8 +142,8 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, "tentatively_accepted", "unseen", {
-                        refreshPhase: "tentative",
+                      onUpdateStatus(app.id, 'tentatively_accepted', 'unseen', {
+                        refreshPhase: 'tentative',
                       })
                     }
                   >
@@ -134,8 +153,8 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, "tentatively_rejected", "unseen", {
-                        refreshPhase: "tentative",
+                      onUpdateStatus(app.id, 'tentatively_rejected', 'unseen', {
+                        refreshPhase: 'tentative',
                       })
                     }
                   >
@@ -145,9 +164,14 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-yellow-700 bg-yellow-100 px-2 py-1 text-[10px] font-semibold uppercase text-yellow-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, "tentatively_waitlisted", "unseen", {
-                        refreshPhase: "tentative",
-                      })
+                      onUpdateStatus(
+                        app.id,
+                        'tentatively_waitlisted',
+                        'unseen',
+                        {
+                          refreshPhase: 'tentative',
+                        }
+                      )
                     }
                   >
                     waitlist
