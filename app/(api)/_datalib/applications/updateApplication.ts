@@ -34,20 +34,30 @@ export const UpdateApplication = async (id: string, body: object) => {
       }
     }
 
-    const application = await db
-      .collection('applications')
-      .updateOne({ _id: object_id }, { $set: parsedBody });
+    const filter: any = ObjectId.isValid(id)
+      ? { $or: [{ _id: new ObjectId(id) }, { _id: id }] }
+      : { _id: id };
 
-    if (application.matchedCount === 0) {
+    const result = await db
+      .collection('applications')
+      .updateOne(filter, { $set: parsedBody });
+
+    if (result.matchedCount === 0) {
       throw new NotFoundError(`Application with id: ${id} not found.`);
     }
 
-    return { ok: true, body: application, error: null };
+    return {
+      ok: true,
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+      error: null,
+    };
   } catch (e) {
     const error = e as HttpError;
     return {
       ok: false,
-      body: null,
+      matchedCount: 0,
+      modifiedCount: 0,
       error: error.message,
     };
   }

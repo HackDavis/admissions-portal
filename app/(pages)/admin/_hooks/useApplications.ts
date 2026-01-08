@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { Application, Phase, Status, StatusFilter, UcdParam } from '../_types';
 import { PHASES } from '../_utils/constants';
 
@@ -15,7 +14,7 @@ async function fetchApplications(params: {
   search.set('ucd', params.ucd);
   if (params.status) search.set('status', params.status);
 
-  const res = await fetch(`/applications?${search.toString()}`, {
+  const res = await fetch(`/api/applications?${search.toString()}`, {
     method: 'GET',
   });
 
@@ -104,7 +103,7 @@ export default function useApplications() {
       options?: { wasWaitlisted?: boolean; refreshPhase?: Phase }
     ) => {
       setError(null);
-      const res = await fetch('/applications', {
+      const res = await fetch('/api/applications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
