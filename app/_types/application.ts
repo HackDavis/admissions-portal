@@ -20,16 +20,9 @@ export interface Application {
   githubOrPortfolio?: string;
   connectWithHackDavis: boolean;
   connectWithMLH?: boolean;
-  status:
-    | 'pending'
-    | 'tentatively_accepted'
-    | 'tentatively_rejected'
-    | 'tentatively_waitlisted'
-    | 'accepted'
-    | 'rejected'
-    | 'waitlisted';
+  status: Status; //not sure if an import is needed here...
   wasWaitlisted: boolean;
   submittedAt: string;
   reviewedAt?: string;
-  processedAt: string;
+  processedAt?: string;
 }

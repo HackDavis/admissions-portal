@@ -39,16 +39,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // const client = await getMongoClient();
-    // const dbName = process.env.MONGODB_DB;
-    // const db = dbName ? client.db(dbName) : client.db();
-
-    // const collectionName = process.env.MONGODB_COLLECTION ?? 'applications';
-    // const col = db.collection(collectionName);
-
-    // const filter: any = ObjectId.isValid(id)
-    //   ? { $or: [{ _id: new ObjectId(id) }, { _id: id }] }
-    //   : { _id: id };
     const update: Record<string, unknown> = { status };
     if (typeof wasWaitlisted === 'boolean')
       update.wasWaitlisted = wasWaitlisted;

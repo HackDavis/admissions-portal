@@ -1,12 +1,19 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Application, Phase, Status, StatusFilter, UcdParam } from '../_types';
+import { Application } from '@/app/_types/application';
+import {
+  Phase,
+  Status,
+  StatusFilter,
+  UcdStudentFilter,
+} from '@/app/_types/applicationFilters';
+
 import { PHASES } from '../_utils/constants';
 
 async function fetchApplications(params: {
   phase: Phase;
-  ucd: UcdParam;
+  ucd: UcdStudentFilter;
   status?: string | null;
 }): Promise<Application[]> {
   const search = new URLSearchParams();
@@ -28,7 +35,7 @@ async function fetchApplications(params: {
 }
 
 export default function useApplications() {
-  const [ucd, setUcd] = useState<UcdParam>('all');
+  const [ucd, setUcd] = useState<UcdStudentFilter>('all');
   const [tentativeStatus, setTentativeStatus] = useState<StatusFilter>('all');
   const [processedStatus, setProcessedStatus] = useState<StatusFilter>('all');
 

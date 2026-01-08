@@ -1,4 +1,4 @@
-import type { Application } from '../../_types/application';
+import type { Application } from '@/app/_types/application';
 // import mockApplications from '../_data/mock-applications.json';
 
 export interface SplitApplicationsResult {

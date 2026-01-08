@@ -1,4 +1,4 @@
-import { Phase, Status } from '../_types';
+import { Phase, Status } from '@/app/_types/applicationFilters';
 
 export const PHASES: { id: Phase; label: string }[] = [
   { id: 'unseen', label: 'unseen' },

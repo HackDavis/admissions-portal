@@ -1,10 +1,10 @@
 'use client';
 
-import { UcdParam } from '../_types';
+import { UcdStudentFilter } from '@/app/_types/applicationFilters';
 
 interface FiltersBarProps {
-  ucd: UcdParam;
-  onUcdChange: (value: UcdParam) => void;
+  ucd: UcdStudentFilter;
+  onUcdChange: (value: UcdStudentFilter) => void;
 }
 
 export default function FiltersBar({ ucd, onUcdChange }: FiltersBarProps) {
@@ -14,7 +14,7 @@ export default function FiltersBar({ ucd, onUcdChange }: FiltersBarProps) {
         <span className="text-xs font-semibold uppercase">ucd filter</span>
         <select
           value={ucd}
-          onChange={(e) => onUcdChange(e.target.value as UcdParam)}
+          onChange={(e) => onUcdChange(e.target.value as UcdStudentFilter)}
           className="border-2 border-black px-2 py-1 text-xs"
         >
           <option value="all">all</option>

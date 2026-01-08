@@ -67,15 +67,6 @@ export async function GET(request: NextRequest) {
     if (ucd === 'true') filter.isUCDavisStudent = true;
     if (ucd === 'false') filter.isUCDavisStudent = false;
 
-    // // Connect + query
-    // const client = await getMongoClient();
-
-    // const dbName = process.env.MONGODB_DB;
-    // const db = dbName ? client.db(dbName) : client.db();
-
-    // const collectionName = process.env.MONGODB_COLLECTION ?? 'applications';
-    // const col = db.collection(collectionName);
-
     // projection keeps payload smaller (adjust as you need)
     const projection = {
       email: 1,

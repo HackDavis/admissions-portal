@@ -1,6 +1,6 @@
 'use client';
 
-import { Application } from '../_types';
+import { Application } from '@/app/_types/application';
 
 interface ApplicantDetailsModalProps {
   applicant: Application;

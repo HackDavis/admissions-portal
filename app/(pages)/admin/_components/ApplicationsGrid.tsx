@@ -1,6 +1,7 @@
 'use client';
 
-import { Application, Phase, Status, StatusFilter } from '../_types';
+import { Application } from '@/app/_types/application';
+import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import {
   PHASES,
   PROCESSED_STATUSES,

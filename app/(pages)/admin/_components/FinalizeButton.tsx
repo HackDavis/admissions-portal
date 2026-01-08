@@ -1,6 +1,7 @@
 'use client';
 
-import { Application, Status } from '../_types';
+import { Application } from '@/app/_types/application';
+import { Status } from '@/app/_types/applicationFilters';
 
 // TODO: Add Mailchimp + HackerHub invite flow here.
 
