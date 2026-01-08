@@ -1,3 +1,5 @@
+import { Status } from './applicationFilters';
+
 export interface Application {
   _id: string;
   firstName: string;
@@ -20,7 +22,7 @@ export interface Application {
   githubOrPortfolio?: string;
   connectWithHackDavis: boolean;
   connectWithMLH?: boolean;
-  status: Status; //not sure if an import is needed here...
+  status: Status;
   wasWaitlisted: boolean;
   submittedAt: string;
   reviewedAt?: string;

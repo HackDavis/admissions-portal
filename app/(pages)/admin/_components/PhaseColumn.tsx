@@ -68,42 +68,42 @@ export default function PhaseColumn({
         {!isLoading && apps.length === 0 ? (
           <p className="text-xs">no applicants here yet...</p>
         ) : (
-          apps.map((a) => (
+          apps.map((app) => (
             <div
-              key={a.id}
+              key={app._id}
               className="border-2 border-black p-2 flex flex-col gap-1"
             >
-              <p className="text-xs">id: {a.id}</p>
+              <p className="text-xs">id: {app._id}</p>
               <p className="text-xs">
-                name: {a.firstName ?? '-'} {a.lastName ?? ''}
+                name: {app.firstName ?? '-'} {app.lastName ?? ''}
               </p>
-              <p className="text-xs">email: {a.email}</p>
+              <p className="text-xs">email: {app.email}</p>
               <p className="text-xs">
-                ucd: {a.isUCDavisStudent ? 'yes' : 'no'}
+                ucd: {app.isUCDavisStudent ? 'yes' : 'no'}
               </p>
-              <p className="text-xs">school: {a.university ?? '-'}</p>
-              <p className="text-xs">major: {a.major ?? '-'}</p>
-              <p className="text-xs">year: {a.year ?? '-'}</p>
+              <p className="text-xs">school: {app.university ?? '-'}</p>
+              <p className="text-xs">major: {app.major ?? '-'}</p>
+              <p className="text-xs">year: {app.year ?? '-'}</p>
               <p className="text-xs">
                 status:{' '}
-                <span className="font-medium">{prettyStatus(a.status)}</span>
+                <span className="font-medium">{prettyStatus(app.status)}</span>
               </p>
               <p
                 className={`text-xs ${
-                  a.wasWaitlisted ? 'font-bold text-red-600' : ''
+                  app.wasWaitlisted ? 'font-bold text-red-600' : ''
                 }`}
               >
-                was waitlisted: {a.wasWaitlisted ? 'yes' : 'no'}
+                was waitlisted: {app.wasWaitlisted ? 'yes' : 'no'}
               </p>
               {renderActions && (
                 <div className="mt-1 flex flex-wrap gap-2">
-                  {renderActions(a)}
+                  {renderActions(app)}
                 </div>
               )}
               <button
                 type="button"
                 className="mt-1 border border-black px-2 py-1 text-[10px] uppercase"
-                onClick={() => setSelectedApplicant(a)}
+                onClick={() => setSelectedApplicant(app)}
               >
                 view all details
               </button>

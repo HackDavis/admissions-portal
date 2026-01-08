@@ -59,7 +59,7 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, 'pending', 'tentative', {
+                      onUpdateStatus(app._id, 'pending', 'tentative', {
                         refreshPhase: 'unseen',
                       })
                     }
@@ -96,7 +96,7 @@ export default function ApplicationsGrid({
                         className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
                         onClick={() =>
                           onUpdateStatus(
-                            app.id,
+                            app._id,
                             'tentatively_accepted',
                             'processed',
                             {
@@ -112,7 +112,7 @@ export default function ApplicationsGrid({
                         className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
                         onClick={() =>
                           onUpdateStatus(
-                            app.id,
+                            app._id,
                             'tentatively_rejected',
                             'processed',
                             {
@@ -143,9 +143,14 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, 'tentatively_accepted', 'unseen', {
-                        refreshPhase: 'tentative',
-                      })
+                      onUpdateStatus(
+                        app._id,
+                        'tentatively_accepted',
+                        'unseen',
+                        {
+                          refreshPhase: 'tentative',
+                        }
+                      )
                     }
                   >
                     accept
@@ -154,9 +159,14 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
                     onClick={() =>
-                      onUpdateStatus(app.id, 'tentatively_rejected', 'unseen', {
-                        refreshPhase: 'tentative',
-                      })
+                      onUpdateStatus(
+                        app._id,
+                        'tentatively_rejected',
+                        'unseen',
+                        {
+                          refreshPhase: 'tentative',
+                        }
+                      )
                     }
                   >
                     reject
@@ -166,7 +176,7 @@ export default function ApplicationsGrid({
                     className="border border-yellow-700 bg-yellow-100 px-2 py-1 text-[10px] font-semibold uppercase text-yellow-800"
                     onClick={() =>
                       onUpdateStatus(
-                        app.id,
+                        app._id,
                         'tentatively_waitlisted',
                         'unseen',
                         {

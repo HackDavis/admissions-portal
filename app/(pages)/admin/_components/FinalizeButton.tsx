@@ -29,7 +29,7 @@ export default function FinalizeButton({
     const updates = apps
       .filter((app) => app.status in FINAL_STATUS_MAP)
       .map((app) =>
-        onFinalizeStatus(app.id, FINAL_STATUS_MAP[app.status], 'tentative', {
+        onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
           wasWaitlisted: app.status === 'tentatively_waitlisted',
           refreshPhase: 'processed',
         })

@@ -28,7 +28,7 @@ export default function ApplicantDetailsModal({
   onClose,
 }: ApplicantDetailsModalProps) {
   const rows = [
-    { label: 'id', value: applicant.id },
+    { label: 'id', value: applicant._id },
     {
       label: 'name',
       value: `${applicant.firstName ?? '-'} ${applicant.lastName ?? ''}`.trim(),
