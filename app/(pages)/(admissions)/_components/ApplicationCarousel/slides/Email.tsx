@@ -62,7 +62,9 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
           disabled={loading || !isValidEdu}
           onClick={handleNext}
           className={`rounded-full px-8 py-3 text-white ${
-            isValidEdu && !loading ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
+            isValidEdu && !loading
+              ? 'bg-[#005271]'
+              : 'bg-gray-400 cursor-not-allowed'
           }`}
         >
           {loading ? 'Checking...' : 'Access Portal →'}
