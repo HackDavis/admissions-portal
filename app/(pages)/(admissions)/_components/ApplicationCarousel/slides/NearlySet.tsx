@@ -20,6 +20,7 @@ export default function NearlySet({
   useEffect(() => {
     fetchUniversityNames().then((data) => setUniversities(data));
   }, []);
+  const uniqueUniversities = Array.from(new Set(universities));
 
   useEffect(() => {
     if (formData.isUCDavisStudent === true) {
@@ -92,7 +93,7 @@ export default function NearlySet({
                   className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
                 >
                   <option value="" />
-                  {universities.map((uni) => (
+                  {uniqueUniversities.map((uni) => (
                     <option key={uni} value={uni}>
                       {uni}
                     </option>
