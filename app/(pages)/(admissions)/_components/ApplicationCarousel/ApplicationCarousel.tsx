@@ -1,6 +1,7 @@
 'use client';
 
-//TODO: ADD BACK BUTTON AND PROFILE THING, and file saving feature
+//TODO: ADD BACK BUTTON AND PROFILE THING, and change resume upload to link format
+//TODO: handle submission failure (some kind of visual feedback)
 
 import React from 'react';
 import Image from 'next/image';
@@ -8,6 +9,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import AutoHeight from 'embla-carousel-auto-height';
 
 import { ApplicationFrame } from './ApplicationFrame';
+import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
 
 import Email from './slides/Email';
 import Contact from './slides/Contact';
@@ -34,7 +36,7 @@ export default function ApplicationCarousel() {
 
   const [index, setIndex] = React.useState(0);
 
-  // Centralized form state
+  // Default form data (what user sees in application portal)
   const [formData, setFormData] = React.useState({
     firstName: '',
     lastName: '',
@@ -67,54 +69,23 @@ export default function ApplicationCarousel() {
 
   console.log('All form fields:', formData);
 
-  const submitToDatabase = async () => {
-    // Transform form data for DB
-    const dbData = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      phone: formData.phone,
-      age: parseInt(formData.age.toString()) || 0,
-      isUCDavisStudent: formData.isUCDavisStudent === true,
+  const { submit, loading, error } = useSubmitApplication();
+
+  const handleFinalSubmit = async () => {
+    //modify payload to account for custom university
+    const { customUniversity, ...rest } = formData; // remove customUniversity from formData
+    const payload = {
+      ...rest,
       university:
         formData.university === 'Other'
-          ? formData.customUniversity
+          ? customUniversity
           : formData.university,
-      levelOfStudy: formData.levelOfStudy,
-      major: formData.major,
-      college: formData.college,
-      year: formData.year,
-      shirtSize: formData.shirtSize,
-      dietaryRestrictions: formData.dietaryRestrictions,
-      connectWithSponsors: formData.connectWithSponsors,
-      resume: formData.resume,
-      linkedin: formData.linkedin,
-      githubOrPortfolio: formData.githubOrPortfolio,
-      connectWithHackDavis: formData.connectWithHackDavis,
-      connectWithMLH: formData.connectWithMLH,
-      status: 'pending',
-      wasWaitlisted: false,
     };
+    //submit application
+    const ok = await submit(payload);
+    if (ok) api?.scrollNext();
 
-    console.log('Submitting to database:', dbData);
-
-    try {
-      const response = await fetch('/api/applications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dbData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit application');
-      }
-
-      console.log('Application submitted successfully');
-    } catch (error) {
-      console.error('Error submitting application:', error);
-    }
+    //TODO: handle submission failure (some kind of visual feedback)
   };
 
   const SLIDES: SlideDef[] = [
@@ -164,10 +135,7 @@ export default function ApplicationCarousel() {
         <LastPage
           formData={formData}
           setFormData={setFormData}
-          onNext={() => {
-            submitToDatabase();
-            api?.scrollNext();
-          }}
+          onNext={handleFinalSubmit}
         />
       ),
     },
@@ -189,6 +157,7 @@ export default function ApplicationCarousel() {
     };
   }, [api]);
 
+  {/* for back/next buttons (for dev) */}
   // const total = SLIDES.length;
   // const canPrev = index > 0;
   // const canNext = index < total - 1;

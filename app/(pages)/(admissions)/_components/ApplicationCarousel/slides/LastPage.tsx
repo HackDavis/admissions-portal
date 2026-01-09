@@ -50,9 +50,7 @@ export default function LastPage({
           <Field
             label={
               <>
-                Share your GitHub or portfolio link (if you have
-                <br />
-                one)!
+                Share your GitHub or portfolio link (if you have one)!
               </>
             }
             value={formData.githubOrPortfolio}
@@ -60,13 +58,19 @@ export default function LastPage({
           />
 
           <Field
-            label="or linkedIn"
+            label="or LinkedIn"
             value={formData.linkedin}
             onChange={(v) => setFormData({ ...formData, linkedin: v })}
           />
 
-          {/* Upload */}
-          <div className="pt-2">
+          <Field
+            label="Feel free to share your resume."
+            value={formData.resume}
+            onChange={(v) => setFormData({ ...formData, resume: v })}
+          />
+
+          {/* Upload resume feature -- no longer being used but will keep here */}
+          {/* <div className="pt-2">
             <p className="mb-4 text-base font-semibold text-[#0F2530]">
               Feel free to share your resume.
             </p>
@@ -107,7 +111,7 @@ export default function LastPage({
                 </p>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Finish */}
           <div className="pt-6 flex justify-center">
