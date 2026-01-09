@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { useEffect } from 'react';
+import { YesNoGroup } from '../_components/YesNoGroup';
 
 interface NearlySetProps {
   formData: any;
@@ -13,6 +15,30 @@ export default function NearlySet({
   setFormData,
   onNext,
 }: NearlySetProps) {
+  useEffect(() => {
+    if (formData.isUCDavisStudent === true) {
+      setFormData((prev: any) => ({
+        ...prev,
+        university: 'UC Davis',
+      }));
+    }
+  }, [formData.isUCDavisStudent, setFormData]);
+
+  const [submitted, setSubmitted] = React.useState(false);
+
+  const handleNext = () => {
+    setSubmitted(true);
+
+    const isValid =
+      formData.university &&
+      (formData.university !== 'Other' ||
+        (formData.customUniversity || '').trim() !== '');
+
+    if (isValid) {
+      onNext?.();
+    }
+  };
+
   return (
     <section className="w-full">
       <div className="mx-auto w-full max-w-[520px] text-center">
@@ -20,54 +46,34 @@ export default function NearlySet({
           We’re Nearly Set!
         </h1>
 
-        <p className="mx-auto mt-4 max-w-[420px] text-sm leading-snug text-[#0F2530]">
-          We never use this information to review applications. <br />
-          Feel free to skip any question. Responses are only <br />
-          collected to improve inclusivity at HackDavis.
-        </p>
-
         <div className="mt-12 text-left space-y-10">
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              Will you be at least 18 years old by DOE?
+              Will you be at least 18 years old by DOE?*
             </p>
 
             <YesNoGroup
-              value={
-                formData.isOver18
-                  ? 'yes'
-                  : formData.isOver18 === false
-                  ? 'no'
-                  : null
-              }
+              value={formData.isOver18}
+              onChange={(v) => setFormData({ ...formData, isOver18: v })}
+            />
+          </div>
+
+          <div>
+            <p className="text-base font-semibold text-[#0F2530]">
+              Are you a UC Davis student?*
+            </p>
+
+            <YesNoGroup
+              value={formData.isUCDavisStudent}
               onChange={(v) =>
-                setFormData({ ...formData, isOver18: v === 'yes' })
+                setFormData({ ...formData, isUCDavisStudent: v })
               }
             />
           </div>
 
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              Are you a UC Davis student?
-            </p>
-
-            <YesNoGroup
-              value={
-                formData.isUCDavisStudent
-                  ? 'yes'
-                  : formData.isUCDavisStudent === false
-                  ? 'no'
-                  : null
-              }
-              onChange={(v) =>
-                setFormData({ ...formData, isUCDavisStudent: v === 'yes' })
-              }
-            />
-          </div>
-
-          <div>
-            <p className="text-base font-semibold text-[#0F2530]">
-              Which University do you attend?
+              Which University do you attend?*
             </p>
 
             <div className="mt-4">
@@ -96,6 +102,11 @@ export default function NearlySet({
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </div>
+              {submitted && !formData.university && (
+                <p className="mt-3 text-sm font-semibold text-red-400">
+                  ERROR: Wait! You left this one blank.
+                </p>
+              )}
 
               <div className="h-32">
                 {formData.university === 'Other' && (
@@ -112,6 +123,13 @@ export default function NearlySet({
                   />
                 )}
               </div>
+              {submitted &&
+                formData.university === 'Other' &&
+                !(formData.customUniversity || '').trim() && (
+                  <p className="mt-3 text-sm font-semibold text-red-400">
+                    ERROR: Please specify your school.
+                  </p>
+                )}
             </div>
           </div>
         </div>
@@ -119,7 +137,7 @@ export default function NearlySet({
         <div className="mt-14 flex justify-center">
           <button
             type="button"
-            onClick={onNext}
+            onClick={handleNext}
             className="flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
           >
             Next <span aria-hidden>→</span>
@@ -127,59 +145,5 @@ export default function NearlySet({
         </div>
       </div>
     </section>
-  );
-}
-
-function YesNoGroup({
-  value,
-  onChange,
-}: {
-  value: 'yes' | 'no' | null;
-  onChange: (v: 'yes' | 'no') => void;
-}) {
-  return (
-    <div className="mt-4 flex flex-col gap-3">
-      <YesNoOption
-        label="Yes"
-        active={value === 'yes'}
-        onClick={() => onChange('yes')}
-      />
-      <YesNoOption
-        label="No"
-        active={value === 'no'}
-        onClick={() => onChange('no')}
-      />
-    </div>
-  );
-}
-
-function YesNoOption({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        'flex w-fit items-center gap-3 rounded-full transition',
-        active
-          ? 'bg-[#173B47] px-4 py-2 text-white shadow-[4px_4px_0_rgba(159,182,190,0.8)]'
-          : 'px-1 py-1 text-[#005271] ml-3',
-      ].join(' ')}
-    >
-      <span
-        className={[
-          'h-4 w-4 rounded-full border-2',
-          active ? 'border-white bg-[#9FB6BE]' : 'border-[#9FB6BE]',
-        ].join(' ')}
-      />
-      <span className="text-sm font-medium leading-none">{label}</span>
-    </button>
   );
 }
