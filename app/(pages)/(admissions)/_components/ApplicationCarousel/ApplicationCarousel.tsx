@@ -1,6 +1,6 @@
 'use client';
 
-//TODO: ADD BACK BUTTON AND PROFILE THING, and change resume upload to link format
+//TODO: ADD BACK BUTTON AND PROFILE THING
 //TODO: handle submission failure (some kind of visual feedback)
 
 import React from 'react';
