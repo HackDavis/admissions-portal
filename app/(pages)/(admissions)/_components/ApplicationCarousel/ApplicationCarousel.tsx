@@ -69,7 +69,7 @@ export default function ApplicationCarousel() {
 
   console.log('All form fields:', formData);
 
-  const { submit, loading, error } = useSubmitApplication();
+  const { submit } = useSubmitApplication();
 
   const handleFinalSubmit = async () => {
     //modify payload to account for custom university
@@ -157,7 +157,7 @@ export default function ApplicationCarousel() {
     };
   }, [api]);
 
-  {/* for back/next buttons (for dev) */}
+  // //for back/next buttons (for dev)
   // const total = SLIDES.length;
   // const canPrev = index > 0;
   // const canNext = index < total - 1;

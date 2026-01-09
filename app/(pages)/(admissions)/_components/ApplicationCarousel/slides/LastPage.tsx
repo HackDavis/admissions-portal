@@ -13,26 +13,26 @@ export default function LastPage({
   setFormData,
   onNext,
 }: LastPageProps) {
-  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  // const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleFinish = async () => {
     // Navigate to next slide (confirmation)
     onNext?.();
   };
 
-  const onPickFile = () => fileInputRef.current?.click();
+  // const onPickFile = () => fileInputRef.current?.click();
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    setFormData({ ...formData, resume: f ? f.name : '' });
-  };
+  // const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const f = e.target.files?.[0];
+  //   setFormData({ ...formData, resume: f ? f.name : '' });
+  // };
 
-  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const f = e.dataTransfer.files?.[0];
-    if (!f) return;
-    setFormData({ ...formData, resume: f.name });
-  };
+  // const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  //   e.preventDefault();
+  //   const f = e.dataTransfer.files?.[0];
+  //   if (!f) return;
+  //   setFormData({ ...formData, resume: f.name });
+  // };
 
   return (
     <section className="w-full">
@@ -48,11 +48,7 @@ export default function LastPage({
         {/* Inputs */}
         <div className="mx-auto mt-12 w-full max-w-[520px] text-left space-y-8">
           <Field
-            label={
-              <>
-                Share your GitHub or portfolio link (if you have one)!
-              </>
-            }
+            label={<>Share your GitHub or portfolio link (if you have one)!</>}
             value={formData.githubOrPortfolio}
             onChange={(v) => setFormData({ ...formData, githubOrPortfolio: v })}
           />
