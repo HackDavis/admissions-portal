@@ -1,4 +1,6 @@
+import React, { useState } from 'react';
 import Image from 'next/image';
+import { useCheckEmail } from '../../../_hooks/useCheckEmail';
 
 interface EmailProps {
   formData: any;
@@ -7,8 +9,18 @@ interface EmailProps {
 }
 
 export default function Email({ formData, setFormData, onNext }: EmailProps) {
+  const { checkEmail, loading, error } = useCheckEmail();
+  const [submitted, setSubmitted] = useState(false);
   const isValidEdu =
     formData.email.endsWith('.edu') && formData.email.includes('@');
+
+  const handleNext = async () => {
+    setSubmitted(true);
+    if (!isValidEdu) return;
+
+    const ok = await checkEmail(formData.email);
+    if (ok) onNext?.();
+  };
 
   return (
     <section className="relative w-full">
@@ -41,16 +53,19 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
             className="w-full border-b-2 border-[#005271]/60 bg-transparent py-3 text-center text-xl outline-none placeholder:text-[#9FB6BE]"
           />
         </div>
+        {submitted && error && (
+          <p className="text-sm font-semibold text-red-400">{error}</p>
+        )}
 
         <button
           type="button"
-          disabled={!isValidEdu}
-          onClick={onNext}
+          disabled={loading || !isValidEdu}
+          onClick={handleNext}
           className={`rounded-full px-8 py-3 text-white ${
-            isValidEdu ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
+            isValidEdu && !loading ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
           }`}
         >
-          Access Portal →
+          {loading ? 'Checking...' : 'Access Portal →'}
         </button>
       </div>
     </section>
