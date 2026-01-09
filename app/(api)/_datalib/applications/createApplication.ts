@@ -29,9 +29,14 @@ export const CreateApplication = async (body: object) => {
       throw new DuplicateError('Duplicate Error: applicant already submitted.');
     }
 
+    const parsedBodyWithTimestamp = {
+      ...parsedBody,
+      submittedAt: new Date(),
+    };
+
     const creationStatus = await db
       .collection('applications')
-      .insertOne(parsedBody);
+      .insertOne(parsedBodyWithTimestamp);
     const application = await db.collection('applications').findOne({
       _id: new ObjectId(creationStatus.insertedId),
     });
