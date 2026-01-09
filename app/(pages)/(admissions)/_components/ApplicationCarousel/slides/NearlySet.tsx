@@ -3,6 +3,7 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
+import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
 
 interface NearlySetProps {
   formData: any;
@@ -15,11 +16,16 @@ export default function NearlySet({
   setFormData,
   onNext,
 }: NearlySetProps) {
+  const [universities, setUniversities] = React.useState<string[]>([]); 
+  useEffect(() => {
+    fetchUniversityNames().then((data) => setUniversities(data));
+  }, []);
+
   useEffect(() => {
     if (formData.isUCDavisStudent === true) {
       setFormData((prev: any) => ({
         ...prev,
-        university: 'UC Davis',
+        university: 'University of California, Davis',
       }));
     }
   }, [formData.isUCDavisStudent, setFormData]);
@@ -86,10 +92,12 @@ export default function NearlySet({
                   className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
                 >
                   <option value="" />
-                  <option>UC Davis</option>
-                  <option>UC Berkeley</option>
-                  <option>Stanford</option>
-                  <option>Other</option>
+                    {universities.map((uni) => (
+                      <option key={uni} value={uni}>
+                        {uni}
+                      </option>
+                    ))}
+                  <option value="Other">Other</option>
                 </select>
 
                 <svg

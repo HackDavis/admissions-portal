@@ -60,7 +60,7 @@ export default function ApplicationCarousel() {
     connectWithMLH: false,
     status: 'pending',
     wasWaitlisted: false,
-    customUniversity: '',
+    customUniversity: '', //for custom university
     gender: [] as string[],
     race: [] as string[],
     attendedHackDavis: false,
