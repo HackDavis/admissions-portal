@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
 
     // Normalize _id to string id for frontend
     const applications = (res.body ?? []).map((d: any) => ({
-      id: String(d._id),
+      _id: String(d._id),
       firstName: d.firstName,
       lastName: d.lastName,
       email: d.email,

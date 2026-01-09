@@ -10,29 +10,10 @@ import {
 } from '@/app/_types/applicationFilters';
 
 import { PHASES } from '../_utils/constants';
-
-async function fetchApplications(params: {
-  phase: Phase;
-  ucd: UcdStudentFilter;
-  status?: string | null;
-}): Promise<Application[]> {
-  const search = new URLSearchParams();
-  search.set('phase', params.phase);
-  search.set('ucd', params.ucd);
-  if (params.status) search.set('status', params.status);
-
-  const res = await fetch(`/api/applications?${search.toString()}`, {
-    method: 'GET',
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error ?? `Request failed: ${res.status}`);
-  }
-
-  const data = await res.json();
-  return data.applications ?? [];
-}
+import {
+  getApplications,
+  patchApplicationStatus,
+} from '../_utils/applications';
 
 export default function useApplications() {
   const [ucd, setUcd] = useState<UcdStudentFilter>('all');
@@ -73,7 +54,9 @@ export default function useApplications() {
       setLoading((p) => ({ ...p, [phase]: true }));
       try {
         const status = getStatusForPhase(phase);
-        const apps = await fetchApplications({ phase, ucd, status });
+
+        //api call to get applications
+        const apps = await getApplications({ phase, ucd, status });
         if (!cancelled) setAppsByPhase((p) => ({ ...p, [phase]: apps }));
       } catch (e: any) {
         if (!cancelled) {
@@ -110,22 +93,13 @@ export default function useApplications() {
       options?: { wasWaitlisted?: boolean; refreshPhase?: Phase }
     ) => {
       setError(null);
-      const res = await fetch('/api/applications', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: appId,
-          status: nextStatus,
-          ...(options ?? {}),
-        }),
-      });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        const message = err?.error ?? `Request failed: ${res.status}`;
-        setError(message);
-        throw new Error(message);
-      }
+      //api call to update status
+      await patchApplicationStatus({
+        id: appId,
+        status: nextStatus,
+        wasWaitlisted: options?.wasWaitlisted,
+      });
 
       const phasesToRefresh = new Set<Phase>([
         fromPhase,
