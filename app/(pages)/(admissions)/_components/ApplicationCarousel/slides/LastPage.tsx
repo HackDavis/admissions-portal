@@ -13,26 +13,26 @@ export default function LastPage({
   setFormData,
   onNext,
 }: LastPageProps) {
-  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  // const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleFinish = async () => {
     // Navigate to next slide (confirmation)
     onNext?.();
   };
 
-  const onPickFile = () => fileInputRef.current?.click();
+  // const onPickFile = () => fileInputRef.current?.click();
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    setFormData({ ...formData, resume: f ? f.name : '' });
-  };
+  // const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const f = e.target.files?.[0];
+  //   setFormData({ ...formData, resume: f ? f.name : '' });
+  // };
 
-  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const f = e.dataTransfer.files?.[0];
-    if (!f) return;
-    setFormData({ ...formData, resume: f.name });
-  };
+  // const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  //   e.preventDefault();
+  //   const f = e.dataTransfer.files?.[0];
+  //   if (!f) return;
+  //   setFormData({ ...formData, resume: f.name });
+  // };
 
   return (
     <section className="w-full">
@@ -48,25 +48,25 @@ export default function LastPage({
         {/* Inputs */}
         <div className="mx-auto mt-12 w-full max-w-[520px] text-left space-y-8">
           <Field
-            label={
-              <>
-                Share your GitHub or portfolio link (if you have
-                <br />
-                one)!
-              </>
-            }
+            label={<>Share your GitHub or portfolio link (if you have one)!</>}
             value={formData.githubOrPortfolio}
             onChange={(v) => setFormData({ ...formData, githubOrPortfolio: v })}
           />
 
           <Field
-            label="or linkedIn"
+            label="or LinkedIn"
             value={formData.linkedin}
             onChange={(v) => setFormData({ ...formData, linkedin: v })}
           />
 
-          {/* Upload */}
-          <div className="pt-2">
+          <Field
+            label="Feel free to share your resume."
+            value={formData.resume}
+            onChange={(v) => setFormData({ ...formData, resume: v })}
+          />
+
+          {/* Upload resume feature -- no longer being used but will keep here */}
+          {/* <div className="pt-2">
             <p className="mb-4 text-base font-semibold text-[#0F2530]">
               Feel free to share your resume.
             </p>
@@ -107,7 +107,7 @@ export default function LastPage({
                 </p>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Finish */}
           <div className="pt-6 flex justify-center">
