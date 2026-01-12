@@ -23,18 +23,40 @@ export const GetApplication = async (id: string) => {
   }
 };
 
-export const GetManyApplications = async (query: object = {}) => {
+export const GetManyApplications = async (
+  query: object = {},
+  options?: {
+    projection?: Record<string, number>;
+    sort?: Record<string, number>;
+    limit?: number;
+    skip?: number;
+  }
+) => {
   try {
     const parsedQuery = await parseAndReplace(query);
-
     const db = await getDatabase();
 
-    const applications = await db
-      .collection('applications')
-      .find(parsedQuery)
-      .toArray();
+    const col = db.collection('applications');
 
-    return { ok: true, body: applications, error: null };
+    const projection = options?.projection;
+    const sort = options?.sort ?? { submittedAt: -1 };
+    const limit = typeof options?.limit === 'number' ? options!.limit : 50;
+    const skip = typeof options?.skip === 'number' ? options!.skip : 0;
+
+    const cursor = col
+      .find(parsedQuery, projection ? { projection } : undefined)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    const applications = await cursor.toArray();
+
+    return {
+      ok: true,
+      body: applications,
+      returned: applications.length,
+      error: null,
+    };
   } catch (e) {
     const error = e as HttpError;
     return {
