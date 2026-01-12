@@ -74,16 +74,8 @@ export default function useApplications() {
   );
 
   useEffect(() => {
-    loadPhase('unseen');
-  }, [loadPhase]);
-
-  useEffect(() => {
-    loadPhase('tentative');
-  }, [loadPhase, tentativeStatus]);
-
-  useEffect(() => {
-    loadPhase('processed');
-  }, [loadPhase, processedStatus]);
+    PHASES.forEach((ph) => loadPhase(ph.id));
+  }, [loadPhase, tentativeStatus, processedStatus]);
 
   const updateApplicantStatus = useCallback(
     async (
