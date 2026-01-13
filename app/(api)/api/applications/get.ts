@@ -112,32 +112,8 @@ export async function GET(request: NextRequest) {
 
     // Normalize _id to string id for frontend
     const applications = (res.body ?? []).map((d: any) => ({
+      ...d,
       _id: String(d._id),
-      firstName: d.firstName,
-      lastName: d.lastName,
-      email: d.email,
-      phone: d.phone,
-      age: d.age,
-      isUCDavisStudent: d.isUCDavisStudent,
-      university: d.university,
-      levelOfStudy: d.levelOfStudy,
-      major: d.major,
-      minorOrDoubleMajor: d.minorOrDoubleMajor,
-      college: d.college,
-      year: d.year,
-      shirtSize: d.shirtSize,
-      dietaryRestrictions: d.dietaryRestrictions,
-      connectWithSponsors: d.connectWithSponsors,
-      resume: d.resume,
-      linkedin: d.linkedin,
-      githubOrPortfolio: d.githubOrPortfolio,
-      connectWithHackDavis: d.connectWithHackDavis,
-      connectWithMLH: d.connectWithMLH,
-      status: d.status,
-      wasWaitlisted: d.wasWaitlisted,
-      submittedAt: d.submittedAt,
-      reviewedAt: d.reviewedAt,
-      processedAt: d.processedAt,
     }));
 
     return NextResponse.json({
