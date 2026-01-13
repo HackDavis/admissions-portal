@@ -77,12 +77,8 @@ export default function FinalizeButton({
 
       alert(`Mailchimp sent to ${res.count} applicants`);
       setIsPopupOpen(false);
-    } catch (err) {
-      alert('Failed to send Mailchimp invites');
-    }
 
-    //Update tentative statuses
-    try {
+      //Update tentative statuses
       const updates = apps
         .filter((app) => app.status in FINAL_STATUS_MAP)
         .map((app) =>
@@ -92,8 +88,9 @@ export default function FinalizeButton({
           })
         );
       await Promise.all(updates);
-    } catch (err) {
-      alert('Failed to update application statuses');
+    } catch (err: any) {
+      console.error(err);
+      alert(`Failed to send Mailchimp invites and/or update application statuses: ${err.message ?? err}`);
     } finally {
       setIsProcessing(false);
       setIsPopupOpen(false);

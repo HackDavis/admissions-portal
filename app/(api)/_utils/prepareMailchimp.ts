@@ -186,7 +186,7 @@ export async function prepareMailchimpInvites() {
     }
   }
 
-  console.log('\nDone. Check Mailchimp UI for updated merge fields!');
+  console.log('Done. Check Mailchimp UI for updated merge fields!');
   return {
     ok: true,
     count: invites.length,
