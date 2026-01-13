@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { YesNoGroup } from '../_components/YesNoGroup';
 
 const GENDER_OPTIONS = [
   'Woman',
@@ -170,59 +171,5 @@ function OptionRow({
       />
       <span className="text-sm text-[#0F2530]">{label}</span>
     </label>
-  );
-}
-
-function YesNoGroup({
-  value,
-  onChange,
-}: {
-  value: 'yes' | 'no' | null;
-  onChange: (v: 'yes' | 'no') => void;
-}) {
-  return (
-    <div className="mt-4 flex flex-col gap-3">
-      <YesNoOption
-        label="Yes"
-        active={value === 'yes'}
-        onClick={() => onChange('yes')}
-      />
-      <YesNoOption
-        label="No"
-        active={value === 'no'}
-        onClick={() => onChange('no')}
-      />
-    </div>
-  );
-}
-
-function YesNoOption({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        'flex w-fit items-center gap-3 rounded-full transition',
-        active
-          ? 'bg-[#173B47] px-4 py-2 text-white shadow-[4px_4px_0_rgba(159,182,190,0.8)]'
-          : 'px-1 py-1 text-[#005271] ml-3',
-      ].join(' ')}
-    >
-      <span
-        className={[
-          'h-4 w-4 rounded-full border-2',
-          active ? 'border-white bg-[#9FB6BE]' : 'border-[#9FB6BE]',
-        ].join(' ')}
-      />
-      <span className="text-sm font-medium leading-none">{label}</span>
-    </button>
   );
 }

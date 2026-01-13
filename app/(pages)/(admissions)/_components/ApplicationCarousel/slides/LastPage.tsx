@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import React from 'react';
 
 interface LastPageProps {
   formData: any;
@@ -15,9 +15,21 @@ export default function LastPage({
 }: LastPageProps) {
   // const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState('');
+
   const handleFinish = async () => {
-    // Navigate to next slide (confirmation)
-    onNext?.();
+    setSubmitting(true);
+    setError('');
+
+    try {
+      await onNext?.();
+    } catch (err) {
+      console.error(err);
+      setError('Submission failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // const onPickFile = () => fileInputRef.current?.click();
@@ -114,10 +126,16 @@ export default function LastPage({
             <button
               type="button"
               onClick={handleFinish}
+              disabled={submitting}
               className="flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
             >
-              Finish <span aria-hidden>→</span>
+              {submitting ? 'Submitting...' : 'Finish'}
+              <span aria-hidden>→</span>
             </button>
+
+            {error && (
+              <p className="mt-4 text-sm font-semibold text-red-500">{error}</p>
+            )}
           </div>
         </div>
       </div>

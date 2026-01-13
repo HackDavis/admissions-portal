@@ -14,8 +14,13 @@ const QUESTIONS: Question[] = [
   { id: 'firstName', label: 'First Name', required: true },
   { id: 'lastName', label: 'Last Name', required: true },
   { id: 'phone', label: 'Phone number', required: true },
-  { id: 'age', label: 'Age', required: false },
+  { id: 'age', label: 'Age', required: true },
 ];
+
+const PHONE_REGEX = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}$/;
+const isValidPhone = (value: string) => {
+  return PHONE_REGEX.test(value.trim());
+};
 
 interface ContactProps {
   formData: any;
@@ -43,6 +48,8 @@ export default function Contact({
     );
     if (missingRequired) return;
 
+    if (!isValidPhone(formData.phone || '')) return;
+
     onNext?.();
   };
 
@@ -58,8 +65,13 @@ export default function Contact({
 
       <div className="mx-auto mt-12 w-full max-w-lg space-y-10">
         {QUESTIONS.map((q) => {
-          const showError =
-            submitted && q.required && (formData[q.id] || '').trim() === '';
+          const value = (formData[q.id] || '').trim();
+          const isEmptyError = submitted && q.required && value === '';
+          const isPhoneError =
+            submitted &&
+            q.id === 'phone' &&
+            value !== '' &&
+            !isValidPhone(value);
 
           return (
             <div key={q.id}>
@@ -73,13 +85,18 @@ export default function Contact({
                 onChange={onChange(q.id)}
                 className={[
                   'mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-base text-[#0F2530] outline-none',
-                  showError ? 'ring-1 ring-red-400' : '',
+                  isEmptyError || isPhoneError ? 'ring-1 ring-red-400' : '',
                 ].join(' ')}
               />
 
-              {showError ? (
+              {isEmptyError ? (
                 <p className="mt-3 text-sm font-semibold text-red-400">
                   ERROR: Wait! You left this one blank.
+                </p>
+              ) : isPhoneError ? (
+                <p className="mt-3 text-sm font-semibold text-red-400">
+                  ERROR: Please enter a valid phone number (10-digit or (###)
+                  ###-#### ).
                 </p>
               ) : null}
             </div>

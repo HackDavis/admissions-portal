@@ -43,8 +43,8 @@ export default function ApplicationCarousel() {
     email: '',
     phone: '',
     age: 0,
-    isUCDavisStudent: true,
-    isOver18: true,
+    isUCDavisStudent: false,
+    isOver18: false,
     university: '',
     levelOfStudy: '',
     major: '',
@@ -60,11 +60,11 @@ export default function ApplicationCarousel() {
     connectWithMLH: false,
     status: 'pending',
     wasWaitlisted: false,
-    customUniversity: '',
+    customUniversity: '', //for custom university
     gender: [] as string[],
     race: [] as string[],
-    attendedHackDavis: 'yes',
-    firstHackathon: 'yes',
+    attendedHackDavis: false,
+    firstHackathon: false,
   });
 
   console.log('All form fields:', formData);
