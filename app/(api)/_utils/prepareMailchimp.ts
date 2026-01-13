@@ -178,6 +178,8 @@ export async function prepareMailchimpInvites() {
         hubUrl
       );
 
+      //TODO: add actual sending of Mailchimp email here
+
       console.log(`Mailchimp email sent for ${inv.email}`);
       await new Promise((r) => setTimeout(r, 400)); // slight delay
     } catch (err: any) {

@@ -75,7 +75,9 @@ export default function FinalizeButton({
         return;
       }
 
-      alert(`Mailchimp sent to ${res.count} applicants`);
+      //TODO: remove alert and handle errors properly
+
+      alert(`Mailchimp sent to ${res.count} applicants - but not actually yet`);
       setIsPopupOpen(false);
 
       //Update tentative statuses
