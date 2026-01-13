@@ -129,7 +129,8 @@ export default function LastPage({
               disabled={submitting}
               className="flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
             >
-              {submitting ? 'Submitting...' : 'Finish'} <span aria-hidden>→</span>
+              {submitting ? 'Submitting...' : 'Finish'}
+              <span aria-hidden>→</span>
             </button>
 
             {error && (

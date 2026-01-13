@@ -95,7 +95,8 @@ export default function Contact({
                 </p>
               ) : isPhoneError ? (
                 <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Please enter a valid phone number.
+                  ERROR: Please enter a valid phone number (10-digit or (###)
+                  ###-#### ).
                 </p>
               ) : null}
             </div>
