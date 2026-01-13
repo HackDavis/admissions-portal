@@ -31,13 +31,14 @@ jobs:
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          TITO_AUTH_TOKEN: ${{ secrets.TITO_AUTH_TOKEN }}
+          HUB_ADMIN_PASSWORD: ${{ secrets.HUB_ADMIN_PASSWORD }}
+
           BASE_URL: ${{ vars.ENV_URL }}
           NEXTAUTH_URL: ${{ vars.ENV_URL }}
-          TITO_AUTH_TOKEN: ${{ secrets.TITO_AUTH_TOKEN }}
-          TITO_EVENT_BASE_URL: ${{ vars.TITO_AUTH_TOKEN }}
+          TITO_EVENT_BASE_URL: ${{ vars.TITO_EVENT_BASE_URL }}
           HACKDAVIS_HUB_BASE_URL: ${{ vars.ENV_URL }}
           HUB_ADMIN_EMAIL: ${{ vars.HUB_ADMIN_EMAIL }}
-          HUB_ADMIN_PASSWORD: ${{ secrets.HUB_ADMIN_EMAIL }}
 
       - name: Success
         run: echo "🚀  Deploy successful - BLAST OFF WOO! (woot woot) !!! 🐕 🐕 🐕 🚀 "

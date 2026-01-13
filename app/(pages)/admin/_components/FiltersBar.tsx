@@ -1,0 +1,27 @@
+'use client';
+
+import { UcdStudentFilter } from '@/app/_types/applicationFilters';
+
+interface FiltersBarProps {
+  ucd: UcdStudentFilter;
+  onUcdChange: (value: UcdStudentFilter) => void;
+}
+
+export default function FiltersBar({ ucd, onUcdChange }: FiltersBarProps) {
+  return (
+    <section className="mb-4 flex flex-wrap items-center gap-3">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-semibold uppercase">ucd filter</span>
+        <select
+          value={ucd}
+          onChange={(e) => onUcdChange(e.target.value as UcdStudentFilter)}
+          className="border-2 border-black px-2 py-1 text-xs"
+        >
+          <option value="all">all</option>
+          <option value="true">ucd students</option>
+          <option value="false">non-ucd students</option>
+        </select>
+      </div>
+    </section>
+  );
+}
