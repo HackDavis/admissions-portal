@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { Application } from '@/app/_types/application';
 import { Status } from '@/app/_types/applicationFilters';
 import { exportTitoCSV } from '@utils/exportTito';
-
-// TODO: Add Mailchimp + HackerHub invite flow here.
+import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
 
 interface FinalizeButtonProps {
   apps: Application[];
@@ -28,22 +27,11 @@ export default function FinalizeButton({
   onFinalizeStatus,
 }: FinalizeButtonProps) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFinalize = async () => {
     // Auto download CSV
     await downloadCSV();
-
-    //Update status
-    const updates = apps
-      .filter((app) => app.status in FINAL_STATUS_MAP)
-      .map((app) =>
-        onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
-          wasWaitlisted: app.status === 'tentatively_waitlisted',
-          refreshPhase: 'processed',
-        })
-      );
-
-    await Promise.all(updates);
   };
 
   async function downloadCSV() {
@@ -75,10 +63,41 @@ export default function FinalizeButton({
     }
   }
 
-  const handleMailchimp = () => {
-    alert('Mailchimp coming soon');
-    setIsPopupOpen(false);
-    //TODO: implement mailchimp flow
+  // Sends Mailchimp email && updates application status
+  async function processMailchimpInvites() {
+    setIsProcessing(true);
+    // Sends Mailchimp invites
+    try {
+      const res = await prepareMailchimpInvites();
+
+      if (!res.ok) {
+        alert(res.message);
+        return;
+      }
+
+      alert(`Mailchimp sent to ${res.count} applicants`);
+      setIsPopupOpen(false);
+    } catch (err) {
+      alert('Failed to send Mailchimp invites');
+    }
+
+    //Update tentative statuses
+    try {
+      const updates = apps
+        .filter((app) => app.status in FINAL_STATUS_MAP)
+        .map((app) =>
+          onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
+            wasWaitlisted: app.status === 'tentatively_waitlisted',
+            refreshPhase: 'processed',
+          })
+        );
+      await Promise.all(updates);
+    } catch (err) {
+      alert('Failed to update application statuses');
+    } finally {
+      setIsProcessing(false);
+      setIsPopupOpen(false);
+    }
   };
 
   return (
@@ -108,22 +127,23 @@ export default function FinalizeButton({
               <p>4. Upload the CSV file after downloading</p>
               <p>5. Tito will create all the invitations!</p>
               <p>
-                After import, you can use prepareMailChimp.ts to fetch
-                invitation URLs and send them via Mailchimp.
+                After import, click the button below to send out Mailchimp invites.
               </p>
             </div>
 
             {/* Buttons */}
             <div className="flex justify-end space-x-2">
               <button
-                onClick={handleMailchimp}
+                onClick={processMailchimpInvites}
                 className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
+                disabled={isProcessing}
               >
-                Mailchimp Invite
+                {isProcessing ? 'Processing...' : 'Mailchimp Invite'}
               </button>
               <button
                 onClick={() => setIsPopupOpen(false)}
                 className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
+                disabled={isProcessing}
               >
                 Close
               </button>
