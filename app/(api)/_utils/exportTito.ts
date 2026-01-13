@@ -38,25 +38,3 @@ async function generateCSV(applicants: Application[]) {
 
   return [headers.join(','), ...rows].join('\n');
 }
-
-//csv download
-// export function downloadCSV(csvContent: string) {
-//   console.log('Exporting tentatively accepted applicants to CSV...\n');
-//   const blob = new Blob([csvContent], { type: 'text/csv' });
-//   const link = document.createElement('a');
-//   link.href = URL.createObjectURL(blob);
-//   link.download = `tito_import_${new Date().toISOString().split('T')[0]}.csv`;
-//   link.click();
-//   URL.revokeObjectURL(link.href);
-
-//   console.log('\nExport complete!');
-//   console.log('\nNext steps:');
-//   console.log('   1. Go to your Tito RSVP Lists');
-//   console.log('   2. Navigate to Actions → Manage Invitations');
-//   console.log("   3. Click the 'Import' button");
-//   console.log(`   4. Upload the file: ${link.download}`);
-//   console.log('   5. Tito will create all the invitations!');
-//   console.log(
-//     '\nAfter import, you can use the prepareMailChimp.ts to fetch the invitation URLs and send them via Mailchimp.'
-//   );
-// }
