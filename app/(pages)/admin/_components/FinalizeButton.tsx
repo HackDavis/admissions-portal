@@ -90,12 +90,16 @@ export default function FinalizeButton({
       await Promise.all(updates);
     } catch (err: any) {
       console.error(err);
-      alert(`Failed to send Mailchimp invites and/or update application statuses: ${err.message ?? err}`);
+      alert(
+        `Failed to send Mailchimp invites and/or update application statuses: ${
+          err.message ?? err
+        }`
+      );
     } finally {
       setIsProcessing(false);
       setIsPopupOpen(false);
     }
-  };
+  }
 
   return (
     <div>
@@ -124,7 +128,8 @@ export default function FinalizeButton({
               <p>4. Upload the CSV file after downloading</p>
               <p>5. Tito will create all the invitations!</p>
               <p>
-                After import, click the button below to send out Mailchimp invites.
+                After import, click the button below tosend out Mailchimp
+                invites!
               </p>
             </div>
 
