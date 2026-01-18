@@ -11,6 +11,12 @@ interface EmailProps {
 export default function Email({ formData, setFormData, onNext }: EmailProps) {
   const { checkEmail, loading, error } = useCheckEmail();
   const [submitted, setSubmitted] = useState(false);
+
+  // to keep saying .edu email validity
+  const showEduError =
+    formData.email.length > 0 &&
+    (!formData.email.includes('@') || !formData.email.endsWith('.edu'));
+
   const isValidEdu =
     formData.email.endsWith('.edu') && formData.email.includes('@');
 
@@ -70,10 +76,16 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
             onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })
             }
+            
             placeholder="Enter School Email (.edu)"
             className="w-full border-b-2 border-[#005271]/60 bg-transparent py-3 text-center text-xl outline-none placeholder:text-[#9FB6BE]"
           />
         </div>
+        {showEduError && (
+          <p className="mt-2 text-sm font-semibold text-red-500">
+            Please enter a valid school email ending in .edu
+          </p>
+        )}
         {submitted && error && (
           <p className="text-sm font-semibold text-red-400">{error}</p>
         )}
