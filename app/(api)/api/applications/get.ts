@@ -30,6 +30,8 @@ function parseUcd(raw: string | null): UcdParam {
   return 'all';
 }
 
+/* This GET endpoint is not being actively used within code, refer to @actions instead. */
+
 export async function GET(request: NextRequest) {
   try {
     const queries = await getQueries(request, 'applications');

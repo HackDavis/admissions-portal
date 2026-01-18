@@ -15,6 +15,8 @@ const ALL_STATUSES = [
   ...PROCESSED_STATUSES,
 ] as const;
 
+/* This PATCH endpoint is not being actively used within code, refer to @actions instead. */
+
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
