@@ -182,32 +182,32 @@ export default function ApplicationCarousel() {
           })}
         </div>
       }
-      leftDecor={
-        index === 0 ? (
-          <div
-            className="
-              pointer-events-none
-              absolute
-              left-32
-              top-0
-              hidden sm:block
-              -translate-x-[61%]
-              -translate-y-[17%]
-              w-56 h-56
-              md:w-64 md:h-64
-              lg:w-80 lg:h-80
-            "
-          >
-            <Image
-              src="/Images/Peeping.svg"
-              alt="Animals peering from behind a wall."
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-        ) : null
-      }
+      // leftDecor={
+      //   index === 0 ? (
+      //     <div
+      //       className="
+      //         pointer-events-none
+      //         absolute
+      //         left-32
+      //         top-0
+      //         hidden sm:block
+      //         -translate-x-[61%]
+      //         -translate-y-[17%]
+      //         w-56 h-56
+      //         md:w-64 md:h-64
+      //         lg:w-80 lg:h-80
+      //       "
+      //     >
+      //       <Image
+      //         src="/Images/Peeping.svg"
+      //         alt="Animals peering from behind a wall."
+      //         fill
+      //         className="object-contain"
+      //         priority
+      //       />
+      //     </div>
+      //   ) : null
+      // }
     >
       <div ref={viewportRef} className="overflow-hidden">
         <div className="flex items-start">
