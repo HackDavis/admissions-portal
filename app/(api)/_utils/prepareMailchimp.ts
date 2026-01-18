@@ -1,25 +1,23 @@
 'use server';
 
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 
 // Mailchimp axios client
-const mailchimp = axios.create({
-  baseURL: `https://${process.env.MAILCHIMP_SERVER_PREFIX}.api.mailchimp.com/3.0`,
-  headers: {
-    Authorization: `Basic ${Buffer.from(
-      `anystring:${process.env.MAILCHIMP_API_KEY}`
-    ).toString('base64')}`,
-  },
-});
-
-// HackDavis Hub axios client
-const session = axios.create();
-let hubLoggedIn = false;
+function getMailchimpClient() {
+  return axios.create({
+    baseURL: `https://${process.env.MAILCHIMP_SERVER_PREFIX}.api.mailchimp.com/3.0`,
+    headers: {
+      Authorization: `Basic ${Buffer.from(
+        `anystring:${process.env.MAILCHIMP_API_KEY}`
+      ).toString('base64')}`,
+    },
+  });
+}
 
 // Login to Hub to start authenticated session
-async function loginHub() {
-  if (hubLoggedIn) return;
+async function getHubSession(): Promise<AxiosInstance> {
+  const session = axios.create();
   try {
     const res = await session.post(
       `${process.env.HACKDAVIS_HUB_BASE_URL}/api/auth/login`,
@@ -28,23 +26,20 @@ async function loginHub() {
         password: process.env.HUB_ADMIN_PASSWORD,
       }
     );
-    hubLoggedIn = res.status === 200;
-    console.log('Hub login status:', hubLoggedIn, res.data);
-  } catch (err) {
-    console.error('Hub login failed:', err);
+    if (res.status !== 200) throw new Error('Hub login failed');
+    return session;
+  } catch (err: any) {
+    throw new Error(`Hub Authentication Error: ${err.message}`);
   }
 }
 
 // Create hacker invite link
 async function createHubInvite(
+  session: AxiosInstance,
   first: string,
   last: string,
   email: string
 ): Promise<string> {
-  if (!hubLoggedIn) {
-    throw new Error('Hub is not logged in');
-  }
-
   try {
     const res = await session.post(
       `${process.env.HACKDAVIS_HUB_BASE_URL}/api/invite`,
@@ -84,8 +79,7 @@ async function addToMailchimp(
   titoUrl: string,
   hubUrl: string
 ) {
-  if (!hubUrl) throw new Error(`Hub URL missing for ${email}`);
-  if (!titoUrl) throw new Error(`Tito URL missing for ${email}`);
+  const mailchimp = getMailchimpClient();
 
   const subscriberHash = crypto
     .createHash('md5')
@@ -141,56 +135,74 @@ async function fetchInvites(slug: string) {
 
 // Main
 export async function prepareMailchimpInvites() {
-  console.log('Processing Tito → Hub → Mailchimp\n');
-
-  const rsvpList = await getRsvpList();
-  const invites = await fetchInvites(rsvpList.slug);
-
-  if (!invites.length) {
-    return { ok: false, message: 'No unredeemed invites found.' };
-  }
-
-  await loginHub();
-
-  for (const inv of invites) {
-    console.log(`\nProcessing: ${inv.email}`);
-    console.log('Tito invite object:', inv);
-
-    try {
-      // Create Hub invite
-      const hubUrl = await createHubInvite(
-        inv.first_name,
-        inv.last_name,
-        inv.email
-      );
-      console.log('Hub URL sending to Mailchimp:', hubUrl);
-
-      // 2nd check that hub and tito urls exist
-      if (!hubUrl) throw new Error(`Hub URL invalid for ${inv.email}`);
-      if (!inv.unique_url) throw new Error(`Tito URL missing for ${inv.email}`);
-
-      // Add/update Mailchimp
-      await addToMailchimp(
-        inv.email,
-        inv.first_name,
-        inv.last_name,
-        inv.unique_url,
-        hubUrl
-      );
-
-      //TODO: add actual sending of Mailchimp email here
-
-      console.log(`Mailchimp email sent for ${inv.email}`);
-      await new Promise((r) => setTimeout(r, 400)); // slight delay
-    } catch (err: any) {
-      console.error('Process stopped due to error:', err.message);
-      return { ok: false, message: err.message };
+  try {
+    const requiredEnvs = [
+      'MAILCHIMP_API_KEY',
+      'MAILCHIMP_SERVER_PREFIX',
+      'MAILCHIMP_LIST_ID',
+      'TITO_AUTH_TOKEN',
+    ];
+    for (const env of requiredEnvs) {
+      if (!process.env[env])
+        throw new Error(`Missing Environment Variable: ${env}`);
     }
-  }
 
-  console.log('Done. Check Mailchimp UI for updated merge fields!');
-  return {
-    ok: true,
-    count: invites.length,
-  };
+    console.log('Processing Tito → Hub → Mailchimp\n');
+
+    const rsvpList = await getRsvpList();
+    const invites = await fetchInvites(rsvpList.slug);
+
+    if (!invites.length) {
+      return { ok: false, message: 'No unredeemed invites found.' };
+    }
+
+    const hubSession = await getHubSession();
+
+    for (const inv of invites) {
+      console.log(`\nProcessing: ${inv.email}`);
+      console.log('Tito invite object:', inv);
+
+      try {
+        // Create Hub invite
+        const hubUrl = await createHubInvite(
+          hubSession,
+          inv.first_name,
+          inv.last_name,
+          inv.email
+        );
+        console.log('Hub URL sending to Mailchimp:', hubUrl);
+
+        // 2nd check that hub and tito urls exist
+        if (!hubUrl) throw new Error(`Hub URL invalid for ${inv.email}`);
+        if (!inv.unique_url)
+          throw new Error(`Tito URL missing for ${inv.email}`);
+
+        // Add/update Mailchimp
+        await addToMailchimp(
+          inv.email,
+          inv.first_name,
+          inv.last_name,
+          inv.unique_url,
+          hubUrl
+        );
+
+        //TODO: add actual sending of Mailchimp email here
+
+        console.log(`Mailchimp email sent for ${inv.email}`);
+        await new Promise((r) => setTimeout(r, 400)); // slight delay
+      } catch (err: any) {
+        console.error('Process stopped due to error:', err.message);
+        return { ok: false, message: err.message };
+      }
+    }
+
+    console.log('Done. Check Mailchimp UI for updated merge fields!');
+    return {
+      ok: true,
+      count: invites.length,
+    };
+  } catch (err: any) {
+    console.error('Server Action Error:', err.response?.data || err.message);
+    return { ok: false, error: err.message || 'Internal Server Error' };
+  }
 }
