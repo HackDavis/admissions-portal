@@ -25,26 +25,26 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
   return (
     <section className="relative w-full">
       <div
-            className="
-              pointer-events-none
-              border
-              border-red-600
-              absolute
-              top-0
-              hidden sm:block
-              // w-56 h-56
-              // md:w-64 md:h-64
-              // lg:w-80 lg:h-80
-            "
-          >
-            <Image
-              src="/Images/Peeping.svg"
-              alt="Animals peering from behind a wall."
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
+        className="
+          pointer-events-none
+          border
+          border-red-600
+          absolute
+          top-0
+          hidden sm:block
+          // w-56 h-56
+          // md:w-64 md:h-64
+          // lg:w-80 lg:h-80
+        "
+      >
+        <Image
+          src="/Images/Peeping.svg"
+          alt="Animals peering from behind a wall."
+          fill
+          className="object-contain"
+          priority
+        />
+      </div>
       <header className="text-center">
         <Image
           src="/Images/HDLogo.svg"
