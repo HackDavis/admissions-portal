@@ -22,13 +22,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '21.7.3'
-
+          cache: 'npm'
+      
       - name: Install dependencies
         run: npm install
 
-      - name: Lint and build code, then publish to Vercel
-        run: npx vercel --debug --token ${{ secrets.VERCEL_TOKEN }} -n ${{ vars.VERCEL_PROJECT }} --yes --prod
+      - name: Lint and build code
+        run: npm run build
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build Project on Github
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           TITO_AUTH_TOKEN: ${{ secrets.TITO_AUTH_TOKEN }}
@@ -39,6 +54,12 @@ jobs:
           TITO_EVENT_BASE_URL: ${{ vars.TITO_EVENT_BASE_URL }}
           HACKDAVIS_HUB_BASE_URL: ${{ vars.ENV_URL }}
           HUB_ADMIN_EMAIL: ${{ vars.HUB_ADMIN_EMAIL }}
+
+      - name: Deploy Project to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Success
         run: echo "🚀  Deploy successful - BLAST OFF WOO! (woot woot) !!! 🐕 🐕 🐕 🚀 "
