@@ -19,6 +19,7 @@ import Diversity from './slides/Diversity';
 import NearlySet from './slides/NearlySet';
 import Confirmation from './slides/Confirmation';
 import LastPage from './slides/LastPage';
+import { NoteBanner } from './_components/NoteBanner';
 
 type SlideDef = {
   key: string;
@@ -167,7 +168,7 @@ export default function ApplicationCarousel() {
 
   return (
     <>
-    {/* back/next buttons (for dev) */}
+      {/* back/next buttons (for dev) */}
       <div className="mt-8 px-[5%] flex items-center justify-between gap-4">
         <button
           type="button"
@@ -189,6 +190,14 @@ export default function ApplicationCarousel() {
           <GoPerson width={150} height={150} className='text-[#005271] h-7 w-7' />
         </button>
       </div>
+
+      {/* note banner */}
+      <NoteBanner
+        value={null}
+        emoji="📧 "
+        message="Each applicant may submit one application per email address. We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted. "
+      />
+
       <ApplicationFrame
         topRight={
           <div className="flex items-center gap-2">
