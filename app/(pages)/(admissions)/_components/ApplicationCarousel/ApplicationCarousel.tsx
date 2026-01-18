@@ -16,7 +16,7 @@ import { GoPerson } from "react-icons/go";
 import Email from './slides/Email';
 import Contact from './slides/Contact';
 import Diversity from './slides/Diversity';
-import NearlySet from './slides/NearlySet';
+import NearlySet from './slides/FutureHacker';
 import Confirmation from './slides/Confirmation';
 import LastPage from './slides/LastPage';
 import { NoteBanner } from './_components/NoteBanner';

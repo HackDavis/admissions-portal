@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-type FieldId = 'firstName' | 'lastName' | 'phone' | 'age';
+type FieldId = 'firstName' | 'lastName' | 'phone';
 
 type Question = {
   id: FieldId;
@@ -14,7 +14,7 @@ const QUESTIONS: Question[] = [
   { id: 'firstName', label: 'First Name', required: true },
   { id: 'lastName', label: 'Last Name', required: true },
   { id: 'phone', label: 'Phone number', required: true },
-  { id: 'age', label: 'Age', required: true },
+  // { id: 'age', label: 'Age', required: true },
 ];
 
 const PHONE_REGEX = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}$/;

@@ -50,7 +50,7 @@ export default function NearlySet({
     <section className="w-full">
       <div className="mx-auto w-full max-w-[520px] text-center">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
-          We’re Nearly Set!
+          Future Hacker <br/> Incoming
         </h1>
 
         <div className="mt-12 text-left space-y-10">
