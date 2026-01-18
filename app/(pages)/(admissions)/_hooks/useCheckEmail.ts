@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import fetchGet from '@utils/fetch/fetchGet';
+import { getManyApplications } from '@actions/applications/getApplication';
 
 export function useCheckEmail() {
   const [loading, setLoading] = useState(false);
@@ -12,18 +12,15 @@ export function useCheckEmail() {
     setError(null);
 
     try {
-      const res = await fetchGet(
-        `/api/applications?email=${encodeURIComponent(email)}`
-      );
-      const json = await res.json();
+      const result = await getManyApplications({ email: email.toLowerCase() });
 
-      if (!res.ok || !json.ok) {
-        setError(json.error ?? 'Error checking email, please try again.');
+      if (!result.ok) {
+        setError(result.error ?? 'Error checking email.');
         setLoading(false);
         return false;
       }
 
-      if (json.body && json.body.length > 0) {
+      if (result.body && result.body.length > 0) {
         setError('You have already submitted an application with this email.');
         setLoading(false);
         return false;
