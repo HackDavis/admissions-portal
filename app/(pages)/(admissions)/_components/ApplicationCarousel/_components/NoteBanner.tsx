@@ -1,28 +1,39 @@
 'use client';
 
 import React from 'react';
-
+import Image from 'next/image';
 export interface NoteBannerProps {
-  value: boolean | null;
   emoji: string;
+  bold:string;
   message: string;
 }
 
 export function NoteBanner({
-  value,
   emoji,
+  bold,
   message
 }: NoteBannerProps) {
   return (
     <div className="mx-auto w-full max-w-5xl px-6">
-        <div className="relative rounded-[28px] border-[#A6BFC7] border bg-[#E5EEF1] p-3 shadow-[6px_8px_0_#A6BFC7] flex flex-row">
-            <div className="border border-red-500">
-                <p>test</p>
+        <div className="rounded-[28px] border-[#A6BFC7] border bg-[#E5EEF1] p-3 shadow-[6px_8px_0_#A6BFC7] relative grid grid-cols-[15%_1fr]">
+            <div className="relative flex items-center justify-center">
+                <div className="relative h-28 w-28 border border-red-500">
+                    <Image
+                    src={emoji}
+                    alt="notification icon"
+                    fill
+                    className="object-contain"
+                    priority
+                    />
+                </div>
             </div>
-            <p className="text-sm border border-blue-500">
-                {emoji}
-                {message}
-            </p>
+
+            <div className="relative flex items-center justify-center">
+                <p className="text-sm text-[#173B47] border border-blue-600">
+                    <strong className="mr-1">{bold}</strong>
+                    {message}
+                </p>
+            </div>
         </div>
     </div>
   );

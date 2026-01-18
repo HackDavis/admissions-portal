@@ -193,9 +193,9 @@ export default function ApplicationCarousel() {
 
       {/* note banner */}
       <NoteBanner
-        value={null}
-        emoji="📧 "
-        message="Each applicant may submit one application per email address. We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted. "
+        emoji="/Images/RedNotif.svg"
+        bold="Each applicant may submit one application per email address. "
+        message="We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted. "
       />
 
       <ApplicationFrame
