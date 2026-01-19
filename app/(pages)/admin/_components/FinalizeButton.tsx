@@ -46,9 +46,7 @@ export default function FinalizeButton({
 
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
-      const download = `tito_import_${
-        new Date().toISOString().split('T')[0]
-      }.csv`;
+      const download = `tito_import_${new Date().toISOString()}.csv`;
       const a = document.createElement('a');
       a.href = url;
       a.download = download;
@@ -130,7 +128,7 @@ export default function FinalizeButton({
               <p>4. Upload the CSV file after downloading</p>
               <p>5. Tito will create all the invitations!</p>
               <p>
-                After import, click the button below tosend out Mailchimp
+                After import, click the button below to send out Mailchimp
                 invites!
               </p>
             </div>

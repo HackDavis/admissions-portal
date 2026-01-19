@@ -10,10 +10,10 @@ import {
 } from '@/app/_types/applicationFilters';
 
 import { PHASES } from '../_utils/constants';
-import {
-  getApplications,
-  patchApplicationStatus,
-} from '../_utils/applications';
+import { getAdminApplications } from '@actions/applications/getAdminApplications';
+import { updateApplication } from '@actions/applications/updateApplication';
+
+import { ApplicationUpdatePayload } from '@/app/_types/application';
 
 export default function useApplications() {
   const [ucd, setUcd] = useState<UcdStudentFilter>('all');
@@ -55,9 +55,17 @@ export default function useApplications() {
       try {
         const status = getStatusForPhase(phase);
 
-        //api call to get applications
-        const apps = await getApplications({ phase, ucd, status });
-        if (!cancelled) setAppsByPhase((p) => ({ ...p, [phase]: apps }));
+        //action call to get applications
+        const res = await getAdminApplications({ phase, ucd, status });
+
+        if (!cancelled) {
+          if (res.ok && Array.isArray(res.body)) {
+            setAppsByPhase((p) => ({ ...p, [phase]: res.body }));
+          } else {
+            setError(res.error ?? `Failed to load ${phase} applications`);
+            setAppsByPhase((p) => ({ ...p, [phase]: [] }));
+          }
+        }
       } catch (e: any) {
         if (!cancelled) {
           setError(e?.message ?? `Failed to load ${phase} applications`);
@@ -74,8 +82,16 @@ export default function useApplications() {
   );
 
   useEffect(() => {
-    PHASES.forEach((ph) => loadPhase(ph.id));
-  }, [loadPhase, tentativeStatus, processedStatus]);
+    loadPhase('unseen');
+  }, [loadPhase, ucd]);
+
+  useEffect(() => {
+    loadPhase('tentative');
+  }, [loadPhase, ucd, tentativeStatus]);
+
+  useEffect(() => {
+    loadPhase('processed');
+  }, [loadPhase, ucd, processedStatus]);
 
   const updateApplicantStatus = useCallback(
     async (
@@ -86,18 +102,28 @@ export default function useApplications() {
     ) => {
       setError(null);
 
-      //api call to update status
-      await patchApplicationStatus({
-        id: appId,
+      const payload: ApplicationUpdatePayload = {
         status: nextStatus,
         wasWaitlisted: options?.wasWaitlisted,
-      });
+      };
 
-      const phasesToRefresh = new Set<Phase>([
-        fromPhase,
-        options?.refreshPhase ?? fromPhase,
-      ]);
-      await Promise.all([...phasesToRefresh].map((phase) => loadPhase(phase)));
+      try {
+        const res = await updateApplication(appId, payload);
+
+        if (!res.ok) {
+          throw new Error(res.error ?? 'Failed to update applicant');
+        }
+
+        const phasesToRefresh = new Set<Phase>([
+          fromPhase,
+          options?.refreshPhase ?? fromPhase,
+        ]);
+        await Promise.all(
+          [...phasesToRefresh].map((phase) => loadPhase(phase))
+        );
+      } catch (err: any) {
+        setError(err.message);
+      }
     },
     [loadPhase]
   );
