@@ -16,8 +16,10 @@ import { GoPerson } from "react-icons/go";
 import Email from './slides/Email';
 import Contact from './slides/Contact';
 import Diversity from './slides/Diversity';
+import KeepGoing from './slides/KeepGoing';
 import NearlySet from './slides/FutureHacker';
 import Confirmation from './slides/Confirmation';
+import MLH from './slides/MLH';
 import LastPage from './slides/LastPage';
 import { NoteBanner } from './_components/NoteBanner';
 
@@ -113,6 +115,26 @@ export default function ApplicationCarousel() {
       ),
     },
     {
+      key: 'keep-going',
+      node: (
+        <KeepGoing
+          formData={formData}
+          setFormData={setFormData}
+          onNext={() => api?.scrollNext()}
+        />
+      ),
+    },
+    {
+      key: 'nearly-set',
+      node: (
+        <NearlySet
+          formData={formData}
+          setFormData={setFormData}
+          onNext={() => api?.scrollNext()}
+        />
+      ),
+    },
+    {
       key: 'nearly-set',
       node: (
         <NearlySet
@@ -143,6 +165,17 @@ export default function ApplicationCarousel() {
         
       ),
     },
+    {
+      key: 'mlh',
+      node: (
+        <MLH
+          formData={formData}
+          setFormData={setFormData}
+          onNext={handleFinalSubmit}
+        />
+        
+      ),
+    },
     { key: 'confirmation', node: <Confirmation /> },
   ];
 
@@ -161,7 +194,7 @@ export default function ApplicationCarousel() {
     };
   }, [api]);
 
-  // //for back/next buttons (for dev)
+  // for back/next buttons (for dev)
   const total = SLIDES.length;
   const canPrev = index > 0;
   const canNext = index < total - 1;
