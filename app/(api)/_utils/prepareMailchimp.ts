@@ -151,6 +151,8 @@ export async function prepareMailchimpInvites(
     | 'tentatively_waitlisted'
     | 'tentatively_rejected'
 ) {
+  let processedCount = 0;
+
   try {
     const requiredEnvs = [
       'MAILCHIMP_API_KEY',
@@ -164,6 +166,7 @@ export async function prepareMailchimpInvites(
     }
 
     const dbApplicants = await getApplicationsByStatus(targetStatus);
+    if (dbApplicants.length === 0) return { ok: true, count: 0 };
 
     /* Handle accepted/waitlisted/rejected applicants */
     if (targetStatus === 'tentatively_accepted') {
@@ -171,11 +174,6 @@ export async function prepareMailchimpInvites(
 
       const rsvpList = await getRsvpList();
       const titoInvites: TitoInvite[] = await fetchInvites(rsvpList.slug);
-
-      if (!titoInvites.length) {
-        return { ok: false, message: 'No unredeemed invites found.' };
-      }
-
       const hubSession = await getHubSession();
 
       for (const app of dbApplicants) {
@@ -185,8 +183,7 @@ export async function prepareMailchimpInvites(
         const titoMatch = titoInvites.find(
           (invite) => invite.email.toLowerCase() === app.email.toLowerCase()
         );
-
-        if (!titoMatch) {
+        if (!titoMatch?.unique_url) {
           throw new Error(`Tito URL missing for ${app.email}`);
         }
 
@@ -197,12 +194,9 @@ export async function prepareMailchimpInvites(
           app.lastName,
           app.email
         );
+        if (!hubUrl)
+          throw new Error(`Hub URL generation failed for ${app.email}`);
         console.log('Hub URL sending to Mailchimp:', hubUrl);
-
-        // Check that hub and tito urls exist
-        if (!hubUrl) throw new Error(`Hub URL invalid for ${app.email}`);
-        if (!titoMatch.unique_url)
-          throw new Error(`Tito URL missing for ${app.email}`);
 
         // Add/update Mailchimp
         await addToMailchimp(
@@ -215,6 +209,7 @@ export async function prepareMailchimpInvites(
         );
 
         console.log(`Mailchimp email sent for ${app.email}`);
+        processedCount++;
         await new Promise((r) => setTimeout(r, 400)); // slight delay
       }
     } else {
@@ -230,16 +225,23 @@ export async function prepareMailchimpInvites(
           '', // No Hub URL
           'waitlisted_template'
         );
+        processedCount++;
       }
     }
 
     console.log('Done. Check Mailchimp UI for updated merge fields!');
     return {
       ok: true,
-      count: dbApplicants.length,
+      count: processedCount,
+      error: null,
     };
   } catch (err: any) {
-    console.error('Server Action Error:', err.response?.data || err.message);
-    return { ok: false, error: err.message || 'Internal Server Error' };
+    console.error('Processing Halted:', err.message);
+    // Return what was finished before the crash so the UI can update those specific records
+    return {
+      ok: false,
+      count: processedCount,
+      error: err.message || 'Internal Server Error',
+    };
   }
 }

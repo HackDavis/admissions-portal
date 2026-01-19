@@ -20,7 +20,7 @@ export async function getApplicationsByStatus(
   const applicants = res.body ?? [];
   console.log(`Found ${applicants.length} tentatively_accepted applicants`);
   if (applicants.length === 0) {
-    console.log('No tentatively accepted applicants found');
+    console.log(`No ${status} applicants found`);
   }
 
   return (res.body ?? []).map((app: any) => ({

@@ -31,11 +31,8 @@ export default function FinalizeButton({
 
   const handleFinalize = async () => {
     // Auto download CSV
-
-    //TODO: maybe no need to download all 3 if no apps in that status
     await downloadCSV('tentatively_accepted');
-    await downloadCSV('tentatively_waitlisted');
-    await downloadCSV('tentatively_rejected');
+    alert('Applicants finalized and CSV downloaded for ACCEPTED applicants!');
   };
 
   async function downloadCSV(status: Status) {
@@ -50,14 +47,13 @@ export default function FinalizeButton({
 
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
-      const download = `tito_import_${status}${new Date().toISOString()}.csv`;
+      const download = `tito_import_${new Date().toISOString()}.csv`;
       const a = document.createElement('a');
       a.href = url;
       a.download = download;
       a.click();
       URL.revokeObjectURL(url);
 
-      alert('Applicants finalized and CSV downloaded!');
       setIsPopupOpen(true);
     } catch (err: any) {
       console.error(err);
@@ -68,45 +64,44 @@ export default function FinalizeButton({
   // Sends Mailchimp email && updates application status
   async function processMailchimpInvites() {
     setIsProcessing(true);
+    const results: string[] = [];
+
+    const batches = [
+      { label: 'Acceptances', type: 'tentatively_accepted' },
+      { label: 'Waitlist', type: 'tentatively_waitlisted' },
+      { label: 'Rejections', type: 'tentatively_rejected' }
+    ];
+
     // Sends Mailchimp invites
     try {
-      //TODO: maybe no need to send alert if no apps in that status
-      const acceptRes = await prepareMailchimpInvites('tentatively_accepted');
-      if (!acceptRes.ok) {
-        alert(`Error in Acceptances: ${acceptRes.error}`);
-        return;
+      for (const batch of batches) {
+        const batchApps = apps.filter(a => a.status === batch.type);
+        if (batchApps.length === 0) continue;
+
+        const res = await prepareMailchimpInvites(batch.type as any);
+        if (res.count > 0) {
+          const successfulApps = batchApps.slice(0, res.count); // apps successfully processed in this batch
+
+          //Update tentative statuses
+          const updates = successfulApps.map((app) =>
+            onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
+              wasWaitlisted: app.status === 'tentatively_waitlisted',
+              refreshPhase: 'processed',
+            })
+          );
+          await Promise.all(updates);
+          results.push(`✅ ${batch.label}: ${res.count} processed`);
+        }
+
+        if (!res.ok) {
+          const errorMsg = res.error ?? 'Unknown API Error';
+          results.push(`❌ ${batch.label} HALTED: ${errorMsg}`);
+          alert(results.join('\n'));
+          return;
+        }
       }
-      alert(`Success: ${acceptRes.count} Acceptance emails processed.`);
 
-      const waitlistRes = await prepareMailchimpInvites(
-        'tentatively_waitlisted'
-      );
-      if (!waitlistRes.ok) {
-        alert(`Error in Waitlist: ${waitlistRes.error}`);
-        return;
-      }
-      alert(`Success: ${waitlistRes.count} Waitlist emails processed.`);
-
-      const rejectRes = await prepareMailchimpInvites('tentatively_rejected');
-      if (!rejectRes.ok) {
-        alert(`Error in Rejections: ${rejectRes.error}`);
-        return;
-      }
-      alert(`Success: ${rejectRes.count} Rejection emails processed.`);
-
-      alert('All batches completed successfully!');
-      setIsPopupOpen(false);
-
-      //Update tentative statuses
-      const updates = apps
-        .filter((app) => app.status in FINAL_STATUS_MAP)
-        .map((app) =>
-          onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
-            wasWaitlisted: app.status === 'tentatively_waitlisted',
-            refreshPhase: 'processed',
-          })
-        );
-      await Promise.all(updates);
+      alert(results.join('\n'));
     } catch (err: any) {
       console.error(err);
       alert(
@@ -141,10 +136,20 @@ export default function FinalizeButton({
             <div className="mb-4 text-sm space-y-1">
               <p>Export complete!</p>
               <p>Next steps:</p>
-              <p>1. Go to your Tito RSVP Lists</p>
+              <p>
+                1. Go to your{" "}
+                <a
+                  href="https://dashboard.tito.io/hackdavis/hackdavis-2026-test/rsvp_lists"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline hover:text-blue-800"
+                >
+                  Tito RSVP Lists
+                </a>
+              </p>
               <p>2. Navigate to Actions → Manage Invitations</p>
               <p>3. Click the "Import" button</p>
-              <p>4. Upload the CSV file after downloading</p>
+              <p>4. Upload the downloaded CSV file</p>
               <p>5. Tito will create all the invitations!</p>
               <p>
                 After import, click the button below to send out Mailchimp
