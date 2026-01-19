@@ -76,7 +76,10 @@ export default function FinalizeButton({
     try {
       for (const batch of batches) {
         const batchApps = apps.filter((a) => a.status === batch.type);
-        if (batchApps.length === 0) continue;
+        if (batchApps.length === 0) {
+          results.push(`☑️ ${batch.label}: 0 processed`);
+          continue;
+        }
 
         const res = await prepareMailchimpInvites(batch.type);
         if (res.ids && res.ids.length > 0) {
