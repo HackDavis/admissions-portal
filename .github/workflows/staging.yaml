@@ -32,6 +32,21 @@ jobs:
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
+      
+      - name: Sync Environment Variables
+        run: |
+          printf "${{ secrets.MONGODB_URI }}" | vercel env add MONGODB_URI production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.AUTH_SECRET }}" | vercel env add AUTH_SECRET production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.TITO_AUTH_TOKEN }}" | vercel env add TITO_AUTH_TOKEN production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.HUB_ADMIN_PASSWORD }}" | vercel env add HUB_ADMIN_PASSWORD production --force --token=${{ secrets.VERCEL_TOKEN }}
+
+          printf "${{ vars.TITO_EVENT_BASE_URL }}" | vercel env add TITO_EVENT_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.ENV_URL }}" | vercel env add HACKDAVIS_HUB_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.HUB_ADMIN_EMAIL }}" | vercel env add HUB_ADMIN_EMAIL production --force --token=${{ secrets.VERCEL_TOKEN }}
+          
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}

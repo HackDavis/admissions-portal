@@ -8,7 +8,7 @@ import {
   NoContentError,
   DuplicateError,
 } from '@utils/response/Errors';
-import { Status } from '@app/_types/applicationFilters';
+import { ApplicationUpdatePayload } from '@/app/_types/application';
 
 const TENTATIVE_STATUSES = [
   'tentatively_accepted',
@@ -16,13 +16,7 @@ const TENTATIVE_STATUSES = [
   'tentatively_waitlisted',
 ];
 const PROCESSED_STATUSES = ['accepted', 'rejected', 'waitlisted'];
-
-export interface ApplicationUpdatePayload {
-  status: Status;
-  wasWaitlisted?: boolean;
-  reviewedAt?: string;
-  processedAt?: string;
-}
+const ALL_STATUSES = ['pending', ...TENTATIVE_STATUSES, ...PROCESSED_STATUSES];
 
 export const UpdateApplication = async (
   id: string,
@@ -35,6 +29,10 @@ export const UpdateApplication = async (
     }
 
     const updateData = { ...body };
+
+    if (updateData.status && !ALL_STATUSES.includes(updateData.status)) {
+      throw new Error(`Invalid status: "${updateData.status}".`);
+    }
 
     const now = new Date().toISOString();
     if (TENTATIVE_STATUSES.includes(updateData.status)) {

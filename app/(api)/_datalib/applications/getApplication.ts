@@ -50,19 +50,24 @@ export const GetManyApplications = async (
   try {
     /* Transforming phase to status */
     const filter: Record<string, any> = { ...query };
-    if (filter.phase && !filter.status) {
-      filter.status = {
-        $in:
-          PHASE_TO_STATUSES[filter.phase as keyof typeof PHASE_TO_STATUSES] ||
-          [],
-      };
+    if (filter.phase) {
+      const phaseKey = filter.phase as Phase;
+      const statuses = PHASE_TO_STATUSES[phaseKey];
+      if (!statuses) {
+        filter.status = { $in: PHASE_TO_STATUSES['unseen'] };
+      } else if (!filter.status) {
+        filter.status = { $in: statuses };
+      }
     }
     delete filter.phase;
+
     if (filter.status === 'all') delete filter.status;
+
     if (filter.ucd === 'true') filter.isUCDavisStudent = true;
     else if (filter.ucd === 'false') filter.isUCDavisStudent = false;
     delete filter.ucd;
 
+    /* Getting applications from DB */
     const parsedQuery = await parseAndReplace(filter);
     const db = await getDatabase();
     const col = db.collection('applications');

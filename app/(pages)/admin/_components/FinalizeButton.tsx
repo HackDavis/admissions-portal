@@ -46,9 +46,7 @@ export default function FinalizeButton({
 
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
-      const download = `tito_import_${
-        new Date().toISOString().split('T')[0]
-      }.csv`;
+      const download = `tito_import_${new Date().toISOString()}.csv`;
       const a = document.createElement('a');
       a.href = url;
       a.download = download;

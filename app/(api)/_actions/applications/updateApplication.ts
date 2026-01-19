@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/auth'; // Adjust path to your auth config
+import { auth } from '@/auth';
 import { UpdateApplication } from '@datalib/applications/updateApplication';
 import { revalidatePath } from 'next/cache';
 

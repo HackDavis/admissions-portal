@@ -13,12 +13,7 @@ import { PHASES } from '../_utils/constants';
 import { getAdminApplications } from '@actions/applications/getAdminApplications';
 import { updateApplication } from '@actions/applications/updateApplication';
 
-export interface ApplicationUpdatePayload {
-  status: Status;
-  wasWaitlisted?: boolean;
-  reviewedAt?: string; // ISO date string
-  processedAt?: string; // ISO date string
-}
+import { ApplicationUpdatePayload } from '@/app/_types/application';
 
 export default function useApplications() {
   const [ucd, setUcd] = useState<UcdStudentFilter>('all');
