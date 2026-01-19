@@ -20,9 +20,9 @@ export async function sendConfirmationEmail(formData: {
   // --- Map your formData to template params ---
   const templateParams = {
     to_email: formData.email, // recipient email
-    to_name: formData.firstName || ;'Applicant', // recipient name
+    to_name: formData.firstName || 'Applicant', // recipient name
     status: formData.status, // optional: show current status
-    university: formData.university || "", // optional: include university
+    university: formData.university || '', // optional: include university
     // message: `Hi ${formData.firstName || ""},
 
     // We have received your application${
@@ -37,7 +37,7 @@ export async function sendConfirmationEmail(formData: {
       SERVICE_ID,
       TEMPLATE_ID,
       templateParams,
-      PUBLIC_KEY,
+      PUBLIC_KEY
     );
     console.log('Email sent successfully:', response.status, response.text);
     return true;
