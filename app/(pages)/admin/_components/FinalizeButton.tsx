@@ -70,7 +70,7 @@ export default function FinalizeButton({
       { label: 'Acceptances', type: 'tentatively_accepted' },
       { label: 'Waitlist', type: 'tentatively_waitlisted' },
       { label: 'Rejections', type: 'tentatively_rejected' },
-    ];
+    ] as const;
 
     // Sends Mailchimp invites
     try {
@@ -78,7 +78,7 @@ export default function FinalizeButton({
         const batchApps = apps.filter((a) => a.status === batch.type);
         if (batchApps.length === 0) continue;
 
-        const res = await prepareMailchimpInvites(batch.type as any);
+        const res = await prepareMailchimpInvites(batch.type);
         if (res.ids && res.ids.length > 0) {
           // apps successfully processed in this batch
           const successfulApps = batchApps.filter((app) =>
@@ -146,7 +146,7 @@ export default function FinalizeButton({
               <p>
                 1. Go to your{' '}
                 <a
-                  href="https://dashboard.tito.io/hackdavis/hackdavis-2026-test/rsvp_lists"
+                  href={process.env.TITO_DASHBOARD_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 underline hover:text-blue-800"

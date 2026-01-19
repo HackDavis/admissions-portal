@@ -166,7 +166,7 @@ export async function prepareMailchimpInvites(
     }
 
     const dbApplicants = await getApplicationsByStatus(targetStatus);
-    if (dbApplicants.length === 0) return { ok: true, count: 0 };
+    if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
 
     /* Handle accepted/waitlisted/rejected applicants */
     if (targetStatus === 'tentatively_accepted') {
@@ -225,6 +225,7 @@ export async function prepareMailchimpInvites(
           '', // No Hub URL
           'waitlisted_template'
         );
+        successfulIds.push(app._id);
       }
     }
 

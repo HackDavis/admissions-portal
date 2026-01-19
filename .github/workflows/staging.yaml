@@ -48,6 +48,7 @@ jobs:
           printf "${{ vars.TITO_EVENT_BASE_URL }}" | vercel env add TITO_EVENT_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.ENV_URL }}" | vercel env add HACKDAVIS_HUB_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.HUB_ADMIN_EMAIL }}" | vercel env add HUB_ADMIN_EMAIL production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.TITO_DASHBOARD_URL }}" | vercel env add TITO_DASHBOARD_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
           
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -79,6 +80,7 @@ jobs:
           TITO_EVENT_BASE_URL: ${{ vars.TITO_EVENT_BASE_URL }}
           HACKDAVIS_HUB_BASE_URL: ${{ vars.ENV_URL }}
           HUB_ADMIN_EMAIL: ${{ vars.HUB_ADMIN_EMAIL }}
+          TITO_DASHBOARD_URL: ${{ vars.TITO_DASHBOARD_URL }}
 
       - name: Deploy Project to Vercel
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
