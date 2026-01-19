@@ -10,6 +10,7 @@ import AutoHeight from 'embla-carousel-auto-height';
 
 import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
+import { sendConfirmationEmail } from '../../../../(api)/_utils/sendConfirmation';
 
 import Email from './slides/Email';
 import Contact from './slides/Contact';
@@ -84,6 +85,14 @@ export default function ApplicationCarousel() {
     //submit application
     const ok = await submit(payload);
     if (ok) api?.scrollNext();
+
+    //send confirmation email
+    const success = await sendConfirmationEmail(formData);
+    if (success) {
+      alert("Confirmation email sent!");
+    } else {
+      alert("Failed to send confirmation email. Please try again later.");
+    }
 
     //TODO: handle submission failure (some kind of visual feedback)
   };
