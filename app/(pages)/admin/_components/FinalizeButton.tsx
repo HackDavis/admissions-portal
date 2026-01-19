@@ -128,7 +128,7 @@ export default function FinalizeButton({
               <p>4. Upload the CSV file after downloading</p>
               <p>5. Tito will create all the invitations!</p>
               <p>
-                After import, click the button below tosend out Mailchimp
+                After import, click the button below to send out Mailchimp
                 invites!
               </p>
             </div>

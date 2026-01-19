@@ -14,14 +14,16 @@ export function useCheckEmail() {
     try {
       const result = await checkEmailExists(email);
 
-      if (!result.ok) {
+      if (result.ok) {
+        if (result.exists) {
+          setError(
+            'You have already submitted an application with this email.'
+          );
+          setLoading(false);
+          return false;
+        }
+      } else {
         setError(result.error ?? 'Error checking email.');
-        setLoading(false);
-        return false;
-      }
-
-      if (result.body && result.body.length > 0) {
-        setError('You have already submitted an application with this email.');
         setLoading(false);
         return false;
       }
