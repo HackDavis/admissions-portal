@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getManyApplications } from '@actions/applications/getApplication';
+import { checkEmailExists } from '@actions/applications/checkEmail';
 
 export function useCheckEmail() {
   const [loading, setLoading] = useState(false);
@@ -12,16 +12,18 @@ export function useCheckEmail() {
     setError(null);
 
     try {
-      const result = await getManyApplications({ email: email.toLowerCase() });
+      const result = await checkEmailExists(email);
 
-      if (!result.ok) {
+      if (result.ok) {
+        if (result.exists) {
+          setError(
+            'You have already submitted an application with this email.'
+          );
+          setLoading(false);
+          return false;
+        }
+      } else {
         setError(result.error ?? 'Error checking email.');
-        setLoading(false);
-        return false;
-      }
-
-      if (result.body && result.body.length > 0) {
-        setError('You have already submitted an application with this email.');
         setLoading(false);
         return false;
       }

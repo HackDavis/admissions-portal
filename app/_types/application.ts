@@ -28,3 +28,10 @@ export interface Application {
   reviewedAt?: string;
   processedAt?: string;
 }
+
+export interface ApplicationUpdatePayload {
+  status: Status;
+  wasWaitlisted?: boolean;
+  reviewedAt?: string; // ISO date string
+  processedAt?: string; // ISO date string
+}
