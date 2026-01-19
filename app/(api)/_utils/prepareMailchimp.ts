@@ -2,6 +2,15 @@
 
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
+import { getApplicationsByStatus } from './exportTito';
+
+interface TitoInvite {
+  email: string;
+  unique_url: string;
+  first_name: string;
+  last_name: string;
+  redeemed: boolean;
+}
 
 // Mailchimp axios client
 function getMailchimpClient() {
@@ -77,7 +86,8 @@ async function addToMailchimp(
   first: string,
   last: string,
   titoUrl: string,
-  hubUrl: string
+  hubUrl: string,
+  tag: string
 ) {
   const mailchimp = getMailchimpClient();
 
@@ -95,6 +105,7 @@ async function addToMailchimp(
       TITOURL: titoUrl,
       HUBURL: hubUrl,
     },
+    tags: [tag],
   };
 
   // Log what we are sending for testing
@@ -134,7 +145,12 @@ async function fetchInvites(slug: string) {
 }
 
 // Main
-export async function prepareMailchimpInvites() {
+export async function prepareMailchimpInvites(
+  targetStatus:
+    | 'tentatively_accepted'
+    | 'tentatively_waitlisted'
+    | 'tentatively_rejected'
+) {
   try {
     const requiredEnvs = [
       'MAILCHIMP_API_KEY',
@@ -147,59 +163,80 @@ export async function prepareMailchimpInvites() {
         throw new Error(`Missing Environment Variable: ${env}`);
     }
 
-    console.log('Processing Tito → Hub → Mailchimp\n');
+    const dbApplicants = await getApplicationsByStatus(targetStatus);
 
-    const rsvpList = await getRsvpList();
-    const invites = await fetchInvites(rsvpList.slug);
+    /* Handle accepted/waitlisted/rejected applicants */
+    if (targetStatus === 'tentatively_accepted') {
+      console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
-    if (!invites.length) {
-      return { ok: false, message: 'No unredeemed invites found.' };
-    }
+      const rsvpList = await getRsvpList();
+      const titoInvites: TitoInvite[] = await fetchInvites(rsvpList.slug);
 
-    const hubSession = await getHubSession();
+      if (!titoInvites.length) {
+        return { ok: false, message: 'No unredeemed invites found.' };
+      }
 
-    for (const inv of invites) {
-      console.log(`\nProcessing: ${inv.email}`);
-      console.log('Tito invite object:', inv);
+      const hubSession = await getHubSession();
 
-      try {
+      for (const app of dbApplicants) {
+        console.log(`\nProcessing: ${app.email}`);
+        console.log('Tito invite object:', app);
+
+        const titoMatch = titoInvites.find(
+          (invite) => invite.email.toLowerCase() === app.email.toLowerCase()
+        );
+
+        if (!titoMatch) {
+          throw new Error(`Tito URL missing for ${app.email}`);
+        }
+
         // Create Hub invite
         const hubUrl = await createHubInvite(
           hubSession,
-          inv.first_name,
-          inv.last_name,
-          inv.email
+          app.firstName,
+          app.lastName,
+          app.email
         );
         console.log('Hub URL sending to Mailchimp:', hubUrl);
 
-        // 2nd check that hub and tito urls exist
-        if (!hubUrl) throw new Error(`Hub URL invalid for ${inv.email}`);
-        if (!inv.unique_url)
-          throw new Error(`Tito URL missing for ${inv.email}`);
+        // Check that hub and tito urls exist
+        if (!hubUrl) throw new Error(`Hub URL invalid for ${app.email}`);
+        if (!titoMatch.unique_url)
+          throw new Error(`Tito URL missing for ${app.email}`);
 
         // Add/update Mailchimp
         await addToMailchimp(
-          inv.email,
-          inv.first_name,
-          inv.last_name,
-          inv.unique_url,
-          hubUrl
+          app.email,
+          app.firstName,
+          app.lastName,
+          titoMatch.unique_url,
+          hubUrl,
+          'accepted_template'
         );
 
-        //TODO: add actual sending of Mailchimp email here
-
-        console.log(`Mailchimp email sent for ${inv.email}`);
+        console.log(`Mailchimp email sent for ${app.email}`);
         await new Promise((r) => setTimeout(r, 400)); // slight delay
-      } catch (err: any) {
-        console.error('Process stopped due to error:', err.message);
-        return { ok: false, message: err.message };
+      }
+    } else {
+      // Process waitlisted and rejected applicants
+      console.log(`Processing waitlisted/rejected via Database → Mailchimp\n`);
+
+      for (const app of dbApplicants) {
+        await addToMailchimp(
+          app.email,
+          app.firstName,
+          app.lastName,
+          '', // No Tito URL
+          '', // No Hub URL
+          'waitlisted_template'
+        );
       }
     }
 
     console.log('Done. Check Mailchimp UI for updated merge fields!');
     return {
       ok: true,
-      count: invites.length,
+      count: dbApplicants.length,
     };
   } catch (err: any) {
     console.error('Server Action Error:', err.response?.data || err.message);

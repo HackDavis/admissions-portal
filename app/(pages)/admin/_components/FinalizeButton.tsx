@@ -31,22 +31,26 @@ export default function FinalizeButton({
 
   const handleFinalize = async () => {
     // Auto download CSV
-    await downloadCSV();
+
+    //TODO: maybe no need to download all 3 if no apps in that status
+    await downloadCSV('tentatively_accepted');
+    await downloadCSV('tentatively_waitlisted');
+    await downloadCSV('tentatively_rejected');
   };
 
-  async function downloadCSV() {
+  async function downloadCSV(status: Status) {
     try {
-      console.log('Exporting tentatively accepted applicants to CSV...\n');
+      console.log(`Exporting ${status} applicants to CSV...\n`);
 
-      const csv = await exportTitoCSV(); // server action
+      const csv = await exportTitoCSV(status); // server action
       if (!csv || csv.trim() === '') {
-        alert('No tentatively accepted applicants found to export.');
+        alert(`No ${status} applicants found to export.`);
         return;
       }
 
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
-      const download = `tito_import_${new Date().toISOString()}.csv`;
+      const download = `tito_import_${status}${new Date().toISOString()}.csv`;
       const a = document.createElement('a');
       a.href = url;
       a.download = download;
@@ -66,16 +70,29 @@ export default function FinalizeButton({
     setIsProcessing(true);
     // Sends Mailchimp invites
     try {
-      const res = await prepareMailchimpInvites();
-
-      if (!res.ok) {
-        alert(res.message);
+      //TODO: maybe no need to send alert if no apps in that status
+      const acceptRes = await prepareMailchimpInvites('tentatively_accepted');
+      if (!acceptRes.ok) {
+        alert(`Error in Acceptances: ${acceptRes.error}`);
         return;
       }
+      alert(`Success: ${acceptRes.count} Acceptance emails processed.`);
 
-      //TODO: remove alert and handle errors properly
+      const waitlistRes = await prepareMailchimpInvites('tentatively_waitlisted');
+      if (!waitlistRes.ok) {
+        alert(`Error in Waitlist: ${waitlistRes.error}`);
+        return;
+      }
+      alert(`Success: ${waitlistRes.count} Waitlist emails processed.`);
 
-      alert(`Mailchimp sent to ${res.count} applicants - but not actually yet`);
+      const rejectRes = await prepareMailchimpInvites('tentatively_rejected');
+      if (!rejectRes.ok) {
+        alert(`Error in Rejections: ${rejectRes.error}`);
+        return;
+      }
+      alert(`Success: ${rejectRes.count} Rejection emails processed.`);
+
+      alert("All batches completed successfully!");
       setIsPopupOpen(false);
 
       //Update tentative statuses
