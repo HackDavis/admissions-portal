@@ -46,7 +46,7 @@ export default function ApplicantDetailsModal({
     { label: 'shirt size', value: applicant.shirtSize },
     { label: 'dietary restrictions', value: applicant.dietaryRestrictions },
     { label: 'connect with sponsors', value: applicant.connectWithSponsors },
-    { 
+    {
       label: 'resume',
       value: applicant.resume,
       href: toUrl(applicant.resume),

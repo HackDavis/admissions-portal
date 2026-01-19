@@ -78,7 +78,9 @@ export default function FinalizeButton({
       }
       alert(`Success: ${acceptRes.count} Acceptance emails processed.`);
 
-      const waitlistRes = await prepareMailchimpInvites('tentatively_waitlisted');
+      const waitlistRes = await prepareMailchimpInvites(
+        'tentatively_waitlisted'
+      );
       if (!waitlistRes.ok) {
         alert(`Error in Waitlist: ${waitlistRes.error}`);
         return;
@@ -92,7 +94,7 @@ export default function FinalizeButton({
       }
       alert(`Success: ${rejectRes.count} Rejection emails processed.`);
 
-      alert("All batches completed successfully!");
+      alert('All batches completed successfully!');
       setIsPopupOpen(false);
 
       //Update tentative statuses
