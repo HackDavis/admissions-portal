@@ -81,7 +81,9 @@ export default function FinalizeButton({
         const res = await prepareMailchimpInvites(batch.type as any);
         if (res.ids && res.ids.length > 0) {
           // apps successfully processed in this batch
-          const successfulApps = batchApps.filter(app => res.ids.includes(app._id));
+          const successfulApps = batchApps.filter((app) =>
+            res.ids.includes(app._id)
+          );
 
           // Update tentative statuses
           const updates = successfulApps.map((app) =>
