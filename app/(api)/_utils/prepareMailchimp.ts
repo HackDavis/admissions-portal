@@ -151,7 +151,7 @@ export async function prepareMailchimpInvites(
     | 'tentatively_waitlisted'
     | 'tentatively_rejected'
 ) {
-  let processedCount = 0;
+  const successfulIds: string[] = [];
 
   try {
     const requiredEnvs = [
@@ -209,8 +209,8 @@ export async function prepareMailchimpInvites(
         );
 
         console.log(`Mailchimp email sent for ${app.email}`);
-        processedCount++;
         await new Promise((r) => setTimeout(r, 400)); // slight delay
+        successfulIds.push(app._id);
       }
     } else {
       // Process waitlisted and rejected applicants
@@ -225,14 +225,13 @@ export async function prepareMailchimpInvites(
           '', // No Hub URL
           'waitlisted_template'
         );
-        processedCount++;
       }
     }
 
     console.log('Done. Check Mailchimp UI for updated merge fields!');
     return {
       ok: true,
-      count: processedCount,
+      ids: successfulIds,
       error: null,
     };
   } catch (err: any) {
@@ -240,7 +239,7 @@ export async function prepareMailchimpInvites(
     // Return what was finished before the crash so the UI can update those specific records
     return {
       ok: false,
-      count: processedCount,
+      ids: successfulIds,
       error: err.message || 'Internal Server Error',
     };
   }

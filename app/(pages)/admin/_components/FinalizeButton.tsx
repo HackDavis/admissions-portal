@@ -79,10 +79,11 @@ export default function FinalizeButton({
         if (batchApps.length === 0) continue;
 
         const res = await prepareMailchimpInvites(batch.type as any);
-        if (res.count > 0) {
-          const successfulApps = batchApps.slice(0, res.count); // apps successfully processed in this batch
+        if (res.ids && res.ids.length > 0) {
+          // apps successfully processed in this batch
+          const successfulApps = batchApps.filter(app => res.ids.includes(app._id));
 
-          //Update tentative statuses
+          // Update tentative statuses
           const updates = successfulApps.map((app) =>
             onFinalizeStatus(
               app._id,
@@ -95,14 +96,13 @@ export default function FinalizeButton({
             )
           );
           await Promise.all(updates);
-          results.push(`✅ ${batch.label}: ${res.count} processed`);
+          results.push(`✅ ${batch.label}: ${res.ids.length} processed`);
         }
 
         if (!res.ok) {
           const errorMsg = res.error ?? 'Unknown API Error';
           results.push(`❌ ${batch.label} HALTED: ${errorMsg}`);
-          alert(results.join('\n'));
-          return;
+          break;
         }
       }
 
