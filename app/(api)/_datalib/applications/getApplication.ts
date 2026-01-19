@@ -2,6 +2,21 @@ import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
 import parseAndReplace from '@utils/request/parseAndReplace';
 import { HttpError, NotFoundError } from '@utils/response/Errors';
 import { ObjectId } from 'mongodb';
+import { Phase } from '@app/_types/applicationFilters';
+
+const TENTATIVE_STATUSES = [
+  'tentatively_accepted',
+  'tentatively_rejected',
+  'tentatively_waitlisted',
+] as const;
+
+const PROCESSED_STATUSES = ['accepted', 'rejected', 'waitlisted'] as const;
+
+const PHASE_TO_STATUSES: Record<Phase, readonly string[]> = {
+  unseen: ['pending'],
+  tentative: TENTATIVE_STATUSES,
+  processed: PROCESSED_STATUSES,
+};
 
 export const GetApplication = async (id: string) => {
   try {
@@ -33,9 +48,23 @@ export const GetManyApplications = async (
   }
 ) => {
   try {
-    const parsedQuery = await parseAndReplace(query);
-    const db = await getDatabase();
+    /* Transforming phase to status */
+    const filter: Record<string, any> = { ...query };
+    if (filter.phase && !filter.status) {
+      filter.status = {
+        $in:
+          PHASE_TO_STATUSES[filter.phase as keyof typeof PHASE_TO_STATUSES] ||
+          [],
+      };
+    }
+    delete filter.phase;
+    if (filter.status === 'all') delete filter.status;
+    if (filter.ucd === 'true') filter.isUCDavisStudent = true;
+    else if (filter.ucd === 'false') filter.isUCDavisStudent = false;
+    delete filter.ucd;
 
+    const parsedQuery = await parseAndReplace(filter);
+    const db = await getDatabase();
     const col = db.collection('applications');
 
     const projection = options?.projection;

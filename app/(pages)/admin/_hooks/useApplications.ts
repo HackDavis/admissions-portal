@@ -10,8 +10,15 @@ import {
 } from '@/app/_types/applicationFilters';
 
 import { PHASES } from '../_utils/constants';
-import { getManyApplications } from '@actions/applications/getApplication';
+import { getAdminApplications } from '@actions/applications/getAdminApplications';
 import { updateApplication } from '@actions/applications/updateApplication';
+
+export interface ApplicationUpdatePayload {
+  status: Status;
+  wasWaitlisted?: boolean;
+  reviewedAt?: string; // ISO date string
+  processedAt?: string; // ISO date string
+}
 
 export default function useApplications() {
   const [ucd, setUcd] = useState<UcdStudentFilter>('all');
@@ -54,7 +61,7 @@ export default function useApplications() {
         const status = getStatusForPhase(phase);
 
         //action call to get applications
-        const res = await getManyApplications({ phase, ucd, status });
+        const res = await getAdminApplications({ phase, ucd, status });
 
         if (!cancelled) {
           if (res.ok && Array.isArray(res.body)) {
@@ -100,24 +107,10 @@ export default function useApplications() {
     ) => {
       setError(null);
 
-      const payload: any = {
+      const payload: ApplicationUpdatePayload = {
         status: nextStatus,
         wasWaitlisted: options?.wasWaitlisted,
       };
-
-      // Add timestamps based on the status
-      if (
-        [
-          'tentatively_accepted',
-          'tentatively_rejected',
-          'tentatively_waitlisted',
-        ].includes(nextStatus)
-      ) {
-        payload.reviewedAt = new Date().toISOString();
-      }
-      if (['accepted', 'rejected', 'waitlisted'].includes(nextStatus)) {
-        payload.processedAt = new Date().toISOString();
-      }
 
       try {
         const res = await updateApplication(appId, payload);

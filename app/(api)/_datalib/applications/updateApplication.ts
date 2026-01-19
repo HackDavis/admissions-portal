@@ -8,21 +8,48 @@ import {
   NoContentError,
   DuplicateError,
 } from '@utils/response/Errors';
+import { Status } from '@app/_types/applicationFilters';
 
-export const UpdateApplication = async (id: string, body: object) => {
+const TENTATIVE_STATUSES = [
+  'tentatively_accepted',
+  'tentatively_rejected',
+  'tentatively_waitlisted',
+];
+const PROCESSED_STATUSES = ['accepted', 'rejected', 'waitlisted'];
+
+export interface ApplicationUpdatePayload {
+  status: Status;
+  wasWaitlisted?: boolean;
+  reviewedAt?: string;
+  processedAt?: string;
+}
+
+export const UpdateApplication = async (
+  id: string,
+  body: ApplicationUpdatePayload
+) => {
   try {
-    const object_id = new ObjectId(id);
-
     // empty
     if (isBodyEmpty(body)) {
       throw new NoContentError();
     }
 
-    const parsedBody = await parseAndReplace(body); // Delete if application has no id fields?
+    const updateData = { ...body };
+
+    const now = new Date().toISOString();
+    if (TENTATIVE_STATUSES.includes(updateData.status)) {
+      updateData.reviewedAt = now;
+    }
+    if (PROCESSED_STATUSES.includes(updateData.status)) {
+      updateData.processedAt = now;
+    }
+
+    const parsedBody = await parseAndReplace(updateData);
 
     const db = await getDatabase();
 
     // Only check duplicates if updating email
+    const object_id = new ObjectId(id);
     if (parsedBody.email) {
       const hasDuplicate = await db.collection('applications').findOne({
         $and: [{ _id: { $ne: object_id } }, { email: parsedBody.email }],

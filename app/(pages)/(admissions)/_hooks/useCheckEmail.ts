@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getManyApplications } from '@actions/applications/getApplication';
+import { checkEmailExists } from '@actions/applications/checkEmail';
 
 export function useCheckEmail() {
   const [loading, setLoading] = useState(false);
@@ -12,7 +12,7 @@ export function useCheckEmail() {
     setError(null);
 
     try {
-      const result = await getManyApplications({ email: email.toLowerCase() });
+      const result = await checkEmailExists(email);
 
       if (!result.ok) {
         setError(result.error ?? 'Error checking email.');
