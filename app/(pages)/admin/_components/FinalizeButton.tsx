@@ -31,16 +31,17 @@ export default function FinalizeButton({
 
   const handleFinalize = async () => {
     // Auto download CSV
-    await downloadCSV();
+    await downloadCSV('tentatively_accepted');
+    alert('Applicants finalized and CSV downloaded for ACCEPTED applicants!');
   };
 
-  async function downloadCSV() {
+  async function downloadCSV(status: Status) {
     try {
-      console.log('Exporting tentatively accepted applicants to CSV...\n');
+      console.log(`Exporting ${status} applicants to CSV...\n`);
 
-      const csv = await exportTitoCSV(); // server action
+      const csv = await exportTitoCSV(status); // server action
       if (!csv || csv.trim() === '') {
-        alert('No tentatively accepted applicants found to export.');
+        alert(`No ${status} applicants found to export.`);
         return;
       }
 
@@ -53,7 +54,6 @@ export default function FinalizeButton({
       a.click();
       URL.revokeObjectURL(url);
 
-      alert('Applicants finalized and CSV downloaded!');
       setIsPopupOpen(true);
     } catch (err: any) {
       console.error(err);
@@ -64,30 +64,54 @@ export default function FinalizeButton({
   // Sends Mailchimp email && updates application status
   async function processMailchimpInvites() {
     setIsProcessing(true);
+    const results: string[] = [];
+
+    const batches = [
+      { label: 'Acceptances', type: 'tentatively_accepted' },
+      { label: 'Waitlist', type: 'tentatively_waitlisted' },
+      { label: 'Rejections', type: 'tentatively_rejected' },
+    ] as const;
+
     // Sends Mailchimp invites
     try {
-      const res = await prepareMailchimpInvites();
+      for (const batch of batches) {
+        const batchApps = apps.filter((a) => a.status === batch.type);
+        if (batchApps.length === 0) {
+          results.push(`☑️ ${batch.label}: 0 processed`);
+          continue;
+        }
 
-      if (!res.ok) {
-        alert(res.message);
-        return;
+        const res = await prepareMailchimpInvites(batch.type);
+        if (res.ids && res.ids.length > 0) {
+          // apps successfully processed in this batch
+          const successfulApps = batchApps.filter((app) =>
+            res.ids.includes(app._id)
+          );
+
+          // Update tentative statuses
+          const updates = successfulApps.map((app) =>
+            onFinalizeStatus(
+              app._id,
+              FINAL_STATUS_MAP[app.status],
+              'tentative',
+              {
+                wasWaitlisted: app.status === 'tentatively_waitlisted',
+                refreshPhase: 'processed',
+              }
+            )
+          );
+          await Promise.all(updates);
+          results.push(`✅ ${batch.label}: ${res.ids.length} processed`);
+        }
+
+        if (!res.ok) {
+          const errorMsg = res.error ?? 'Unknown API Error';
+          results.push(`❌ ${batch.label} HALTED: ${errorMsg}`);
+          break;
+        }
       }
 
-      //TODO: remove alert and handle errors properly
-
-      alert(`Mailchimp sent to ${res.count} applicants - but not actually yet`);
-      setIsPopupOpen(false);
-
-      //Update tentative statuses
-      const updates = apps
-        .filter((app) => app.status in FINAL_STATUS_MAP)
-        .map((app) =>
-          onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
-            wasWaitlisted: app.status === 'tentatively_waitlisted',
-            refreshPhase: 'processed',
-          })
-        );
-      await Promise.all(updates);
+      alert(results.join('\n'));
     } catch (err: any) {
       console.error(err);
       alert(
@@ -122,10 +146,20 @@ export default function FinalizeButton({
             <div className="mb-4 text-sm space-y-1">
               <p>Export complete!</p>
               <p>Next steps:</p>
-              <p>1. Go to your Tito RSVP Lists</p>
+              <p>
+                1. Go to your{' '}
+                <a
+                  href={process.env.TITO_DASHBOARD_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline hover:text-blue-800"
+                >
+                  Tito RSVP Lists
+                </a>
+              </p>
               <p>2. Navigate to Actions → Manage Invitations</p>
               <p>3. Click the "Import" button</p>
-              <p>4. Upload the CSV file after downloading</p>
+              <p>4. Upload the downloaded CSV file</p>
               <p>5. Tito will create all the invitations!</p>
               <p>
                 After import, click the button below to send out Mailchimp
