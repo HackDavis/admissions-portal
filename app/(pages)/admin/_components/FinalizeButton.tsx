@@ -69,13 +69,13 @@ export default function FinalizeButton({
     const batches = [
       { label: 'Acceptances', type: 'tentatively_accepted' },
       { label: 'Waitlist', type: 'tentatively_waitlisted' },
-      { label: 'Rejections', type: 'tentatively_rejected' }
+      { label: 'Rejections', type: 'tentatively_rejected' },
     ];
 
     // Sends Mailchimp invites
     try {
       for (const batch of batches) {
-        const batchApps = apps.filter(a => a.status === batch.type);
+        const batchApps = apps.filter((a) => a.status === batch.type);
         if (batchApps.length === 0) continue;
 
         const res = await prepareMailchimpInvites(batch.type as any);
@@ -84,10 +84,15 @@ export default function FinalizeButton({
 
           //Update tentative statuses
           const updates = successfulApps.map((app) =>
-            onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
-              wasWaitlisted: app.status === 'tentatively_waitlisted',
-              refreshPhase: 'processed',
-            })
+            onFinalizeStatus(
+              app._id,
+              FINAL_STATUS_MAP[app.status],
+              'tentative',
+              {
+                wasWaitlisted: app.status === 'tentatively_waitlisted',
+                refreshPhase: 'processed',
+              }
+            )
           );
           await Promise.all(updates);
           results.push(`✅ ${batch.label}: ${res.count} processed`);
@@ -137,7 +142,7 @@ export default function FinalizeButton({
               <p>Export complete!</p>
               <p>Next steps:</p>
               <p>
-                1. Go to your{" "}
+                1. Go to your{' '}
                 <a
                   href="https://dashboard.tito.io/hackdavis/hackdavis-2026-test/rsvp_lists"
                   target="_blank"
