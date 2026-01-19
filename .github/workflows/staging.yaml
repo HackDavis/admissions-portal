@@ -46,7 +46,7 @@ jobs:
           printf "${{ secrets.MAILCHIMP_LIST_ID }}" | vercel env add MAILCHIMP_LIST_ID production --force --token=${{ secrets.VERCEL_TOKEN }}
 
           printf "${{ vars.TITO_EVENT_BASE_URL }}" | vercel env add TITO_EVENT_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
-          printf "${{ vars.ENV_URL }}" | vercel env add HACKDAVIS_HUB_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.HACKDAVIS_HUB_BASE_URL }}" | vercel env add HACKDAVIS_HUB_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.HUB_ADMIN_EMAIL }}" | vercel env add HUB_ADMIN_EMAIL production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.TITO_DASHBOARD_URL }}" | vercel env add TITO_DASHBOARD_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
           
@@ -78,7 +78,7 @@ jobs:
           BASE_URL: ${{ vars.ENV_URL }}
           NEXTAUTH_URL: ${{ vars.ENV_URL }}
           TITO_EVENT_BASE_URL: ${{ vars.TITO_EVENT_BASE_URL }}
-          HACKDAVIS_HUB_BASE_URL: ${{ vars.ENV_URL }}
+          HACKDAVIS_HUB_BASE_URL: ${{ vars.HACKDAVIS_HUB_BASE_URL }}
           HUB_ADMIN_EMAIL: ${{ vars.HUB_ADMIN_EMAIL }}
           TITO_DASHBOARD_URL: ${{ vars.TITO_DASHBOARD_URL }}
 
