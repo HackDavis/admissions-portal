@@ -15,12 +15,12 @@ import { GoPerson } from "react-icons/go";
 
 import Email from './slides/Email';
 import Contact from './slides/Contact';
-import Diversity from './slides/Diversity';
+import FinalStretch from './slides/FinalStretch';
 import KeepGoing from './slides/KeepGoing';
 import NearlySet from './slides/NearlySet';
 import Confirmation from './slides/Confirmation';
+import ABitMore from './slides/ABitMore';
 import MLH from './slides/MLH';
-import LastPage from './slides/LastPage';
 import { NoteBanner } from './_components/NoteBanner';
 import FutureHacker from './slides/FutureHacker';
 
@@ -146,9 +146,9 @@ export default function ApplicationCarousel() {
       ),
     },
     {
-      key: 'diversity',
+      key: 'a-bit-more',
       node: (
-        <Diversity
+        <ABitMore
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
@@ -156,14 +156,13 @@ export default function ApplicationCarousel() {
       ),
     },
     {
-      key: 'last-page',
+      key: 'final-stretch',
       node: (
-        <LastPage
+        <FinalStretch
           formData={formData}
           setFormData={setFormData}
-          onNext={handleFinalSubmit}
+          onNext={() => api?.scrollNext()}
         />
-        
       ),
     },
     {

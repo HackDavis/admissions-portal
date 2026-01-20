@@ -32,20 +32,6 @@ export default function LastPage({
     }
   };
 
-  // const onPickFile = () => fileInputRef.current?.click();
-
-  // const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const f = e.target.files?.[0];
-  //   setFormData({ ...formData, resume: f ? f.name : '' });
-  // };
-
-  // const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
-  //   e.preventDefault();
-  //   const f = e.dataTransfer.files?.[0];
-  //   if (!f) return;
-  //   setFormData({ ...formData, resume: f.name });
-  // };
-
   return (
     <section className="w-full">
       {/* Centered column */}
@@ -76,50 +62,6 @@ export default function LastPage({
             value={formData.resume}
             onChange={(v) => setFormData({ ...formData, resume: v })}
           />
-
-          {/* Upload resume feature -- no longer being used but will keep here */}
-          {/* <div className="pt-2">
-            <p className="mb-4 text-base font-semibold text-[#0F2530]">
-              Feel free to share your resume.
-            </p>
-
-            <div
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={onDrop}
-              className="relative w-full rounded-[22px] border-2 border-dashed border-[#B7CBD2] bg-white px-10 py-12 text-center"
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                onChange={onFileChange}
-              />
-
-              {formData.resume ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-[#0F2530]">{formData.resume}</p>
-                  <button
-                    type="button"
-                    onClick={onPickFile}
-                    className="text-sm font-semibold text-[#005271] underline underline-offset-2"
-                  >
-                    choose a different file
-                  </button>
-                </div>
-              ) : (
-                <p className="text-[18px] font-medium text-[#7B8F97] whitespace-nowrap">
-                  Drag or drop a file or{' '}
-                  <button
-                    type="button"
-                    onClick={onPickFile}
-                    className="inline underline underline-offset-2 align-baseline"
-                  >
-                    browse
-                  </button>
-                </p>
-              )}
-            </div>
-          </div> */}
 
           {/* Finish */}
           <div className="pt-6 flex justify-center">
