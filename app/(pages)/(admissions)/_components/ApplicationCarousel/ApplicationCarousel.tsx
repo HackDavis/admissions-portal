@@ -67,7 +67,7 @@ export default function ApplicationCarousel() {
     firstHackathon: false,
   });
 
-  console.log('All form fields:', formData);
+  // console.log('All form fields:', formData);
 
   const { submit } = useSubmitApplication();
 
