@@ -32,10 +32,26 @@ export async function getApplicationsByStatus(
 // Csv generation
 async function generateCSV(applicants: Application[]) {
   // Tito import format: Email, First Name, Last Name
-  const headers = ['Email', 'First Name', 'Last Name'];
+  const headers = [
+    'First Name',
+    'Last Name',
+    'Email',
+    'Expiry Time',
+    'Redirect?',
+    'Discount Code',
+    'test ticket', //name of the ticket in tito
+  ];
 
   const rows = applicants.map((a) =>
-    [a.email, a.firstName, a.lastName]
+    [
+      a.firstName,
+      a.lastName,
+      a.email,
+      '2026-05-09 23:59 PST', // expiry time
+      'Y', // redirect
+      '', // discount code
+      'Y', // ticket assignment
+    ]
       .map((v) => `"${String(v).replace(/"/g, '""')}"`)
       .join(',')
   );
