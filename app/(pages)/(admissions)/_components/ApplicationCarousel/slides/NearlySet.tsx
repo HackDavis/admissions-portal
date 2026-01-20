@@ -1,8 +1,30 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
-import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
+
+const YEAR_OPTIONS = [1, 2, 3, 4, '5+'] as const;
+
+const SHIRT_OPTIONS = [
+  'XS',
+  'S',
+  'M',
+  'L',
+  'XL',
+  '2XL',
+  '3XL',
+  'Other',
+];
+
+const DIETARY_OPTIONS = [
+  'Vegetarian',
+  'Vegan',
+  'Kosher',
+  'Allergies',
+  'Halal',
+  'None',
+  'Other',
+];
 
 interface NearlySetProps {
   formData: any;
@@ -15,176 +37,246 @@ export default function NearlySet({
   setFormData,
   onNext,
 }: NearlySetProps) {
-  const [universities, setUniversities] = React.useState<string[]>([]);
   const [submitted, setSubmitted] = React.useState(false);
 
-  useEffect(() => {
-    fetchUniversityNames().then((data) => setUniversities(data));
-  }, []);
+  const toggleDietary = (value: string) => {
+    const current: string[] = formData.dietaryRestrictions || [];
+    const exists = current.includes(value);
 
-  const uniqueUniversities = Array.from(new Set(universities));
-
-  useEffect(() => {
-    if (formData.isUCDavisStudent === true) {
-      setFormData((prev: any) => ({
-        ...prev,
-        university: 'University of California, Davis',
-      }));
+    // If selecting "None", clear everything else
+    if (value === 'None') {
+      setFormData({
+        ...formData,
+        dietaryRestrictions: exists ? [] : ['None'],
+      });
+      return;
     }
-  }, [formData.isUCDavisStudent, setFormData]);
+
+    // If selecting something else, remove "None" if present
+    const withoutNone = current.filter((v) => v !== 'None');
+    setFormData({
+      ...formData,
+      dietaryRestrictions: exists
+        ? withoutNone.filter((v) => v !== value)
+        : [...withoutNone, value],
+    });
+  };
+
+  const isValid =
+    !!formData.year &&
+    !!formData.shirtSize &&
+    Array.isArray(formData.dietaryRestrictions) &&
+    formData.dietaryRestrictions.length > 0 &&
+    formData.connectWithSponsors !== null &&
+    formData.connectWithSponsors !== undefined;
 
   const handleNext = () => {
     setSubmitted(true);
-
-    const isValid =
-      formData.age &&
-      formData.university &&
-      (formData.university !== 'Other' ||
-        (formData.customUniversity || '').trim() !== '');
-
-    if (isValid) {
-      onNext?.();
-    }
+    if (!isValid) return;
+    onNext?.();
   };
 
   return (
     <section className="w-full">
       <div className="mx-auto w-full max-w-[520px] text-center">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
-          NEARLY SET
+          We&apos;re Nearly Set!
         </h1>
 
+        <p className="mx-auto mt-4 max-w-[420px] text-sm leading-snug text-[#0F2530]">
+          We never use this information to review applications.
+          <br />
+          Responses are only collected to improve HackDavis.
+        </p>
+
         <div className="mt-12 text-left space-y-10">
-          {/* AGE — FIRST QUESTION */}
+          {/* Year in school */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              How old are you?*
+              Year in school?*
             </p>
 
-            <div className="mt-3">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={formData.age || ''}
-                onChange={(e) => {
-                  const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
-                  setFormData({ ...formData, age: digits });
-                }}
-                className="w-20 rounded-full bg-[#E5EEF1] px-4 py-2 text-center text-sm font-semibold text-[#005271] outline-none"
-              />
+            <div className="mt-4 grid grid-cols-3 gap-y-4">
+              {YEAR_OPTIONS.map((opt) => {
+                const val = String(opt);
+                const checked = String(formData.year) === val;
+
+                return (
+                  <label
+                    key={val}
+                    className="flex items-center gap-3 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      name="year"
+                      checked={checked}
+                      onChange={() =>
+                        setFormData({
+                          ...formData,
+                          year: opt === '5+' ? '5+' : Number(opt),
+                        })
+                      }
+                      className="h-4 w-4 accent-[#005271]"
+                    />
+                    <span className="text-sm text-[#0F2530]">{val}</span>
+                  </label>
+                );
+              })}
             </div>
 
-            {submitted && !formData.age && (
+            {submitted && !formData.year && (
               <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please enter your age.
+                ERROR: Please select your year in school.
               </p>
             )}
           </div>
 
-          {/* OVER 18 */}
+          {/* Shirt size */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              Will you be at least 18 years old by DOE?*
+              Shirt size?*
             </p>
 
-            <YesNoGroup
-              value={formData.isOver18}
-              onChange={(v) => setFormData({ ...formData, isOver18: v })}
+            <Select
+              placeholder="Select an option"
+              value={formData.shirtSize || ''}
+              options={SHIRT_OPTIONS}
+              onChange={(v) => setFormData({ ...formData, shirtSize: v })}
             />
+
+            {submitted && !formData.shirtSize && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please select a shirt size.
+              </p>
+            )}
           </div>
 
-          {/* UC DAVIS */}
+          {/* Dietary restrictions */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              Are you a UC Davis student?*
+              Do you have any dietary restrictions?*
             </p>
 
-            <YesNoGroup
-              value={formData.isUCDavisStudent}
-              onChange={(v) =>
-                setFormData({ ...formData, isUCDavisStudent: v })
-              }
-            />
-          </div>
+            <div className="mt-4 space-y-3">
+              {DIETARY_OPTIONS.map((opt) => (
+                <PillRadio
+                  key={opt}
+                  label={opt}
+                  checked={(formData.dietaryRestrictions || []).includes(opt)}
+                  onSelect={() => toggleDietary(opt)}
+                />
+              ))}
+            </div>
 
-          {/* UNIVERSITY */}
-          <div>
-            <p className="text-base font-semibold text-[#0F2530]">
-              Which University do you attend?*
-            </p>
-
-            <div className="mt-4">
-              <div className="relative">
-                <select
-                  value={formData.university}
-                  onChange={(e) =>
-                    setFormData({ ...formData, university: e.target.value })
-                  }
-                  className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
-                >
-                  <option value="" />
-                  {uniqueUniversities.map((uni) => (
-                    <option key={uni} value={uni}>
-                      {uni}
-                    </option>
-                  ))}
-                  <option value="Other">Other</option>
-                </select>
-
-                <svg
-                  className="pointer-events-none absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#005271]"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </div>
-
-              {submitted && !formData.university && (
+            {submitted &&
+              (!Array.isArray(formData.dietaryRestrictions) ||
+                formData.dietaryRestrictions.length === 0) && (
                 <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Wait! You left this one blank.
+                  ERROR: Please select at least one option.
                 </p>
               )}
+          </div>
 
-              <div className="h-32">
-                {formData.university === 'Other' && (
-                  <textarea
-                    value={formData.customUniversity}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        customUniversity: e.target.value,
-                      })
-                    }
-                    placeholder="Please specify your school"
-                    className="mt-4 h-24 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
-                  />
-                )}
-              </div>
+          {/* Sponsors connect */}
+          <div>
+            <p className="text-base font-semibold text-[#0F2530]">
+              Would you like to be connected to internship and full-time career
+              opportunities from our sponsors and partners?*
+            </p>
 
-              {submitted &&
-                formData.university === 'Other' &&
-                !(formData.customUniversity || '').trim() && (
-                  <p className="mt-3 text-sm font-semibold text-red-400">
-                    ERROR: Please specify your school.
-                  </p>
-                )}
-            </div>
+            <YesNoGroup
+              value={formData.connectWithSponsors}
+              onChange={(v) => setFormData({ ...formData, connectWithSponsors: v })}
+            />
+
+            {submitted &&
+              (formData.connectWithSponsors === null ||
+                formData.connectWithSponsors === undefined) && (
+                <p className="mt-3 text-sm font-semibold text-red-400">
+                  ERROR: Please select Yes or No.
+                </p>
+              )}
           </div>
         </div>
 
         <div className="mt-14 flex justify-center">
           <button
             type="button"
+            disabled={!isValid}
             onClick={handleNext}
-            className="flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
+            className={`flex items-center gap-3 rounded-full px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
+              isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
+            }`}
           >
             Next <span aria-hidden>→</span>
           </button>
         </div>
       </div>
     </section>
+  );
+}
+
+function Select({
+  placeholder,
+  value,
+  options,
+  onChange,
+}: {
+  placeholder: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="mt-4 relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+
+      <span className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-[#005271]">
+        ▾
+      </span>
+    </div>
+  );
+}
+
+function PillRadio({
+  label,
+  checked,
+  onSelect,
+}: {
+  label: string;
+  checked: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className="flex w-full items-center gap-4 text-left"
+    >
+      <span
+        className={`grid h-6 w-6 place-items-center rounded-full border ${
+          checked ? 'border-[#005271] bg-[#005271]' : 'border-[#A6BFC7] bg-white'
+        }`}
+        aria-hidden
+      >
+        {checked ? <span className="h-2.5 w-2.5 rounded-full bg-white" /> : null}
+      </span>
+
+      <span className="text-sm text-[#0F2530]">{label}</span>
+    </button>
   );
 }
