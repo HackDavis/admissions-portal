@@ -102,8 +102,8 @@ async function addToMailchimp(
     merge_fields: {
       FNAME: first,
       LNAME: last,
-      TITOURL: titoUrl,
-      HUBURL: hubUrl,
+      MMERGE7: titoUrl,
+      MMERGE8: hubUrl,
     },
     tags: [tag],
   };
@@ -113,7 +113,7 @@ async function addToMailchimp(
 
   try {
     const res = await mailchimp.put(
-      `/lists/${process.env.MAILCHIMP_LIST_ID}/members/${subscriberHash}`,
+      `/lists/${process.env.MAILCHIMP_AUDIENCE_ID}/members/${subscriberHash}`,
       payload
     );
     console.log(`Mailchimp updated for ${email}:`, res.data.merge_fields);
@@ -157,7 +157,7 @@ export async function prepareMailchimpInvites(
     const requiredEnvs = [
       'MAILCHIMP_API_KEY',
       'MAILCHIMP_SERVER_PREFIX',
-      'MAILCHIMP_LIST_ID',
+      'MAILCHIMP_AUDIENCE_ID',
       'TITO_AUTH_TOKEN',
     ];
     for (const env of requiredEnvs) {
