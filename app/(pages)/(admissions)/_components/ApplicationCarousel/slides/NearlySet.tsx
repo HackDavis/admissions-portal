@@ -4,17 +4,17 @@ import React, { useEffect } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
 
-interface FutureHackerProps {
+interface NearlySetProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
 }
 
-export default function FutureHacker({
+export default function NearlySet({
   formData,
   setFormData,
   onNext,
-}: FutureHackerProps) {
+}: NearlySetProps) {
   const [universities, setUniversities] = React.useState<string[]>([]);
   const [submitted, setSubmitted] = React.useState(false);
 
@@ -51,7 +51,7 @@ export default function FutureHacker({
     <section className="w-full">
       <div className="mx-auto w-full max-w-[520px] text-center">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
-          Future Hacker <br /> Incoming
+          NEARLY SET
         </h1>
 
         <div className="mt-12 text-left space-y-10">

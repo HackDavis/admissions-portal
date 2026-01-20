@@ -17,11 +17,12 @@ import Email from './slides/Email';
 import Contact from './slides/Contact';
 import Diversity from './slides/Diversity';
 import KeepGoing from './slides/KeepGoing';
-import NearlySet from './slides/FutureHacker';
+import NearlySet from './slides/NearlySet';
 import Confirmation from './slides/Confirmation';
 import MLH from './slides/MLH';
 import LastPage from './slides/LastPage';
 import { NoteBanner } from './_components/NoteBanner';
+import FutureHacker from './slides/FutureHacker';
 
 type SlideDef = {
   key: string;
@@ -115,9 +116,9 @@ export default function ApplicationCarousel() {
       ),
     },
     {
-      key: 'keep-going',
+      key: 'future-hacker',
       node: (
-        <KeepGoing
+        <FutureHacker
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
@@ -125,9 +126,9 @@ export default function ApplicationCarousel() {
       ),
     },
     {
-      key: 'nearly-set',
+      key: 'keep-going',
       node: (
-        <NearlySet
+        <KeepGoing
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
