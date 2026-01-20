@@ -1,6 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useCheckEmail } from '../../../_hooks/useCheckEmail';
+
 interface EmailProps {
   formData: any;
   setFormData: (data: any) => void;
@@ -11,13 +14,11 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
   const { checkEmail, loading, error } = useCheckEmail();
   const [submitted, setSubmitted] = useState(false);
 
-  // to keep saying .edu email validity
   const showEduError =
     formData.email.length > 0 &&
     (!formData.email.includes('@') || !formData.email.endsWith('.edu'));
 
-  const isValidEdu =
-    formData.email.endsWith('.edu') && formData.email.includes('@');
+  const isValidEdu = formData.email.endsWith('.edu') && formData.email.includes('@');
 
   const handleNext = async () => {
     setSubmitted(true);
@@ -28,29 +29,32 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
   };
 
   return (
-    <>
-      <section className="w-full">
-        <div
-          className="
-            pointer-events-none
-            border
-            border-red-600
-            absolute
-            top-0
-            hidden sm:block
-            // w-56 h-56
-            // md:w-64 md:h-64
-            // lg:w-80 lg:h-80
-          "
-        >
+    <section className="relative w-full">
+      {/* Peeping animals pinned to top-left */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          left-0
+          top-0
+          hidden sm:block
+          z-0
+        "
+      >
+        {/* Make THIS box the exact size you want */}
+        <div className="relative h-[320px] w-[320px]">
           <Image
             src="/Images/Peeping.svg"
             alt="Animals peering from behind a wall."
             fill
-            className="object-contain"
+            className="object-contain object-left"
             priority
           />
         </div>
+      </div>
+
+      {/* Content above it */}
+      <div className="relative z-10">
         <header className="text-center">
           <Image
             src="/Images/HDLogo.svg"
@@ -59,9 +63,7 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
             height={100}
             className="mx-auto py-6"
           />
-          <p className="text-sm tracking-wide text-[#005271]">
-            APPLY TO PARTICIPATE IN
-          </p>
+          <p className="text-sm tracking-wide text-[#005271]">APPLY TO PARTICIPATE IN</p>
           <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-[#005271]">
             HACKDAVIS 2026
           </h1>
@@ -73,19 +75,18 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
             <input
               type="email"
               value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="Enter School Email (.edu)"
               className="w-full border-b-2 border-[#005271]/60 bg-transparent py-3 text-center text-xl outline-none placeholder:text-[#9FB6BE]"
             />
           </div>
+
           {showEduError && (
             <p className="mt-2 text-sm font-semibold text-red-500">
               Please enter a valid school email ending in .edu
             </p>
           )}
+
           {submitted && error && (
             <p className="text-sm font-semibold text-red-400">{error}</p>
           )}
@@ -95,15 +96,13 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
             disabled={loading || !isValidEdu}
             onClick={handleNext}
             className={`rounded-full px-8 py-3 text-white ${
-              isValidEdu && !loading
-                ? 'bg-[#005271]'
-                : 'bg-gray-400 cursor-not-allowed'
+              isValidEdu && !loading ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
             }`}
           >
             {loading ? 'Checking...' : 'Access Portal →'}
           </button>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

@@ -255,7 +255,7 @@ export default function ApplicationCarousel() {
           <div className="flex items-start">
             {SLIDES.map((s) => (
               <div key={s.key} className="min-w-0 flex-[0_0_100%]">
-                <div className="px-2 sm:px-4 h-auto">{s.node}</div>
+                <div className="h-auto">{s.node}</div>
               </div>
             ))}
           </div>
