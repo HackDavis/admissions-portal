@@ -178,7 +178,7 @@ export async function prepareMailchimpInvites(
 
       for (const app of dbApplicants) {
         console.log(`\nProcessing: ${app.email}`);
-        console.log('Tito invite object:', app); //TODO: add projection so not all form fields are logged
+        console.log('Tito invite object:', app);
 
         const titoMatch = titoInvites.find(
           (invite) => invite.email.toLowerCase() === app.email.toLowerCase()

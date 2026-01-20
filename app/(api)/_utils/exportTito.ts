@@ -13,7 +13,15 @@ export async function getApplicationsByStatus(
   status: string
 ): Promise<Application[]> {
   const query = { status: status };
-  const res = await GetManyApplications(query);
+  const options = {
+    projection: {
+      firstName: 1,
+      lastName: 1,
+      email: 1,
+    },
+  };
+
+  const res = await GetManyApplications(query, options);
 
   if (!res.ok) throw new Error(res.error ?? 'Failed to fetch applicants');
 
@@ -23,7 +31,7 @@ export async function getApplicationsByStatus(
     console.log(`No ${status} applicants found`);
   }
 
-  return (res.body ?? []).map((app: any) => ({
+  return applicants.map((app: any) => ({
     ...app,
     _id: String(app._id),
   }));
