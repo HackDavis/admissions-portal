@@ -2,39 +2,34 @@
 
 import React from 'react';
 import Image from 'next/image';
+
 export interface NoteBannerProps {
   emoji: string;
-  bold:string;
+  bold: string;
   message: string;
 }
 
-export function NoteBanner({
-  emoji,
-  bold,
-  message
-}: NoteBannerProps) {
+export function NoteBanner({ emoji, bold, message }: NoteBannerProps) {
   return (
     <div className="mx-auto w-full max-w-5xl px-6">
-        <div className="rounded-[28px] border-[#A6BFC7] border bg-[#E5EEF1] p-3 shadow-[6px_8px_0_#A6BFC7] relative grid grid-cols-[15%_1fr]">
-            <div className="relative flex items-center justify-center">
-                <div className="relative h-28 w-28 border border-red-500">
-                    <Image
-                    src={emoji}
-                    alt="notification icon"
-                    fill
-                    className="object-contain"
-                    priority
-                    />
-                </div>
-            </div>
+      <div className="rounded-[40px] border border-[#A6BFC7] bg-[#fff] shadow-[10px_10px_0_#A6BFC7]">
+        <div className="flex items-center gap-6 px-8 py-3">
+          <div className="relative h-[88px] w-[88px] shrink-0">
+            <Image
+              src={emoji}
+              alt="notification icon"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
 
-            <div className="relative flex items-center justify-center">
-                <p className="text-sm text-[#173B47] border border-blue-600">
-                    <strong className="mr-1">{bold}</strong>
-                    {message}
-                </p>
-            </div>
+          <p className="text-[18px] leading-[1.5] text-[#173B47]">
+            <strong className="font-extrabold">{bold}</strong>{' '}
+            {message}
+          </p>
         </div>
+      </div>
     </div>
   );
 }
