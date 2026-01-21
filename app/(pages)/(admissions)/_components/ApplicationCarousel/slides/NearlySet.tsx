@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
+import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 
 const YEAR_OPTIONS = [1, 2, 3, 4, '5+'] as const;
 
@@ -157,16 +158,18 @@ export default function NearlySet({
               Do you have any dietary restrictions?*
             </p>
 
-            <div className="mt-4 space-y-3">
-              {DIETARY_OPTIONS.map((opt) => (
-                <PillRadio
-                  key={opt}
-                  label={opt}
-                  checked={(formData.dietaryRestrictions || []).includes(opt)}
-                  onSelect={() => toggleDietary(opt)}
-                />
-              ))}
-            </div>
+            <MultiSelectGroup
+              options={DIETARY_OPTIONS}
+              value={formData.dietaryRestrictions || []}
+              onChange={(next) => {
+                // enforce "None" behavior
+                if (next.includes('None') && next.length > 1) {
+                  setFormData({ ...formData, dietaryRestrictions: ['None'] });
+                  return;
+                }
+                setFormData({ ...formData, dietaryRestrictions: next });
+              }}
+            />
 
             {submitted &&
               (!Array.isArray(formData.dietaryRestrictions) ||
@@ -265,7 +268,7 @@ function PillRadio({
     <button
       type="button"
       onClick={onSelect}
-      className="flex w-full items-center gap-4 text-left"
+      className="flex w-full gap-4 text-left"
     >
       <span
         className={`grid h-6 w-6 place-items-center rounded-full border ${

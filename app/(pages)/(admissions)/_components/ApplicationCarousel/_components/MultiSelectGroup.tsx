@@ -3,36 +3,40 @@
 import React from 'react';
 import { FiCheck } from 'react-icons/fi';
 
-export interface YesNoGroupProps {
-  value: boolean | null;
-  onChange: (value: boolean) => void;
-  yesLabel?: string;
-  noLabel?: string;
+export interface MultiSelectGroupProps {
+  options: string[];
+  value: string[];
+  onChange: (value: string[]) => void;
 }
 
-export function YesNoGroup({
+export function MultiSelectGroup({
+  options,
   value,
   onChange,
-  yesLabel = 'Yes',
-  noLabel = 'No',
-}: YesNoGroupProps) {
+}: MultiSelectGroupProps) {
+  function toggle(option: string) {
+    if (value.includes(option)) {
+      onChange(value.filter((v) => v !== option));
+    } else {
+      onChange([...value, option]);
+    }
+  }
+
   return (
     <div className="mt-4 flex flex-col gap-3">
-      <YesNoOption
-        label={yesLabel}
-        active={value === true}
-        onClick={() => onChange(true)}
-      />
-      <YesNoOption
-        label={noLabel}
-        active={value === false}
-        onClick={() => onChange(false)}
-      />
+      {options.map((option) => (
+        <MultiSelectOption
+          key={option}
+          label={option}
+          active={value.includes(option)}
+          onClick={() => toggle(option)}
+        />
+      ))}
     </div>
   );
 }
 
-function YesNoOption({
+function MultiSelectOption({
   label,
   active,
   onClick,
