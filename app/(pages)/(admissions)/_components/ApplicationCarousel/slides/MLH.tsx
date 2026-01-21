@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 
 interface MLHProps {
   formData: any;
@@ -8,11 +9,18 @@ interface MLHProps {
   onNext?: () => void;
 }
 
+const AGREEMENT_OPTIONS = [
+  'MLH Code of Conduct',
+  'Event Logistics Information',
+];
+
 export default function MLH({ formData, setFormData, onNext }: MLHProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
   // REQUIRED: both checkboxes must be checked
-  const isValid = !!formData.mlhCodeOfConduct && !!formData.mlhEventLogistics;
+  const isValid =
+    Array.isArray(formData.mlhAgreements) &&
+    AGREEMENT_OPTIONS.every((opt) => formData.mlhAgreements.includes(opt));
 
   const handleNext = () => {
     setSubmitted(true);
@@ -36,12 +44,12 @@ export default function MLH({ formData, setFormData, onNext }: MLHProps) {
 
           {/* Copy blocks */}
           <div className="space-y-4">
-            <p className="text-xs leading-snug text-[#005271] underline underline-offset-2">
+            <p className="text-xs leading-snug text-[#005271]">
               MLH Code of Conduct: &quot;I have read and agree to the MLH Code of
               Conduct.&quot;
             </p>
 
-            <p className="text-xs leading-snug text-[#005271] underline underline-offset-2">
+            <p className="text-xs leading-snug text-[#005271]">
               Event Logistics Information: &quot;I authorize you to share my
               application/registration information with Major League Hacking for
               event administration, ranking, and MLH administration in-line with
@@ -51,35 +59,23 @@ export default function MLH({ formData, setFormData, onNext }: MLHProps) {
           </div>
 
           {/* Checkbox pills */}
-          <div className="space-y-3 pt-2">
-            <PillCheckbox
-              label="MLH Code of Conduct"
-              checked={!!formData.mlhCodeOfConduct}
-              onToggle={() =>
-                setFormData({
-                  ...formData,
-                  mlhCodeOfConduct: !formData.mlhCodeOfConduct,
-                })
-              }
-            />
-
-            <PillCheckbox
-              label="Event Logistics Information"
-              checked={!!formData.mlhEventLogistics}
-              onToggle={() =>
-                setFormData({
-                  ...formData,
-                  mlhEventLogistics: !formData.mlhEventLogistics,
-                })
-              }
-            />
-          </div>
-
-          {submitted && !isValid && (
-            <p className="text-sm font-semibold text-red-400">
-              ERROR: Please agree to both items to continue.
+          <div>
+            <p className="text-base font-semibold text-[#0F2530]">
+              Please confirm both agreements.*
             </p>
-          )}
+
+            <MultiSelectGroup
+              options={AGREEMENT_OPTIONS}
+              value={formData.mlhAgreements || []}
+              onChange={(next) => setFormData({ ...formData, mlhAgreements: next })}
+            />
+
+            {submitted && !isValid && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please check both boxes.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="mt-14 flex justify-center">
