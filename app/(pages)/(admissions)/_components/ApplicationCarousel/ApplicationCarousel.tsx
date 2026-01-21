@@ -199,6 +199,45 @@ export default function ApplicationCarousel() {
   const canPrev = index > 0;
   const canNext = index < total - 1;
 
+  // for top banner helper function
+
+  const currentKey = SLIDES[index]?.key;
+
+const showTopBanner = currentKey === 'email';
+const showBottomBanner =
+  currentKey === 'mlh' || currentKey === 'confirmation';
+
+const bannerEmoji =
+currentKey === 'confirmation'
+  ? '/Images/YellowNotif.svg'
+  : '/Images/RedNotif.svg';
+
+const bannerContent = (() => {
+  switch (currentKey) {
+    case 'email':
+      return {
+        bold: 'Each applicant may submit one application per email address. ',
+        message:
+          'We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted.',
+      };
+    case 'mlh':
+      return {
+        bold: 'NOTE: Only one email can be tied to one application. ',
+        message:
+          'We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted.',
+      };
+    case 'confirmation':
+      return {
+        bold: 'If you made a mistake or need to update your application after submitting, ',
+        message:
+          'please contact us at hello@hackdavis.io and we’ll be happy to help.',
+      };
+    default:
+      return null;
+  }
+})();
+
+
   return (
     <>
       {/* back/next buttons (for dev) */}
@@ -225,11 +264,13 @@ export default function ApplicationCarousel() {
       </div>
 
       {/* note banner */}
-      <NoteBanner
-        emoji="/Images/RedNotif.svg"
-        bold="Each applicant may submit one application per email address. "
-        message="We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted. "
-      />
+      {showTopBanner && bannerContent && (
+        <NoteBanner
+          emoji={bannerEmoji}
+          bold={bannerContent.bold}
+          message={bannerContent.message}
+        />
+      )}
 
       <ApplicationFrame
         topRight={
@@ -261,10 +302,18 @@ export default function ApplicationCarousel() {
           </div>
         </div>
 
-        {/* <p className="mt-3 text-center text-xs text-[#173B47]/70">
-          Step {index + 1} of {total}
-        </p> */}
       </ApplicationFrame>
+
+      {/* Bottom banner only on Last Page + Confirmation */}
+        {showBottomBanner && bannerContent && (
+          <div className="mt-4 mb-44">
+            <NoteBanner
+              emoji={bannerEmoji}
+              bold={bannerContent.bold}
+              message={bannerContent.message}
+            />
+          </div>
+        )}
     </>
   );
 }
