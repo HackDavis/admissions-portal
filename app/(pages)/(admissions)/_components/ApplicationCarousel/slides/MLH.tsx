@@ -13,6 +13,7 @@ const AGREEMENT_OPTIONS = [
 export default function MLH({ formData, setFormData, onNext }: any) {
   const [submitted, setSubmitted] = React.useState(false);
   const [showConfirm, setShowConfirm] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   const agreements: string[] = formData.mlhAgreements ?? [];
 
@@ -21,9 +22,8 @@ export default function MLH({ formData, setFormData, onNext }: any) {
     AGREEMENT_OPTIONS.every((opt) => agreements.includes(opt));
 
   const handleSubmitClick = () => {
-    // submit is only clickable when valid,
-    // but we’ll still setSubmitted for error UI consistency
     setSubmitted(true);
+    setSubmitError(null);
     setShowConfirm(true);
   };
 
@@ -36,6 +36,25 @@ export default function MLH({ formData, setFormData, onNext }: any) {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [showConfirm]);
+
+  const handleConfirmSubmit = async () => {
+    setSubmitError(null);
+
+    try {
+      const result = await onNext?.();
+      if (result === false) {
+        setSubmitError(
+          'Submission failed. Please try again or refresh the page.'
+        );
+      }
+    } catch (err) {
+      setSubmitError(
+        'Submission failed. Please check your connection and try again.'
+      );
+    } finally {
+      setShowConfirm(false);
+    }
+  };
 
   return (
     <section className="w-full relative">
@@ -84,7 +103,7 @@ export default function MLH({ formData, setFormData, onNext }: any) {
           )}
         </div>
 
-        <div className="mt-14 flex justify-center">
+        <div className="mt-14 flex flex-col items-center gap-4">
           <button
             type="button"
             disabled={!isValid}
@@ -95,18 +114,20 @@ export default function MLH({ formData, setFormData, onNext }: any) {
           >
             SUBMIT! <span aria-hidden>→</span>
           </button>
+
+          {submitError && (
+            <p className="text-sm font-semibold text-red-500">
+              {submitError}
+            </p>
+          )}
         </div>
       </div>
 
       <ConfirmSubmitModal
         open={showConfirm}
         onClose={() => setShowConfirm(false)}
-        onConfirm={() => {
-          setShowConfirm(false);
-          onNext?.();
-        }}
+        onConfirm={handleConfirmSubmit}
       />
-
     </section>
   );
 }

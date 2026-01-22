@@ -80,7 +80,6 @@ export default function Contact({
                 {q.required ? '*' : ''}
               </label>
 
-              {/* ===== TEXT INPUTS ===== */}
               {q.id !== 'phone' && (
                 <input
                   value={value || ''}
