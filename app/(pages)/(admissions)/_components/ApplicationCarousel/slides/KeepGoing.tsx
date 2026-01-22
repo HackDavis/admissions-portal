@@ -44,18 +44,23 @@ export default function KeepGoing({
 
   const hasMinorOrDoubleMajor = formData.hasMinorOrDoubleMajor; // boolean | null
 
-  // show college only if UC Davis selected
   const isUCDSelected =
     formData.isUCDavisStudent === true ||
     formData.university === 'University of California, Davis';
 
-  // if UC Davis not selected, clear college so validation isn't stuck
   useEffect(() => {
     if (!isUCDSelected && formData.college) {
       setFormData({ ...formData, college: '' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUCDSelected]);
+
+  useEffect(() => {
+    if (hasMinorOrDoubleMajor === false && formData.minorOrDoubleMajor) {
+      setFormData({ ...formData, minorOrDoubleMajor: '' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMinorOrDoubleMajor]);
 
   const isValid =
     !!formData.levelOfStudy &&
@@ -84,7 +89,6 @@ export default function KeepGoing({
         </p>
 
         <div className="mt-12 text-left space-y-10">
-          {/* Level of study */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
               What is your current level of study?*
@@ -104,7 +108,6 @@ export default function KeepGoing({
             )}
           </div>
 
-          {/* Major */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
               What’s your major?
@@ -129,7 +132,6 @@ export default function KeepGoing({
             )}
           </div>
 
-          {/* Minor/double major */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
               Do you have a minor or a double major?*
@@ -141,7 +143,6 @@ export default function KeepGoing({
                 setFormData({
                   ...formData,
                   hasMinorOrDoubleMajor: v,
-                  minorOrDoubleMajor: v ? formData.minorOrDoubleMajor : '',
                 })
               }
             />
@@ -153,37 +154,36 @@ export default function KeepGoing({
             )}
           </div>
 
-          {/* Minor select */}
-          {hasMinorOrDoubleMajor === true && (
-            <div>
-              <p className="text-base font-semibold text-[#0F2530]">
-                What&apos;s your minor or double major?
-              </p>
-              <p className="mt-1 text-sm leading-snug text-[#005271]">
-                If you have more than one, please select only one of them, or
-                select &quot;Other&quot; if it does not appear.
-              </p>
+          <div className={hasMinorOrDoubleMajor !== true ? 'opacity-50' : ''}>
+            <p className="text-base font-semibold text-[#0F2530]">
+              What&apos;s your minor or double major?
+            </p>
+            <p className="mt-1 text-sm leading-snug text-[#005271]">
+              If you have more than one, please select only one of them, or
+              select &quot;Other&quot; if it does not appear.
+            </p>
 
-              <Select
-                placeholder={
-                  minorOptions.length ? 'Select an option' : 'Loading minors...'
-                }
-                value={formData.minorOrDoubleMajor || ''}
-                options={minorOptions}
-                onChange={(v) =>
-                  setFormData({ ...formData, minorOrDoubleMajor: v })
-                }
-              />
+            <Select
+              placeholder={
+                minorOptions.length ? 'Select an option' : 'Loading minors...'
+              }
+              value={formData.minorOrDoubleMajor || ''}
+              options={minorOptions}
+              onChange={(v) =>
+                setFormData({ ...formData, minorOrDoubleMajor: v })
+              }
+              disabled={hasMinorOrDoubleMajor !== true}
+            />
 
-              {submitted && !formData.minorOrDoubleMajor && (
+            {submitted &&
+              hasMinorOrDoubleMajor === true &&
+              !formData.minorOrDoubleMajor && (
                 <p className="mt-3 text-sm font-semibold text-red-400">
                   ERROR: Wait! You left this one blank.
                 </p>
               )}
-            </div>
-          )}
+          </div>
 
-          {/* College (ONLY if UC Davis) */}
           {isUCDSelected && (
             <div>
               <p className="text-base font-semibold text-[#0F2530]">
@@ -237,18 +237,23 @@ function Select({
   value,
   options,
   onChange,
+  disabled,
 }: {
   placeholder: string;
   value: string;
   options: string[];
   onChange: (v: string) => void;
+  disabled?: boolean;
 }) {
   return (
     <div className="mt-4 relative">
       <select
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
+        className={`w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none ${
+          disabled ? 'cursor-not-allowed' : ''
+        }`}
       >
         <option value="" disabled>
           {placeholder}
