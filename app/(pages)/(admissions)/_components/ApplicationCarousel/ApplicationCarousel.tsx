@@ -1,17 +1,18 @@
 'use client';
 
-//TODO: ADD BACK BUTTON AND PROFILE THING
+//TODO: FIX AND MAKE AUTORESIZE WORK WITH EMBLA
 //TODO: handle submission failure (some kind of visual feedback)
 
 import React from 'react';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import AutoHeight from 'embla-carousel-auto-height';
+import Confetti from 'react-confetti';
 
 import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
 import { IoChevronBackOutline } from 'react-icons/io5';
-import { GoPerson } from "react-icons/go";
+import { GoPerson } from 'react-icons/go';
 
 import Email from './slides/Email';
 import Contact from './slides/Contact';
@@ -41,6 +42,21 @@ export default function ApplicationCarousel() {
   );
 
   const [index, setIndex] = React.useState(0);
+
+  // Confetti: window dimensions
+  const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
+
+  React.useEffect(() => {
+    const update = () =>
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   // Default form data (what user sees in application portal)
   const [formData, setFormData] = React.useState({
@@ -82,10 +98,7 @@ export default function ApplicationCarousel() {
     const { customUniversity, ...rest } = formData; // remove customUniversity from formData
     const payload = {
       ...rest,
-      university:
-        formData.university === 'Other'
-          ? customUniversity
-          : formData.university,
+      university: formData.university === 'Other' ? customUniversity : formData.university,
     };
     //submit application
     const ok = await submit(payload);
@@ -98,11 +111,7 @@ export default function ApplicationCarousel() {
     {
       key: 'email',
       node: (
-        <Email
-          formData={formData}
-          setFormData={setFormData}
-          onNext={() => api?.scrollNext()}
-        />
+        <Email formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} />
       ),
     },
     {
@@ -167,14 +176,7 @@ export default function ApplicationCarousel() {
     },
     {
       key: 'mlh',
-      node: (
-        <MLH
-          formData={formData}
-          setFormData={setFormData}
-          onNext={handleFinalSubmit}
-        />
-        
-      ),
+      node: <MLH formData={formData} setFormData={setFormData} onNext={handleFinalSubmit} />,
     },
     { key: 'confirmation', node: <Confirmation /> },
   ];
@@ -200,46 +202,60 @@ export default function ApplicationCarousel() {
   const canNext = index < total - 1;
 
   // for top banner helper function
-
   const currentKey = SLIDES[index]?.key;
 
-const showTopBanner = currentKey === 'email';
-const showBottomBanner =
-  currentKey === 'mlh' || currentKey === 'confirmation';
+  const showTopBanner = currentKey === 'email';
+  const showBottomBanner = currentKey === 'mlh' || currentKey === 'confirmation';
 
-const bannerEmoji =
-currentKey === 'confirmation'
-  ? '/Images/YellowNotif.svg'
-  : '/Images/RedNotif.svg';
+  const isConfirmation = currentKey === 'confirmation';
 
-const bannerContent = (() => {
-  switch (currentKey) {
-    case 'email':
-      return {
-        bold: 'Each applicant may submit one application per email address. ',
-        message:
-          'We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted.',
-      };
-    case 'mlh':
-      return {
-        bold: 'NOTE: Only one email can be tied to one application. ',
-        message:
-          'We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted.',
-      };
-    case 'confirmation':
-      return {
-        bold: 'If you made a mistake or need to update your application after submitting, ',
-        message:
-          'please contact us at hello@hackdavis.io and we’ll be happy to help.',
-      };
-    default:
-      return null;
-  }
-})();
+  const bannerEmoji =
+    currentKey === 'confirmation' ? '/Images/YellowNotif.svg' : '/Images/RedNotif.svg';
 
+  const bannerContent = (() => {
+    switch (currentKey) {
+      case 'email':
+        return {
+          bold: 'Each applicant may submit one application per email address. ',
+          message:
+            'We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted.',
+        };
+      case 'mlh':
+        return {
+          bold: 'NOTE: Only one email can be tied to one application. ',
+          message:
+            'We track applications by email to ensure a fair review process, so multiple submissions from the same email will not be accepted.',
+        };
+      case 'confirmation':
+        return {
+          bold: 'If you made a mistake or need to update your application after submitting, ',
+          message: 'please contact us at hello@hackdavis.io and we’ll be happy to help.',
+        };
+      default:
+        return null;
+    }
+  })();
 
   return (
     <>
+      {/* Confetti overlay on Confirmation page */}
+      {isConfirmation && dimensions.width > 0 && (
+        <Confetti
+          width={dimensions.width}
+          height={dimensions.height}
+          numberOfPieces={400}
+          recycle={false}
+          gravity={0.25}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            zIndex: 50,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+
       {/* back/next buttons (for dev) */}
       <div className="mt-8 px-[5%] flex items-center justify-between gap-4">
         <button
@@ -248,7 +264,7 @@ const bannerContent = (() => {
           disabled={!canPrev}
           className="box-border rounded-full ring-2 ring-[#88D8DD] bg-[#9EE7E5] px-3 py-3 text-sm font-semibold text-white disabled:opacity-40 "
         >
-          <IoChevronBackOutline width={50} height={50} className='text-[#005271] h-7 w-7'/>
+          <IoChevronBackOutline width={50} height={50} className="text-[#005271] h-7 w-7" />
         </button>
 
         <button
@@ -256,20 +272,14 @@ const bannerContent = (() => {
           onClick={() => api?.scrollNext()}
           disabled={!canNext}
           className="rounded-full bg-[#E5EEF1] px-3 py-3 ring-2 ring-[#A6BFC7] disabled:opacity-40"
-
         >
-          {/* {canNext ? 'Next →' : 'Finish'} */}
-          <GoPerson width={150} height={150} className='text-[#005271] h-7 w-7' />
+          <GoPerson width={150} height={150} className="text-[#005271] h-7 w-7" />
         </button>
       </div>
 
       {/* note banner */}
       {showTopBanner && bannerContent && (
-        <NoteBanner
-          emoji={bannerEmoji}
-          bold={bannerContent.bold}
-          message={bannerContent.message}
-        />
+        <NoteBanner emoji={bannerEmoji} bold={bannerContent.bold} message={bannerContent.message} />
       )}
 
       <ApplicationFrame
@@ -301,19 +311,14 @@ const bannerContent = (() => {
             ))}
           </div>
         </div>
-
       </ApplicationFrame>
 
       {/* Bottom banner only on Last Page + Confirmation */}
-        {showBottomBanner && bannerContent && (
-          <div className="mt-4 mb-44">
-            <NoteBanner
-              emoji={bannerEmoji}
-              bold={bannerContent.bold}
-              message={bannerContent.message}
-            />
-          </div>
-        )}
+      {showBottomBanner && bannerContent && (
+        <div className="mt-4 mb-44">
+          <NoteBanner emoji={bannerEmoji} bold={bannerContent.bold} message={bannerContent.message} />
+        </div>
+      )}
     </>
   );
 }

@@ -2,10 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import Confetti from 'react-confetti';
 
 export default function Confirmation() {
-  const [showConfetti, setShowConfetti] = useState(true);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -15,23 +13,9 @@ export default function Confirmation() {
     return () => window.removeEventListener('resize', update);
   }, []);
 
-  useEffect(() => {
-    const t = setTimeout(() => setShowConfetti(false), 3500);
-    return () => clearTimeout(t);
-  }, []);
 
   return (
     <section className="w-full relative">
-      {showConfetti && (
-        <Confetti
-          width={size.width}
-          height={size.height}
-          numberOfPieces={350}
-          recycle={false}
-          gravity={0.25}
-          tweenDuration={800}
-        />
-      )}
 
       <div className="mx-auto w-full max-w-[520px] text-center">
         <p className="text-xs font-semibold tracking-[0.12em] text-[#005271]">
