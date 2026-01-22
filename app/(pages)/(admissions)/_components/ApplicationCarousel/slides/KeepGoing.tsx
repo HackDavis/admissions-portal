@@ -285,11 +285,15 @@ function PillRadio({
     >
       <span
         className={`grid h-6 w-6 place-items-center rounded-full border ${
-          checked ? 'border-[#005271] bg-[#005271]' : 'border-[#A6BFC7] bg-white'
+          checked
+            ? 'border-[#005271] bg-[#005271]'
+            : 'border-[#A6BFC7] bg-white'
         }`}
         aria-hidden
       >
-        {checked ? <span className="h-2.5 w-2.5 rounded-full bg-white" /> : null}
+        {checked ? (
+          <span className="h-2.5 w-2.5 rounded-full bg-white" />
+        ) : null}
       </span>
 
       <span className="text-sm text-[#0F2530]">{label}</span>

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { ConfirmSubmitModal } from '../_components/ConfirmSubmitModal';
 import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 
@@ -72,8 +71,8 @@ export default function MLH({ formData, setFormData, onNext }: any) {
 
           <div className="space-y-4">
             <p className="text-xs leading-snug text-[#005271]">
-              MLH Code of Conduct: &quot;I have read and agree to the MLH Code of
-              Conduct.&quot;
+              MLH Code of Conduct: &quot;I have read and agree to the MLH Code
+              of Conduct.&quot;
             </p>
 
             <p className="text-xs leading-snug text-[#005271]">
@@ -116,9 +115,7 @@ export default function MLH({ formData, setFormData, onNext }: any) {
           </button>
 
           {submitError && (
-            <p className="text-sm font-semibold text-red-500">
-              {submitError}
-            </p>
+            <p className="text-sm font-semibold text-red-500">{submitError}</p>
           )}
         </div>
       </div>

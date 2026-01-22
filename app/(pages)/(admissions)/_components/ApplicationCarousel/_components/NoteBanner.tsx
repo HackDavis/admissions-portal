@@ -25,8 +25,7 @@ export function NoteBanner({ emoji, bold, message }: NoteBannerProps) {
           </div>
 
           <p className="text-[18px] leading-[1.5] text-[#173B47]">
-            <strong className="font-extrabold">{bold}</strong>{' '}
-            {message}
+            <strong className="font-extrabold">{bold}</strong> {message}
           </p>
         </div>
       </div>

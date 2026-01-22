@@ -1,9 +1,7 @@
 'use client';
 
 import React from 'react';
-import PhoneInput, {
-  isValidPhoneNumber,
-} from 'react-phone-number-input';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
 type FieldId = 'firstName' | 'lastName' | 'phone';
@@ -64,8 +62,7 @@ export default function Contact({
       <div className="mx-auto mt-12 w-full max-w-lg space-y-10">
         {QUESTIONS.map((q) => {
           const value = formData[q.id];
-          const isEmptyError =
-            submitted && q.required && !value;
+          const isEmptyError = submitted && q.required && !value;
 
           const isPhoneError =
             submitted &&

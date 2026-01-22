@@ -4,7 +4,6 @@
 //TODO: handle submission failure (some kind of visual feedback)
 
 import React from 'react';
-import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import AutoHeight from 'embla-carousel-auto-height';
 import Confetti from 'react-confetti';
@@ -98,7 +97,10 @@ export default function ApplicationCarousel() {
     const { customUniversity, ...rest } = formData; // remove customUniversity from formData
     const payload = {
       ...rest,
-      university: formData.university === 'Other' ? customUniversity : formData.university,
+      university:
+        formData.university === 'Other'
+          ? customUniversity
+          : formData.university,
     };
     //submit application
     const ok = await submit(payload);
@@ -111,7 +113,11 @@ export default function ApplicationCarousel() {
     {
       key: 'email',
       node: (
-        <Email formData={formData} setFormData={setFormData} onNext={() => api?.scrollNext()} />
+        <Email
+          formData={formData}
+          setFormData={setFormData}
+          onNext={() => api?.scrollNext()}
+        />
       ),
     },
     {
@@ -176,7 +182,13 @@ export default function ApplicationCarousel() {
     },
     {
       key: 'mlh',
-      node: <MLH formData={formData} setFormData={setFormData} onNext={handleFinalSubmit} />,
+      node: (
+        <MLH
+          formData={formData}
+          setFormData={setFormData}
+          onNext={handleFinalSubmit}
+        />
+      ),
     },
     { key: 'confirmation', node: <Confirmation /> },
   ];
@@ -205,12 +217,15 @@ export default function ApplicationCarousel() {
   const currentKey = SLIDES[index]?.key;
 
   const showTopBanner = currentKey === 'email';
-  const showBottomBanner = currentKey === 'mlh' || currentKey === 'confirmation';
+  const showBottomBanner =
+    currentKey === 'mlh' || currentKey === 'confirmation';
 
   const isConfirmation = currentKey === 'confirmation';
 
   const bannerEmoji =
-    currentKey === 'confirmation' ? '/Images/YellowNotif.svg' : '/Images/RedNotif.svg';
+    currentKey === 'confirmation'
+      ? '/Images/YellowNotif.svg'
+      : '/Images/RedNotif.svg';
 
   const bannerContent = (() => {
     switch (currentKey) {
@@ -229,7 +244,8 @@ export default function ApplicationCarousel() {
       case 'confirmation':
         return {
           bold: 'If you made a mistake or need to update your application after submitting, ',
-          message: 'please contact us at hello@hackdavis.io and we’ll be happy to help.',
+          message:
+            'please contact us at hello@hackdavis.io and we’ll be happy to help.',
         };
       default:
         return null;
@@ -264,7 +280,11 @@ export default function ApplicationCarousel() {
           disabled={!canPrev}
           className="box-border rounded-full ring-2 ring-[#88D8DD] bg-[#9EE7E5] px-3 py-3 text-sm font-semibold text-white disabled:opacity-40 "
         >
-          <IoChevronBackOutline width={50} height={50} className="text-[#005271] h-7 w-7" />
+          <IoChevronBackOutline
+            width={50}
+            height={50}
+            className="text-[#005271] h-7 w-7"
+          />
         </button>
 
         <button
@@ -273,13 +293,21 @@ export default function ApplicationCarousel() {
           disabled={!canNext}
           className="rounded-full bg-[#E5EEF1] px-3 py-3 ring-2 ring-[#A6BFC7] disabled:opacity-40"
         >
-          <GoPerson width={150} height={150} className="text-[#005271] h-7 w-7" />
+          <GoPerson
+            width={150}
+            height={150}
+            className="text-[#005271] h-7 w-7"
+          />
         </button>
       </div>
 
       {/* note banner */}
       {showTopBanner && bannerContent && (
-        <NoteBanner emoji={bannerEmoji} bold={bannerContent.bold} message={bannerContent.message} />
+        <NoteBanner
+          emoji={bannerEmoji}
+          bold={bannerContent.bold}
+          message={bannerContent.message}
+        />
       )}
 
       <ApplicationFrame
@@ -316,7 +344,11 @@ export default function ApplicationCarousel() {
       {/* Bottom banner only on Last Page + Confirmation */}
       {showBottomBanner && bannerContent && (
         <div className="mt-4 mb-44">
-          <NoteBanner emoji={bannerEmoji} bold={bannerContent.bold} message={bannerContent.message} />
+          <NoteBanner
+            emoji={bannerEmoji}
+            bold={bannerContent.bold}
+            message={bannerContent.message}
+          />
         </div>
       )}
     </>

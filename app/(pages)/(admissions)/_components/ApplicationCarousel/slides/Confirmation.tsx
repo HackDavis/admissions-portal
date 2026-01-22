@@ -1,22 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 export default function Confirmation() {
-  const [size, setSize] = useState({ width: 0, height: 0 });
-
-  useEffect(() => {
-    const update = () => setSize({ width: window.innerWidth, height: window.innerHeight });
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
-
-
   return (
     <section className="w-full relative">
-
       <div className="mx-auto w-full max-w-[520px] text-center">
         <p className="text-xs font-semibold tracking-[0.12em] text-[#005271]">
           YOU ARE IN!

@@ -8,7 +8,11 @@ interface ABitMoreProps {
   onNext?: () => void;
 }
 
-export default function ABitMore({ formData, setFormData, onNext }: ABitMoreProps) {
+export default function ABitMore({
+  formData,
+  setFormData,
+  onNext,
+}: ABitMoreProps) {
   // everything is optional here, so always valid
   return (
     <section className="w-full">
@@ -33,7 +37,9 @@ export default function ABitMore({ formData, setFormData, onNext }: ABitMoreProp
             <input
               type="url"
               value={formData.linkedin || ''}
-              onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, linkedin: e.target.value })
+              }
               placeholder=""
               className="mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />
@@ -59,12 +65,15 @@ export default function ABitMore({ formData, setFormData, onNext }: ABitMoreProp
           {/* Resume (text box per your note) */}
           <div>
             <label className="block text-sm font-semibold text-[#0F2530]">
-              Please attach your resume so we can connect you to these opportunities!*
+              Please attach your resume so we can connect you to these
+              opportunities!*
             </label>
 
             <textarea
               value={formData.resume || ''}
-              onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, resume: e.target.value })
+              }
               placeholder=""
               className="mt-3 h-28 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />

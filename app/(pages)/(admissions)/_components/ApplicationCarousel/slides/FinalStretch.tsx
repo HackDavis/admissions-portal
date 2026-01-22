@@ -9,10 +9,16 @@ interface FinalStretchProps {
   onNext?: () => void;
 }
 
-export default function FinalStretch({ formData, setFormData, onNext }: FinalStretchProps) {
+export default function FinalStretch({
+  formData,
+  setFormData,
+  onNext,
+}: FinalStretchProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
-  const isValid = formData.connectWithHackDavis !== null && formData.connectWithHackDavis !== undefined;
+  const isValid =
+    formData.connectWithHackDavis !== null &&
+    formData.connectWithHackDavis !== undefined;
 
   const handleNext = () => {
     setSubmitted(true);
@@ -37,7 +43,8 @@ export default function FinalStretch({ formData, setFormData, onNext }: FinalStr
           {/* HackDavis updates */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              Would you like to receive news and updates from HackDavis in your inbox?*
+              Would you like to receive news and updates from HackDavis in your
+              inbox?*
             </p>
 
             <p className="mt-2 text-xs text-[#005271]">
@@ -47,7 +54,9 @@ export default function FinalStretch({ formData, setFormData, onNext }: FinalStr
             <div className="mt-4">
               <YesNoGroup
                 value={formData.connectWithHackDavis}
-                onChange={(v) => setFormData({ ...formData, connectWithHackDavis: v })}
+                onChange={(v) =>
+                  setFormData({ ...formData, connectWithHackDavis: v })
+                }
               />
             </div>
 
@@ -65,14 +74,16 @@ export default function FinalStretch({ formData, setFormData, onNext }: FinalStr
             </p>
 
             <p className="mt-2 text-xs leading-snug text-[#005271]">
-              I authorize MLH to send me occasional emails about relevant events,
-              career opportunities, and community announcements.
+              I authorize MLH to send me occasional emails about relevant
+              events, career opportunities, and community announcements.
             </p>
 
             <div className="mt-4">
               <YesNoGroup
                 value={formData.connectWithMLH}
-                onChange={(v) => setFormData({ ...formData, connectWithMLH: v })}
+                onChange={(v) =>
+                  setFormData({ ...formData, connectWithMLH: v })
+                }
               />
             </div>
           </div>

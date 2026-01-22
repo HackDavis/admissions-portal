@@ -6,16 +6,7 @@ import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 
 const YEAR_OPTIONS = [1, 2, 3, 4, '5+'] as const;
 
-const SHIRT_OPTIONS = [
-  'XS',
-  'S',
-  'M',
-  'L',
-  'XL',
-  '2XL',
-  '3XL',
-  'Other',
-];
+const SHIRT_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', 'Other'];
 
 const DIETARY_OPTIONS = [
   'Vegetarian',
@@ -39,29 +30,6 @@ export default function NearlySet({
   onNext,
 }: NearlySetProps) {
   const [submitted, setSubmitted] = React.useState(false);
-
-  const toggleDietary = (value: string) => {
-    const current: string[] = formData.dietaryRestrictions || [];
-    const exists = current.includes(value);
-
-    // If selecting "None", clear everything else
-    if (value === 'None') {
-      setFormData({
-        ...formData,
-        dietaryRestrictions: exists ? [] : ['None'],
-      });
-      return;
-    }
-
-    // If selecting something else, remove "None" if present
-    const withoutNone = current.filter((v) => v !== 'None');
-    setFormData({
-      ...formData,
-      dietaryRestrictions: exists
-        ? withoutNone.filter((v) => v !== value)
-        : [...withoutNone, value],
-    });
-  };
 
   const isValid =
     !!formData.year &&
@@ -189,7 +157,9 @@ export default function NearlySet({
 
             <YesNoGroup
               value={formData.connectWithSponsors}
-              onChange={(v) => setFormData({ ...formData, connectWithSponsors: v })}
+              onChange={(v) =>
+                setFormData({ ...formData, connectWithSponsors: v })
+              }
             />
 
             {submitted &&
@@ -252,34 +222,5 @@ function Select({
         ▾
       </span>
     </div>
-  );
-}
-
-function PillRadio({
-  label,
-  checked,
-  onSelect,
-}: {
-  label: string;
-  checked: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="flex w-full gap-4 text-left"
-    >
-      <span
-        className={`grid h-6 w-6 place-items-center rounded-full border ${
-          checked ? 'border-[#005271] bg-[#005271]' : 'border-[#A6BFC7] bg-white'
-        }`}
-        aria-hidden
-      >
-        {checked ? <span className="h-2.5 w-2.5 rounded-full bg-white" /> : null}
-      </span>
-
-      <span className="text-sm text-[#0F2530]">{label}</span>
-    </button>
   );
 }

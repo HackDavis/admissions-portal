@@ -46,9 +46,9 @@ export function ConfirmSubmitModal({
             </h2>
 
             <p className="mt-4 text-xs font-semibold leading-snug text-[#0F2530]">
-              <span className="font-extrabold">NOTE:</span> Only one email can be
-              tied to one application. Multiple submissions from the same email
-              will not be accepted.
+              <span className="font-extrabold">NOTE:</span> Only one email can
+              be tied to one application. Multiple submissions from the same
+              email will not be accepted.
             </p>
 
             <div className="mt-8 flex justify-center">
