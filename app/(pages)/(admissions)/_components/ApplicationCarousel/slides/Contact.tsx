@@ -1,6 +1,10 @@
 'use client';
 
 import React from 'react';
+import PhoneInput, {
+  isValidPhoneNumber,
+} from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 type FieldId = 'firstName' | 'lastName' | 'phone';
 
@@ -14,13 +18,7 @@ const QUESTIONS: Question[] = [
   { id: 'firstName', label: 'First Name', required: true },
   { id: 'lastName', label: 'Last Name', required: true },
   { id: 'phone', label: 'Phone number', required: true },
-  // { id: 'age', label: 'Age', required: true },
 ];
-
-const PHONE_REGEX = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}$/;
-const isValidPhone = (value: string) => {
-  return PHONE_REGEX.test(value.trim());
-};
 
 interface ContactProps {
   formData: any;
@@ -44,11 +42,11 @@ export default function Contact({
     setSubmitted(true);
 
     const missingRequired = QUESTIONS.some(
-      (q) => q.required && (formData[q.id] || '').trim() === ''
+      (q) => q.required && !formData[q.id]
     );
     if (missingRequired) return;
 
-    if (!isValidPhone(formData.phone || '')) return;
+    if (!isValidPhoneNumber(formData.phone || '')) return;
 
     onNext?.();
   };
@@ -65,13 +63,15 @@ export default function Contact({
 
       <div className="mx-auto mt-12 w-full max-w-lg space-y-10">
         {QUESTIONS.map((q) => {
-          const value = (formData[q.id] || '').trim();
-          const isEmptyError = submitted && q.required && value === '';
+          const value = formData[q.id];
+          const isEmptyError =
+            submitted && q.required && !value;
+
           const isPhoneError =
             submitted &&
             q.id === 'phone' &&
-            value !== '' &&
-            !isValidPhone(value);
+            value &&
+            !isValidPhoneNumber(value);
 
           return (
             <div key={q.id}>
@@ -80,14 +80,48 @@ export default function Contact({
                 {q.required ? '*' : ''}
               </label>
 
-              <input
-                value={formData[q.id] || ''}
-                onChange={onChange(q.id)}
-                className={[
-                  'mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-base text-[#0F2530] outline-none',
-                  isEmptyError || isPhoneError ? 'ring-1 ring-red-400' : '',
-                ].join(' ')}
-              />
+              {/* ===== TEXT INPUTS ===== */}
+              {q.id !== 'phone' && (
+                <input
+                  value={value || ''}
+                  onChange={onChange(q.id)}
+                  className={[
+                    'mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-base text-[#0F2530] outline-none',
+                    isEmptyError ? 'ring-1 ring-red-400' : '',
+                  ].join(' ')}
+                />
+              )}
+
+              {q.id === 'phone' && (
+                <div
+                  className={[
+                    'mt-3 flex items-center gap-3 rounded-full bg-[#E5EEF1] px-3 py-2',
+                    isEmptyError || isPhoneError ? 'ring-1 ring-red-400' : '',
+                  ].join(' ')}
+                >
+                  <PhoneInput
+                    defaultCountry="US"
+                    international={false}
+                    value={formData.phone}
+                    onChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        phone: value,
+                      })
+                    }
+                    className="flex items-center w-full bg-[#E5EEF1]"
+                    countrySelectProps={{
+                      className:
+                        'flex items-center gap-2 rounded-full bg-white/70 px-3 py-2 relative',
+                    }}
+                    inputProps={{
+                      className:
+                        'w-full bg-[#E5EEF1] px-3 py-2 text-base text-[#0F2530] outline-none placeholder:text-[#0F2530]/40',
+                      placeholder: 'Phone number',
+                    }}
+                  />
+                </div>
+              )}
 
               {isEmptyError ? (
                 <p className="mt-3 text-sm font-semibold text-red-400">
@@ -95,8 +129,7 @@ export default function Contact({
                 </p>
               ) : isPhoneError ? (
                 <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Please enter a valid phone number (10-digit or (###)
-                  ###-#### ).
+                  ERROR: Please enter a valid phone number.
                 </p>
               ) : null}
             </div>
