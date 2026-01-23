@@ -47,7 +47,9 @@ export default function KeepGoing({
     fetchMinors().then(setMinorOptions);
   }, []);
 
-  const hasMinorOrDoubleMajor = formData.hasMinorOrDoubleMajor; // boolean | null
+  const [hasMinorOrDoubleMajor, setHasMinorOrDoubleMajor] = useState<
+    boolean | null
+  >(null);
 
   const isUCDSelected =
     formData.isUCDavisStudent === true ||
@@ -144,12 +146,7 @@ export default function KeepGoing({
 
             <YesNoGroup
               value={hasMinorOrDoubleMajor}
-              onChange={(v) =>
-                setFormData({
-                  ...formData,
-                  hasMinorOrDoubleMajor: v,
-                })
-              }
+              onChange={(v) => setHasMinorOrDoubleMajor(v)}
             />
 
             {submitted && hasMinorOrDoubleMajor === null && (

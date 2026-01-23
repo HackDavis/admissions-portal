@@ -60,16 +60,16 @@ export default function ApplicationCarousel() {
 
   // Default form data (what user sees in application portal)
   const [formData, setFormData] = React.useState({
+    //Email.tsx
+    email: '',
     //Contact.tsx
     firstName: '',
     lastName: '',
     phone: '',
-    //Email.tsx
-    email: '',
     //FutureHacker.tsx
     age: 0,
-    isUCDavisStudent: false,
     isOver18: false,
+    isUCDavisStudent: false,
     university: '',
     countryOfResidence: '',
     //KeepGoing.tsx
@@ -88,12 +88,16 @@ export default function ApplicationCarousel() {
     attendedHackDavis: false,
     firstHackathon: false,
     //ABitMore.tsx
-    resume: '',
     linkedin: '',
     githubOrPortfolio: '',
+    resume: '',
     //FinalStretch.tsx
     connectWithHackDavis: false,
     connectWithMLH: false,
+    mlhAgreements: {
+      mlhCodeOfConduct: false,
+      eventLogisticsInformation: false,
+    },
     // Admission status tracking
     status: 'pending',
     wasWaitlisted: false,

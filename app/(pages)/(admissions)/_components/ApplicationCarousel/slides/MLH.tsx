@@ -14,7 +14,14 @@ export default function MLH({ formData, setFormData, onNext }: any) {
   const [showConfirm, setShowConfirm] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
 
-  const agreements: string[] = formData.mlhAgreements ?? [];
+  // allows reuse of MultiSelectGroup component, but maps to boolean fields in formData
+  const agreements: string[] = Object.entries(formData.mlhAgreements)
+    .filter(([_, v]) => v)
+    .map(([k]) =>
+      k === 'mlhCodeOfConduct'
+        ? 'MLH Code of Conduct'
+        : 'Event Logistics Information'
+    );
 
   const isValid =
     Array.isArray(agreements) &&
@@ -119,13 +126,24 @@ export default function MLH({ formData, setFormData, onNext }: any) {
           </div>
 
           <MultiSelectGroup
-            options={[...AGREEMENT_OPTIONS]}
-            value={agreements}
-            onChange={(next) =>
-              setFormData((prev: any) => ({
-                ...prev,
-                mlhAgreements: next,
-              }))
+            options={['MLH Code of Conduct', 'Event Logistics Information']}
+            value={Object.entries(formData.mlhAgreements)
+              .filter(([_, v]) => v)
+              .map(([k]) =>
+                k === 'mlhCodeOfConduct'
+                  ? 'MLH Code of Conduct'
+                  : 'Event Logistics Information'
+              )}
+            onChange={(selected) =>
+              setFormData({
+                ...formData,
+                mlhAgreements: {
+                  mlhCodeOfConduct: selected.includes('MLH Code of Conduct'),
+                  eventLogisticsInformation: selected.includes(
+                    'Event Logistics Information'
+                  ),
+                },
+              })
             }
           />
 
