@@ -24,7 +24,7 @@ const LEVEL_OF_STUDY_OPTIONS = [
   'Post Doctorate',
   'Other',
   'I’m not currently a student',
-  'Prefer not to answer'
+  'Prefer not to answer',
 ];
 
 interface KeepGoingProps {

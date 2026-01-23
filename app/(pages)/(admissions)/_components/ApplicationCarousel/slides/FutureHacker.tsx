@@ -22,10 +22,10 @@ export default function FutureHacker({
   const [universities, setUniversities] = React.useState<string[]>([]);
   const [submitted, setSubmitted] = React.useState(false);
   const isValid =
-      formData.age &&
-      formData.university &&
-      (formData.university !== 'Other' ||
-        (formData.customUniversity || '').trim() !== '');
+    formData.age &&
+    formData.university &&
+    (formData.university !== 'Other' ||
+      (formData.customUniversity || '').trim() !== '');
 
   useEffect(() => {
     fetchUniversityNames().then((data) => setUniversities(data));

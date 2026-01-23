@@ -80,9 +80,10 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
             <input
               type="email"
               value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, email: e.target.value });
+                setSubmitted(false);
+              }}
               placeholder="Enter School Email (.edu)"
               className="w-full border-b-2 border-[#005271]/60 bg-transparent py-3 text-center text-xl outline-none placeholder:text-[#9FB6BE]"
             />
