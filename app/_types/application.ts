@@ -28,8 +28,10 @@ export interface Application {
   resume: string;
   connectWithHackDavis: boolean;
   connectWithMLH: boolean; // required by mlh
-  MLHCodeOfConduct: boolean; //TODO: CHANGE FORMAT OF THIS // required by mlh
-  eventsLogistics: boolean; // required by mlh
+  mlhAgreements: {
+    mlhCodeOfConduct: boolean;
+    eventLogisticsInformation: boolean;
+  }; // required by mlh
   status: Status;
   wasWaitlisted: boolean;
   submittedAt: string;

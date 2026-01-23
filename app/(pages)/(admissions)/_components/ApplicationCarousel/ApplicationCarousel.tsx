@@ -100,7 +100,7 @@ export default function ApplicationCarousel() {
     customUniversity: '', //for custom university
   });
 
-  console.log('All form fields:', formData);
+  // console.log('All form fields:', formData);
 
   const { submit } = useSubmitApplication();
 

@@ -71,16 +71,50 @@ export default function MLH({ formData, setFormData, onNext }: any) {
 
           <div className="space-y-4">
             <p className="text-xs leading-snug text-[#005271]">
-              MLH Code of Conduct: &quot;I have read and agree to the MLH Code
-              of Conduct.&quot;
+              MLH Code of Conduct: " I have read and agree to the{' '}
+              <a
+                href="https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-[#007a99]"
+              >
+                MLH Code of Conduct
+              </a>
+              ."
             </p>
 
             <p className="text-xs leading-snug text-[#005271]">
-              Event Logistics Information: &quot;I authorize you to share my
+              Event Logistics Information: " I authorize you to share my
               application/registration information with Major League Hacking for
               event administration, ranking, and MLH administration in-line with
-              the MLH Privacy Policy. I further agree to the terms of both the
-              MLH Contest Terms and Conditions and the MLH Privacy Policy.&quot;
+              the{' '}
+              <a
+                href="https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-[#007a99]"
+              >
+                MLH Privacy Policy
+              </a>
+              . I further agree to the terms of both the{' '}
+              <a
+                href="https://github.com/MLH/mlh-policies/blob/main/contest-terms.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-[#007a99]"
+              >
+                MLH Contest Terms and Conditions
+              </a>{' '}
+              and the{' '}
+              <a
+                href="https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-[#007a99]"
+              >
+                MLH Privacy Policy
+              </a>
+              ."
             </p>
           </div>
 
