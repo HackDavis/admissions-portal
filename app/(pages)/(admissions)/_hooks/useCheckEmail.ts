@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import fetchGet from '@utils/fetch/fetchGet';
+import { checkEmailExists } from '@actions/applications/checkEmail';
 
 export function useCheckEmail() {
   const [loading, setLoading] = useState(false);
@@ -12,19 +12,18 @@ export function useCheckEmail() {
     setError(null);
 
     try {
-      const res = await fetchGet(
-        `/api/applications?email=${encodeURIComponent(email)}`
-      );
-      const json = await res.json();
+      const result = await checkEmailExists(email);
 
-      if (!res.ok || !json.ok) {
-        setError(json.error ?? 'Error checking email, please try again.');
-        setLoading(false);
-        return false;
-      }
-
-      if (json.body && json.body.length > 0) {
-        setError('You have already submitted an application with this email.');
+      if (result.ok) {
+        if (result.exists) {
+          setError(
+            'You have already submitted an application with this email.'
+          );
+          setLoading(false);
+          return false;
+        }
+      } else {
+        setError(result.error ?? 'Error checking email.');
         setLoading(false);
         return false;
       }
