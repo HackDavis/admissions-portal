@@ -6,7 +6,7 @@ import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 
 const YEAR_OPTIONS = [1, 2, 3, 4, '5+'] as const;
 
-const SHIRT_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', 'Other'];
+const SHIRT_OPTIONS = ['S', 'M', 'L', 'XL', 'XXL'];
 
 const DIETARY_OPTIONS = [
   'Vegetarian',

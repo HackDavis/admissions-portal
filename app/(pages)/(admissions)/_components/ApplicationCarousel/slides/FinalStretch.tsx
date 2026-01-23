@@ -70,7 +70,7 @@ export default function FinalStretch({
           {/* MLH optional */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              (OPTIONAL) Communication from MLH
+              Communication from MLH*
             </p>
 
             <p className="mt-2 text-xs leading-snug text-[#005271]">

@@ -16,6 +16,7 @@ import { GoPerson } from 'react-icons/go';
 import Email from './slides/Email';
 import Contact from './slides/Contact';
 import FinalStretch from './slides/FinalStretch';
+import Diversity from './slides/Diversity';
 import KeepGoing from './slides/KeepGoing';
 import NearlySet from './slides/NearlySet';
 import Confirmation from './slides/Confirmation';
@@ -59,33 +60,44 @@ export default function ApplicationCarousel() {
 
   // Default form data (what user sees in application portal)
   const [formData, setFormData] = React.useState({
+    //Contact.tsx
     firstName: '',
     lastName: '',
-    email: '',
     phone: '',
+    //Email.tsx
+    email: '',
+    //FutureHacker.tsx
     age: 0,
     isUCDavisStudent: false,
     isOver18: false,
     university: '',
+    countryOfResidence: '',
+    //KeepGoing.tsx
     levelOfStudy: '',
     major: '',
+    minorOrDoubleMajor: '',
     college: [] as string[],
+    //NearlySet.tsx
     year: 0,
     shirtSize: '',
     dietaryRestrictions: [] as string[],
     connectWithSponsors: false,
-    resume: '',
-    linkedin: '',
-    githubOrPortfolio: '',
-    connectWithHackDavis: false,
-    connectWithMLH: false,
-    status: 'pending',
-    wasWaitlisted: false,
-    customUniversity: '', //for custom university
+    //Diversity.tsx
     gender: [] as string[],
     race: [] as string[],
     attendedHackDavis: false,
     firstHackathon: false,
+    //ABitMore.tsx
+    resume: '',
+    linkedin: '',
+    githubOrPortfolio: '',
+    //FinalStretch.tsx
+    connectWithHackDavis: false,
+    connectWithMLH: false,
+    // Admission status tracking
+    status: 'pending',
+    wasWaitlisted: false,
+    customUniversity: '', //for custom university
   });
 
   console.log('All form fields:', formData);
@@ -101,6 +113,7 @@ export default function ApplicationCarousel() {
         formData.university === 'Other'
           ? customUniversity
           : formData.university,
+      status: formData.isOver18 ? 'pending' : 'tentatively_rejected',
     };
     //submit application
     const ok = await submit(payload);
@@ -154,6 +167,16 @@ export default function ApplicationCarousel() {
       key: 'nearly-set',
       node: (
         <NearlySet
+          formData={formData}
+          setFormData={setFormData}
+          onNext={() => api?.scrollNext()}
+        />
+      ),
+    },
+    {
+      key: 'diversity',
+      node: (
+        <Diversity
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}

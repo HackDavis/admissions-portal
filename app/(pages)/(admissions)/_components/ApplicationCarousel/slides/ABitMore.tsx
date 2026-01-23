@@ -66,7 +66,7 @@ export default function ABitMore({
           <div>
             <label className="block text-sm font-semibold text-[#0F2530]">
               Please attach your resume so we can connect you to these
-              opportunities!*
+              opportunities!
             </label>
 
             <textarea

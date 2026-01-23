@@ -14,12 +14,17 @@ const COLLEGE_OPTIONS = [
 ];
 
 const LEVEL_OF_STUDY_OPTIONS = [
-  'High school',
-  'Community college',
-  'Undergraduate',
-  'Graduate',
-  'PhD',
+  'Less than Secondary / High School',
+  'Secondary / High School',
+  'Undergraduate University (2 year - community college or similar)',
+  'Undergraduate University (3+ year)',
+  'Graduate University (Masters, Professional, Doctoral, etc)',
+  'Code School / Bootcamp',
+  'Other Vocational / Trade Program or Apprenticeship',
+  'Post Doctorate',
   'Other',
+  'I’m not currently a student',
+  'Prefer not to answer'
 ];
 
 interface KeepGoingProps {
@@ -110,7 +115,7 @@ export default function KeepGoing({
 
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              What’s your major?
+              What’s your major?*
             </p>
             <p className="mt-1 text-sm leading-snug text-[#005271]">
               If you have more than one major, please select your primary major.

@@ -30,6 +30,9 @@ export default function Contact({
   onNext,
 }: ContactProps) {
   const [submitted, setSubmitted] = React.useState(false);
+  const isValid = !QUESTIONS.some(
+      (q) => q.required && !formData[q.id]
+    );
 
   const onChange =
     (id: FieldId) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,14 +41,8 @@ export default function Contact({
 
   const handleNext = () => {
     setSubmitted(true);
-
-    const missingRequired = QUESTIONS.some(
-      (q) => q.required && !formData[q.id]
-    );
-    if (missingRequired) return;
-
     if (!isValidPhoneNumber(formData.phone || '')) return;
-
+    if (!isValid) return;
     onNext?.();
   };
 
@@ -135,8 +132,11 @@ export default function Contact({
         <div className="pt-2">
           <button
             type="button"
+            disabled={!isValid}
             onClick={handleNext}
-            className="mx-auto flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 active:opacity-90"
+            className={`mx-auto flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 active:opacity-90 ${
+              isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
+            }`}
           >
             Next <span aria-hidden>→</span>
           </button>

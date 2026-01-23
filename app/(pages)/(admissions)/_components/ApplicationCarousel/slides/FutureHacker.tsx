@@ -4,6 +4,10 @@ import React, { useEffect } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
 
+//TODO: have <18 inject to DB as tentively_rejected
+
+//TODO: update list of universities
+
 interface FutureHackerProps {
   formData: any;
   setFormData: (data: any) => void;
@@ -17,6 +21,11 @@ export default function FutureHacker({
 }: FutureHackerProps) {
   const [universities, setUniversities] = React.useState<string[]>([]);
   const [submitted, setSubmitted] = React.useState(false);
+  const isValid =
+      formData.age &&
+      formData.university &&
+      (formData.university !== 'Other' ||
+        (formData.customUniversity || '').trim() !== '');
 
   useEffect(() => {
     fetchUniversityNames().then((data) => setUniversities(data));
@@ -35,16 +44,8 @@ export default function FutureHacker({
 
   const handleNext = () => {
     setSubmitted(true);
-
-    const isValid =
-      formData.age &&
-      formData.university &&
-      (formData.university !== 'Other' ||
-        (formData.customUniversity || '').trim() !== '');
-
-    if (isValid) {
-      onNext?.();
-    }
+    if (!isValid) return;
+    onNext?.();
   };
 
   return (
@@ -178,8 +179,11 @@ export default function FutureHacker({
         <div className="mt-14 flex justify-center">
           <button
             type="button"
+            disabled={!isValid}
             onClick={handleNext}
-            className="flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
+            className={`flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95" ${
+              isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
+            }`}
           >
             Next <span aria-hidden>→</span>
           </button>
