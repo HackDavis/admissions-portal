@@ -3,7 +3,7 @@ import { GET as get } from './get';
 import { PATCH as patch } from './patch';
 import authenticated from '@utils/authentication/authenticated';
 
-const POST = post;
+const POST = authenticated(post);
 const GET = authenticated(get);
 const PATCH = authenticated(patch);
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import fetchPost from '@utils/fetch/fetchPost';
+import { createApplication } from '@actions/applications/createApplication';
 
 export function useSubmitApplication() {
   const [loading, setLoading] = useState(false);
@@ -11,18 +11,23 @@ export function useSubmitApplication() {
     setLoading(true);
     setError(null);
 
-    const res = await fetchPost('/api/applications', payload);
-    const json = await res.json();
+    try {
+      const res = await createApplication(payload);
 
-    if (!res.ok || !json.ok) {
-      setError(json.error ?? 'Submission failed');
+      if (!res.ok) {
+        setError(res.error ?? 'Submission failed');
+        setLoading(false);
+        return false;
+      }
+
+      setLoading(false);
+      console.log('Application submitted successfully');
+      return true;
+    } catch (err: any) {
+      setError('An unexpected error occurred during submission.');
       setLoading(false);
       return false;
     }
-
-    setLoading(false);
-    console.log('Application submitted successfully');
-    return true;
   };
 
   return { submit, loading, error };
