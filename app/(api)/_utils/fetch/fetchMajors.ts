@@ -10,13 +10,29 @@ export const fetchMajors = async (): Promise<string[]> => {
 
     const lines = text.split('\n').slice(1);
 
-    // takeo out majors
+    // take out majors column
     const majors = lines
       .map((line) => {
-        const parts = line.split(',');
-        return parts.slice(1).join(',').trim();
+        // CSV validation check - at least 2 commas
+        const match = line.match(/^(?:[^,"]+|"[^"]*"),(?:[^,"]+|"[^"]*"),/);
+        if (!match) return null;
+
+        // Extract the second column (major)
+        const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+
+        const major = cols[1]?.trim();
+
+        // Ignore invalid or N/A entries
+        if (
+          !major ||
+          major.toUpperCase() === "N/A (LESS THAN BACHELOR'S DEGREE)"
+        )
+          return null;
+
+        // Remove surrounding quotes, if any
+        return major.replace(/^"(.*)"$/, '$1');
       })
-      .filter((m) => m.length > 0);
+      .filter((m): m is string => !!m);
 
     return majors.sort();
   } catch (err) {

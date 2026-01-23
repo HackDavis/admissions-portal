@@ -105,11 +105,7 @@ export default function Contact({
                       className:
                         'flex items-center gap-2 rounded-full bg-white/70 px-3 py-2 relative',
                     }}
-                    inputProps={{
-                      className:
-                        'w-full bg-[#E5EEF1] px-3 py-2 text-base text-[#0F2530] outline-none placeholder:text-[#0F2530]/40',
-                      placeholder: 'Phone number',
-                    }}
+                    placeholder="Phone number"
                   />
                 </div>
               )}

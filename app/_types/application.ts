@@ -2,34 +2,34 @@ import { Status } from './applicationFilters';
 
 export interface Application {
   _id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  age: number;
-  isOver18: boolean;
+  email: string; // required by mlh
+  firstName: string; // required by mlh
+  lastName: string; // required by mlh
+  phone: string; // required by mlh
+  age: number; // required by mlh
+  isOver18: boolean; // required by mlh
   isUCDavisStudent: boolean;
-  university: string; //drop down options
-  countryOfResidence: string;
-  levelOfStudy: string; //drop down options
-  major: string; //drop down options
-  minorOrDoubleMajor: string; //drop down options
+  university: string; // required by mlh
+  countryOfResidence: string; // required by mlh
+  levelOfStudy: string; // required by mlh
+  major: string;
+  minorOrDoubleMajor: string;
   college: string[];
   year: '1' | '2' | '3' | '4' | '5+';
   shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL';
-  dietaryRestrictions: string[]; //section of options
+  dietaryRestrictions: string[];
   connectWithSponsors: boolean;
-  gender: string[];
-  race: string[];
+  gender?: string[];
+  race?: string[];
   attendedHackDavis: boolean;
   firstHackathon: boolean;
-  linkedin?: string;
+  linkedin: string; // required by mlh
   githubOrPortfolio?: string;
   resume: string;
   connectWithHackDavis: boolean;
-  connectWithMLH: boolean;
-  MLHCodeOfConduct: boolean;
-  eventsLogistics: boolean;
+  connectWithMLH: boolean; // required by mlh
+  MLHCodeOfConduct: boolean; //TODO: CHANGE FORMAT OF THIS // required by mlh
+  eventsLogistics: boolean; // required by mlh
   status: Status;
   wasWaitlisted: boolean;
   submittedAt: string;
