@@ -4,10 +4,6 @@ import React, { useEffect } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
 
-//TODO: have <18 inject to DB as tentively_rejected
-
-//TODO: update list of universities
-
 interface FutureHackerProps {
   formData: any;
   setFormData: (data: any) => void;
@@ -37,7 +33,7 @@ export default function FutureHacker({
     if (formData.isUCDavisStudent === true) {
       setFormData((prev: any) => ({
         ...prev,
-        university: 'University of California, Davis',
+        university: 'University of California Davis',
       }));
     }
   }, [formData.isUCDavisStudent, setFormData]);
