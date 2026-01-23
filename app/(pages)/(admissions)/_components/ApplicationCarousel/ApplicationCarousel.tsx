@@ -89,9 +89,9 @@ export default function ApplicationCarousel() {
     //send confirmation email
     const success = await sendConfirmationEmail(formData);
     if (success) {
-      alert("Confirmation email sent!");
+      alert('Confirmation email sent!');
     } else {
-      alert("Failed to send confirmation email. Please try again later.");
+      alert('Failed to send confirmation email. Please try again later.');
     }
 
     //TODO: handle submission failure (some kind of visual feedback)
