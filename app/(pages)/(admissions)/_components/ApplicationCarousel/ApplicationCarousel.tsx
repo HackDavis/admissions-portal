@@ -242,9 +242,9 @@ export default function ApplicationCarousel() {
   }, [api]);
 
   // for back/next buttons (for dev)
-  const total = SLIDES.length;
+  // const total = SLIDES.length;
   const canPrev = index > 0;
-  const canNext = index < total - 1;
+  // const canNext = index < total - 1;
 
   // for top banner helper function
   const currentKey = SLIDES[index]?.key;
@@ -305,7 +305,7 @@ export default function ApplicationCarousel() {
         />
       )}
 
-      {/* back/next buttons (for dev) */}
+      {/* back button & next button(for dev) */}
       <div className="mt-8 px-[5%] flex items-center justify-between gap-4">
         <button
           type="button"
@@ -320,18 +320,20 @@ export default function ApplicationCarousel() {
           />
         </button>
 
-        <button
+        {/* <button
           type="button"
           onClick={() => api?.scrollNext()}
           disabled={!canNext}
           className="rounded-full bg-[#E5EEF1] px-3 py-3 ring-2 ring-[#A6BFC7] disabled:opacity-40"
-        >
+        > */}
+        <div className="rounded-full bg-[#E5EEF1] px-3 py-3 ring-2 ring-[#A6BFC7] disabled:opacity-40">
           <GoPerson
             width={150}
             height={150}
             className="text-[#005271] h-7 w-7"
           />
-        </button>
+        </div>
+        {/* </button> */}
       </div>
 
       {/* note banner */}

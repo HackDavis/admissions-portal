@@ -161,7 +161,7 @@ export default function NearlySet({
               }
             />
 
-            {submitted && !formData.connectWithSponsors && (
+            {submitted && typeof formData.connectWithSponsors !== 'boolean' && (
               <p className="mt-3 text-sm font-semibold text-red-400">
                 ERROR: Please select an option.
               </p>

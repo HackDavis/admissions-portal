@@ -30,7 +30,8 @@ export default function ABitMore({
   const isValid =
     !!formData.linkedin?.trim() &&
     isLinkedInValid(formData.linkedin) &&
-    !!formData.resume?.trim();
+    !!formData.resume?.trim() &&
+    isValidUrl(formData.resume);
 
   const handleNext = () => {
     setSubmitted(true);

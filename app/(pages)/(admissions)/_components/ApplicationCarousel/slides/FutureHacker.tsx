@@ -101,7 +101,7 @@ export default function FutureHacker({
               value={formData.isOver18}
               onChange={(v) => setFormData({ ...formData, isOver18: v })}
             />
-            {submitted && !formData.isOver18 && (
+            {submitted && typeof formData.isOver18 !== 'boolean' && (
               <p className="mt-3 text-sm font-semibold text-red-400">
                 ERROR: Please select an option.
               </p>
@@ -120,7 +120,7 @@ export default function FutureHacker({
                 setFormData({ ...formData, isUCDavisStudent: v })
               }
             />
-            {submitted && !formData.isUCDavisStudent && (
+            {submitted && typeof formData.isUCDavisStudent !== 'boolean' && (
               <p className="mt-3 text-sm font-semibold text-red-400">
                 ERROR: Please select an option.
               </p>
