@@ -4,7 +4,7 @@ import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 
-const YEAR_OPTIONS = [1, 2, 3, 4, '5+'] as const;
+const YEAR_OPTIONS = ['1', '2', '3', '4', '5+'] as const;
 
 const SHIRT_OPTIONS = ['S', 'M', 'L', 'XL', 'XXL'];
 
