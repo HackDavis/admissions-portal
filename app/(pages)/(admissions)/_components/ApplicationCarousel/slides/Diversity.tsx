@@ -59,9 +59,7 @@ export default function Diversity({
         <p className="mx-auto mt-4 max-w-[420px] text-sm leading-snug text-[#0F2530]">
           We never use this information to review applications.
           <br />
-          Feel free to skip any question. Responses are only
-          <br />
-          collected to improve inclusivity at HackDavis.
+          Responses are only collected to improve inclusivity at HackDavis.
         </p>
 
         <div className="mt-12 text-left space-y-12">

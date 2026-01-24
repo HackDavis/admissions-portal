@@ -11,11 +11,14 @@
     "tito": "tsx \"app/(api)/_utils/exportTito.ts\""
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
+    "@emailjs/nodejs": "^5.0.2",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "autoprefixer": "^10.4.20",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
+    "emailjs": "^5.0.0",
     "embla-carousel-auto-height": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "mongodb": "^7.0.0",
