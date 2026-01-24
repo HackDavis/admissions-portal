@@ -22,6 +22,7 @@ export default function FutureHacker({
 
   const isValid =
     formData.age &&
+    formData.age > 17 &&
     typeof formData.isOver18 === 'boolean' &&
     typeof formData.isUCDavisStudent === 'boolean' &&
     formData.countryOfResidence &&
@@ -77,7 +78,7 @@ export default function FutureHacker({
                 value={formData.age || ''}
                 onChange={(e) => {
                   const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
-                  const age = digits ? Number(digits) : undefined;
+                  const age = digits === '' ? undefined : Number(digits);
                   setFormData({ ...formData, age });
                 }}
                 className="w-20 rounded-full bg-[#E5EEF1] px-4 py-2 text-center text-sm font-semibold text-[#005271] outline-none"
@@ -87,6 +88,12 @@ export default function FutureHacker({
             {submitted && !formData.age && (
               <p className="mt-3 text-sm font-semibold text-red-400">
                 ERROR: Please enter your age.
+              </p>
+            )}
+
+            {formData.age && formData.age < 17 && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: You must be at least 17 years old.
               </p>
             )}
           </div>
@@ -181,6 +188,7 @@ export default function FutureHacker({
             <div className="mt-4">
               <div className="relative">
                 <select
+                  disabled={formData.isUCDavisStudent === true}
                   value={formData.university}
                   onChange={(e) =>
                     setFormData({ ...formData, university: e.target.value })

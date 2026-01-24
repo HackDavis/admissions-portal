@@ -112,7 +112,7 @@ export default function ABitMore({
           {/* Resume (text box per your note) */}
           <div>
             <label className="block text-sm font-semibold text-[#0F2530]">
-              Please attach your resume here!*
+              Please enter a publicly accessible link to your resume!*
             </label>
 
             <textarea

@@ -252,19 +252,19 @@ export default function ApplicationCarousel() {
     };
   }, [api]);
 
-  // for back/next buttons (for dev)
-  // const total = SLIDES.length;
-  const canPrev = index > 0;
-  // const canNext = index < total - 1;
-
   // for top banner helper function
   const currentKey = SLIDES[index]?.key;
+
+  const isConfirmation = currentKey === 'confirmation';
+
+  // for back/next buttons (for dev)
+  // const total = SLIDES.length;
+  const canPrev = index > 0 && !isConfirmation;
+  // const canNext = index < total - 1;
 
   const showTopBanner = currentKey === 'email';
   const showBottomBanner =
     currentKey === 'mlh' || currentKey === 'confirmation';
-
-  const isConfirmation = currentKey === 'confirmation';
 
   const bannerEmoji =
     currentKey === 'confirmation'
