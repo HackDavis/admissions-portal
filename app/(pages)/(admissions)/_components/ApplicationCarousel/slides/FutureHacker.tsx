@@ -71,12 +71,14 @@ export default function FutureHacker({
 
             <div className="mt-3">
               <input
-                type="text"
+                type="tel"
                 inputMode="numeric"
+                pattern="\d*"
                 value={formData.age || ''}
                 onChange={(e) => {
                   const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
-                  setFormData({ ...formData, age: digits });
+                  const age = digits ? Number(digits) : undefined;
+                  setFormData({ ...formData, age });
                 }}
                 className="w-20 rounded-full bg-[#E5EEF1] px-4 py-2 text-center text-sm font-semibold text-[#005271] outline-none"
               />
@@ -243,7 +245,7 @@ export default function FutureHacker({
             type="button"
             disabled={!isValid}
             onClick={handleNext}
-            className={`flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95" ${
+            className={`flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
               isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
             }`}
           >

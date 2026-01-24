@@ -70,7 +70,8 @@ export default function KeepGoing({
     hasSelection(formData.levelOfStudy) &&
     hasSelection(formData.major) &&
     hasMinorOrDoubleMajor !== null &&
-    (hasMinorOrDoubleMajor === false || hasSelection(formData.minorOrDoubleMajor)) &&
+    (hasMinorOrDoubleMajor === false ||
+      hasSelection(formData.minorOrDoubleMajor)) &&
     (!isUCDSelected ||
       (Array.isArray(formData.college) && formData.college.length > 0));
 
@@ -82,9 +83,7 @@ export default function KeepGoing({
 
   return (
     <section className="w-full">
-      <div
-        className='mx-auto w-full max-w-[520px] text-center pb-14'
-      >
+      <div className="mx-auto w-full max-w-[520px] text-center pb-14">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Keep Going..
         </h1>
@@ -202,12 +201,6 @@ export default function KeepGoing({
                 disabled={!isUCDSelected}
                 onChange={(next) => {
                   if (!isUCDSelected) return;
-
-                  if (next.includes('None') && next.length > 1) {
-                    setFormData({ ...formData, college: ['None'] });
-                    return;
-                  }
-
                   setFormData({ ...formData, college: next });
                 }}
               />

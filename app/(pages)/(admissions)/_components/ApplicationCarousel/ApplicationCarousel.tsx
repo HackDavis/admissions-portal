@@ -108,9 +108,11 @@ export default function ApplicationCarousel() {
   const handleFinalSubmit = async () => {
     //modify payload to account for custom university
     try {
-      const { customUniversity, ...rest } = formData; // remove customUniversity from formData
+      const { customUniversity, age, year, ...rest } = formData; // remove customUniversity from formData
       const payload = {
         ...rest,
+        age: age !== undefined ? Number(age) : undefined,
+        year: typeof year === 'number' ? String(year) : year,
         university:
           formData.university === 'Other'
             ? customUniversity

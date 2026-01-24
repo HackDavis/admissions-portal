@@ -17,8 +17,8 @@ export default function FinalStretch({
   const [submitted, setSubmitted] = React.useState(false);
 
   const isValid =
-   typeof formData.connectWithHackDavis === 'boolean' &&
-   typeof formData.connectWithMLH === 'boolean';
+    typeof formData.connectWithHackDavis === 'boolean' &&
+    typeof formData.connectWithMLH === 'boolean';
 
   const handleNext = () => {
     setSubmitted(true);

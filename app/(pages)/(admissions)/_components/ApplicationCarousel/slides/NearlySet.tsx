@@ -81,7 +81,7 @@ export default function NearlySet({
                       onChange={() =>
                         setFormData({
                           ...formData,
-                          year: opt === '5+' ? '5+' : Number(opt),
+                          year: val,
                         })
                       }
                       className="h-4 w-4 accent-[#005271]"

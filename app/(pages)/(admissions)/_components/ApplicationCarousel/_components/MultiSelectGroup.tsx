@@ -40,7 +40,7 @@ export function MultiSelectGroup({
           label={option}
           active={value.includes(option)}
           onClick={() => toggle(option)}
-          disabled={disabled} // ✅ NEW
+          disabled={disabled}
         />
       ))}
     </div>
@@ -62,6 +62,8 @@ function MultiSelectOption({
     <button
       type="button"
       onClick={onClick}
+      role="checkbox"
+      aria-checked={active}
       disabled={disabled}
       className={[
         'flex w-fit items-center gap-3 rounded-full transition',

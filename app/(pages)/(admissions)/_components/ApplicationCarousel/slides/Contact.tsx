@@ -2,7 +2,6 @@
 
 import React from 'react';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
 
 type FieldId = 'firstName' | 'lastName' | 'phone';
 
@@ -128,7 +127,7 @@ export default function Contact({
             type="button"
             disabled={!isValid}
             onClick={handleNext}
-            className={`mx-auto flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 active:opacity-90 ${
+            className={`mx-auto flex items-center gap-3 rounded-full px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 active:opacity-90 ${
               isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
             }`}
           >

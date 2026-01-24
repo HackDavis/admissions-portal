@@ -72,6 +72,7 @@ export function ConfirmSubmitModal({
               <button
                 type="button"
                 onClick={handleConfirm}
+                disabled={loading}
                 className="rounded-full bg-[#005271] px-10 py-3 text-xs font-bold text-white shadow-[0_6px_0_rgba(0,82,113,0.25)] transition hover:opacity-95"
               >
                 {loading ? 'Submitting...' : 'YES, SUBMIT'}
