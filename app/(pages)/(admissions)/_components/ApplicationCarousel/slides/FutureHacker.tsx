@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
+import { fetchCountryNames } from '@utils/fetch/fetchCountryNames';
 
 interface FutureHackerProps {
   formData: any;
@@ -17,14 +18,20 @@ export default function FutureHacker({
 }: FutureHackerProps) {
   const [universities, setUniversities] = React.useState<string[]>([]);
   const [submitted, setSubmitted] = React.useState(false);
+  const [countries, setCountries] = React.useState<string[]>([]);
+
   const isValid =
-    formData.age &&
+    formData.age && formData.countryOfResidence &&
     formData.university &&
     (formData.university !== 'Other' ||
       (formData.customUniversity || '').trim() !== '');
 
   useEffect(() => {
     fetchUniversityNames().then((data) => setUniversities(data));
+  }, []);
+
+  useEffect(() => {
+    fetchCountryNames().then((data) => setCountries(data));
   }, []);
 
   const uniqueUniversities = Array.from(new Set(universities));
@@ -102,6 +109,51 @@ export default function FutureHacker({
                 setFormData({ ...formData, isUCDavisStudent: v })
               }
             />
+          </div>
+
+          {/* COUNTRY */}
+          <div>
+            <p className="text-base font-semibold text-[#0F2530]">
+              What is your country of residence?*
+            </p>
+
+            <div className="mt-4">
+              <div className="relative">
+                <select
+                  value={formData.countryOfResidence}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      countryOfResidence: e.target.value,
+                    })
+                  }
+                  className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
+                >
+                  <option value="" />
+                  {countries.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+
+                <svg
+                  className="pointer-events-none absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#005271]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </div>
+
+              {submitted && !formData.countryOfResidence && (
+                <p className="mt-3 text-sm font-semibold text-red-400">
+                  ERROR: Wait! You left this one blank.
+                </p>
+              )}
+            </div>
           </div>
 
           {/* UNIVERSITY */}
