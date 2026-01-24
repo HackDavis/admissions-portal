@@ -29,6 +29,7 @@ export async function sendConfirmationEmail(formData: {
       templateParams,
       process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
     );
+    return true;
   } catch (err) {
     console.error(
       `Failed to send confirmation email to ${formData.email}: ${
