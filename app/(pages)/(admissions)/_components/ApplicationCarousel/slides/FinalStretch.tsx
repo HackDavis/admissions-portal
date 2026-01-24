@@ -17,8 +17,8 @@ export default function FinalStretch({
   const [submitted, setSubmitted] = React.useState(false);
 
   const isValid =
-    formData.connectWithHackDavis !== null &&
-    formData.connectWithHackDavis !== undefined;
+   typeof formData.connectWithHackDavis === 'boolean' &&
+   typeof formData.connectWithMLH === 'boolean';
 
   const handleNext = () => {
     setSubmitted(true);
@@ -28,7 +28,7 @@ export default function FinalStretch({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-4">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Final stretch!
         </h1>

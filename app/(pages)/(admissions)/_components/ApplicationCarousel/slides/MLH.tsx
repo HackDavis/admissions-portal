@@ -56,7 +56,7 @@ export default function MLH({ formData, setFormData, onNext }: any) {
 
   return (
     <section className="w-full relative">
-      <div className="mx-auto w-full max-w-[520px] text-center">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-4">
         <h1 className="font-metropolis text-[40px] font-bold leading-[1.05] tracking-[0.01em] text-[#005271]">
           You&apos;re almost
           <br />

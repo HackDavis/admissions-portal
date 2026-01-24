@@ -22,6 +22,8 @@ export default function FutureHacker({
 
   const isValid =
     formData.age &&
+    typeof formData.isOver18 === 'boolean' &&
+    typeof formData.isUCDavisStudent === 'boolean' &&
     formData.countryOfResidence &&
     formData.university &&
     (formData.university !== 'Other' ||
@@ -55,7 +57,7 @@ export default function FutureHacker({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-5">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Future Hacker <br /> Incoming
         </h1>
@@ -97,6 +99,11 @@ export default function FutureHacker({
               value={formData.isOver18}
               onChange={(v) => setFormData({ ...formData, isOver18: v })}
             />
+            {submitted && !formData.isOver18 && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please select an option.
+              </p>
+            )}
           </div>
 
           {/* UC DAVIS */}
@@ -111,6 +118,11 @@ export default function FutureHacker({
                 setFormData({ ...formData, isUCDavisStudent: v })
               }
             />
+            {submitted && !formData.isUCDavisStudent && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please select an option.
+              </p>
+            )}
           </div>
 
           {/* COUNTRY */}

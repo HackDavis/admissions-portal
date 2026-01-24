@@ -36,8 +36,7 @@ export default function NearlySet({
     !!formData.shirtSize &&
     Array.isArray(formData.dietaryRestrictions) &&
     formData.dietaryRestrictions.length > 0 &&
-    formData.connectWithSponsors !== null &&
-    formData.connectWithSponsors !== undefined;
+    typeof formData.connectWithSponsors === 'boolean';
 
   const handleNext = () => {
     setSubmitted(true);
@@ -47,7 +46,7 @@ export default function NearlySet({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-20">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           We&apos;re Nearly Set!
         </h1>
@@ -162,13 +161,11 @@ export default function NearlySet({
               }
             />
 
-            {submitted &&
-              (formData.connectWithSponsors === null ||
-                formData.connectWithSponsors === undefined) && (
-                <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Please select Yes or No.
-                </p>
-              )}
+            {submitted && !formData.connectWithSponsors && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please select an option.
+              </p>
+            )}
           </div>
         </div>
 

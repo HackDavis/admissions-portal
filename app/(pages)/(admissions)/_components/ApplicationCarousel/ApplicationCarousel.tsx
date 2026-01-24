@@ -65,8 +65,8 @@ export default function ApplicationCarousel() {
     phone: '',
     //FutureHacker.tsx
     age: 0,
-    isOver18: false,
-    isUCDavisStudent: false,
+    isOver18: null,
+    isUCDavisStudent: null,
     university: '',
     countryOfResidence: '',
     //KeepGoing.tsx
@@ -78,22 +78,22 @@ export default function ApplicationCarousel() {
     year: 0,
     shirtSize: '',
     dietaryRestrictions: [] as string[],
-    connectWithSponsors: false,
+    connectWithSponsors: null,
     //Diversity.tsx
     gender: [] as string[],
     race: [] as string[],
-    attendedHackDavis: false,
-    firstHackathon: false,
+    attendedHackDavis: null,
+    firstHackathon: null,
     //ABitMore.tsx
     linkedin: '',
     githubOrPortfolio: '',
     resume: '',
     //FinalStretch.tsx
-    connectWithHackDavis: false,
-    connectWithMLH: false,
+    connectWithHackDavis: null,
+    connectWithMLH: null,
     mlhAgreements: {
-      mlhCodeOfConduct: false,
-      eventLogisticsInformation: false,
+      mlhCodeOfConduct: null,
+      eventLogisticsInformation: null,
     },
     // Admission status tracking
     status: 'pending',

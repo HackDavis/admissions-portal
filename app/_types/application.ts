@@ -13,7 +13,7 @@ export interface Application {
   countryOfResidence: string; // required by mlh
   levelOfStudy: string; // required by mlh
   major: string;
-  minorOrDoubleMajor: string;
+  minorOrDoubleMajor?: string;
   college?: string[];
   year: '1' | '2' | '3' | '4' | '5+';
   shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL';

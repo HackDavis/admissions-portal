@@ -54,7 +54,7 @@ export function ConfirmSubmitModal({
       <div className="relative w-full max-w-[560px]">
         <div className="rounded-[28px] border border-[#A6BFC7] bg-[#E5EEF1] p-3 shadow-[18px_18px_0_#A6BFC7]">
           {/* this is upper tab */}
-          <div className="relative h-10 rounded-[20px]bg-[#E5EEF1]" />
+          <div className="relative h-10 rounded-[20px] bg-[#E5EEF1]" />
 
           {/* White panel */}
           <div className="relative mt-3 rounded-[22px] bg-white p-10">

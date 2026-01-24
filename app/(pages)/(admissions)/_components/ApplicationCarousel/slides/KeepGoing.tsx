@@ -56,13 +56,6 @@ export default function KeepGoing({
     formData.isUCDavisStudent === true ||
     formData.university === 'University of California Davis';
 
-  // Clear college if user is not UCD
-  useEffect(() => {
-    if (!isUCDSelected && formData.college) {
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUCDSelected]);
-
   useEffect(() => {
     if (hasMinorOrDoubleMajor === false && formData.minorOrDoubleMajor) {
       setFormData({ ...formData, minorOrDoubleMajor: '' });
@@ -70,11 +63,14 @@ export default function KeepGoing({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMinorOrDoubleMajor]);
 
+  const hasSelection = (value: unknown) =>
+    Array.isArray(value) ? value.length > 0 : !!value;
+
   const isValid =
-    !!formData.levelOfStudy &&
-    !!formData.major &&
+    hasSelection(formData.levelOfStudy) &&
+    hasSelection(formData.major) &&
     hasMinorOrDoubleMajor !== null &&
-    (hasMinorOrDoubleMajor === false || !!formData.minorOrDoubleMajor) &&
+    (hasMinorOrDoubleMajor === false || hasSelection(formData.minorOrDoubleMajor)) &&
     (!isUCDSelected ||
       (Array.isArray(formData.college) && formData.college.length > 0));
 
@@ -87,9 +83,7 @@ export default function KeepGoing({
   return (
     <section className="w-full">
       <div
-        className={`mx-auto w-full max-w-[520px] text-center pb-24 ${
-          isUCDSelected ? 'pb-80' : ''
-        }`}
+        className='mx-auto w-full max-w-[520px] text-center pb-14'
       >
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Keep Going..
@@ -197,8 +191,8 @@ export default function KeepGoing({
               If you go to UC Davis, what College are you a part of?
             </p>
             <p className="mt-1 text-sm leading-snug text-[#005271]">
-              If you have multiple majors or minors, please indicate all colleges
-              that you study under.
+              If you have multiple majors or minors, please indicate all
+              colleges that you study under.
             </p>
 
             <div className="mt-4 space-y-3 text-left">
