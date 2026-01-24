@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
+    "@emailjs/nodejs": "^5.0.2",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "autoprefixer": "^10.4.20",
     "axios": "^1.13.2",
