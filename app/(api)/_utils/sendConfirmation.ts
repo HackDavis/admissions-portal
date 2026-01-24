@@ -8,13 +8,6 @@ export async function sendConfirmationEmail(formData: {
   const templateParams = {
     to_email: formData.email,
     to_name: formData.firstName || 'Applicant',
-    message: `Hi ${formData.firstName || 'Applicant'},
-
-    Thank you for applying to HackDavis 2026!
-    Please note that your participation is not yet confirmed. We'll be in touch soon with more details, updates, and important information as the event approaches.
-
-    Warmly,
-    HackDavis 2026 Team`,
   };
 
   try {
