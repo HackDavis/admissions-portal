@@ -34,14 +34,14 @@ export interface Application {
   }; // required by mlh
   status: Status;
   wasWaitlisted: boolean;
-  submittedAt: string;
-  reviewedAt?: string;
-  processedAt?: string;
+  submittedAt: Date;
+  reviewedAt?: Date;
+  processedAt?: Date;
 }
 
 export interface ApplicationUpdatePayload {
   status: Status;
   wasWaitlisted?: boolean;
-  reviewedAt?: string; // ISO date string
-  processedAt?: string; // ISO date string
+  reviewedAt?: Date;
+  processedAt?: Date;
 }

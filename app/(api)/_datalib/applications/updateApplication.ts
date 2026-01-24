@@ -34,7 +34,7 @@ export const UpdateApplication = async (
       throw new Error(`Invalid status: "${updateData.status}".`);
     }
 
-    const now = new Date().toISOString();
+    const now = new Date();
     if (TENTATIVE_STATUSES.includes(updateData.status)) {
       updateData.reviewedAt = now;
     }
