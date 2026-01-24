@@ -29,14 +29,20 @@ export default function Contact({
   onNext,
 }: ContactProps) {
   const [submitted, setSubmitted] = React.useState(false);
-  const isValid = !QUESTIONS.some((q) => {
-    if (!q.required || q.id === 'phone') return false;
-    const value = formData[q.id];
-    if (typeof value === 'string') {
-      return value.trim().length === 0;
-    }
-    return !value;
-  });
+
+  const isValid = (() => {
+    const firstName =
+      typeof formData.firstName === 'string' ? formData.firstName.trim() : '';
+    const lastName =
+      typeof formData.lastName === 'string' ? formData.lastName.trim() : '';
+    const phone = formData.phone;
+
+    const hasFirstName = firstName.length > 0;
+    const hasLastName = lastName.length > 0;
+    const hasValidPhone = !!phone && isValidPhoneNumber(phone);
+
+    return hasFirstName && hasLastName && hasValidPhone;
+  })();
 
   const onChange =
     (id: FieldId) => (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -117,7 +117,7 @@ export default function ApplicationCarousel() {
           formData.university === 'Other'
             ? customUniversity
             : formData.university,
-        status: formData.isOver18 ? 'pending' : 'tentatively_rejected',
+        status: formData.isOver18 === true ? 'pending' : 'tentatively_rejected',
       };
       //submit application
       const ok = await submit(payload);
