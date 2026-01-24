@@ -44,11 +44,12 @@ export default function Diversity({
   };
 
   const isValid =
-    formData.attendedHackDavis !== null && formData.firstHackathon !== null;
+    typeof formData.attendedHackDavis === 'boolean' &&
+    typeof formData.firstHackathon === 'boolean';
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-4">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Diversity matters
           <br />

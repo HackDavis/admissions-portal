@@ -1,13 +1,12 @@
 type ApplicationFrameProps = {
   children: React.ReactNode;
   topRight?: React.ReactNode; // for the indicators
-  leftDecor?: React.ReactNode; // for the animals
+  // leftDecor?: React.ReactNode; // for the animals
 };
 
 export function ApplicationFrame({
   children,
-  topRight,
-  leftDecor,
+  topRight, // leftDecor,
 }: ApplicationFrameProps) {
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-10">
@@ -22,9 +21,9 @@ export function ApplicationFrame({
         </div>
 
         {/* white panel */}
-        <div className="relative mt-3 rounded-[22px] bg-white px-6 py-10 sm:px-10 sm:py-14 overflow-visible">
+        <div className="relative mt-3 rounded-[22px] py-10 bg-white overflow-visible">
           {/* decor sits OUTSIDE embla viewport so it won't be clipped */}
-          {leftDecor}
+          {/* {leftDecor} */}
 
           <div className="w-full">{children}</div>
         </div>
