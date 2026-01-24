@@ -43,22 +43,22 @@ export default function KeepGoing({
   const [minorOptions, setMinorOptions] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
+  const [hasMinorOrDoubleMajor, setHasMinorOrDoubleMajor] = useState<
+    boolean | null
+  >(null);
+
   useEffect(() => {
     fetchMajors().then(setMajorOptions);
     fetchMinors().then(setMinorOptions);
   }, []);
 
-  const [hasMinorOrDoubleMajor, setHasMinorOrDoubleMajor] = useState<
-    boolean | null
-  >(null);
-
   const isUCDSelected =
     formData.isUCDavisStudent === true ||
     formData.university === 'University of California Davis';
 
+  // Clear college if user is not UCD
   useEffect(() => {
     if (!isUCDSelected && formData.college) {
-      setFormData({ ...formData, college: '' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUCDSelected]);
@@ -75,7 +75,8 @@ export default function KeepGoing({
     !!formData.major &&
     hasMinorOrDoubleMajor !== null &&
     (hasMinorOrDoubleMajor === false || !!formData.minorOrDoubleMajor) &&
-    (!isUCDSelected || !!formData.college);
+    (!isUCDSelected ||
+      (Array.isArray(formData.college) && formData.college.length > 0));
 
   const handleNext = () => {
     setSubmitted(true);
@@ -86,7 +87,7 @@ export default function KeepGoing({
   return (
     <section className="w-full">
       <div
-        className={`mx-auto w-full max-w-[520px] text-center ${
+        className={`mx-auto w-full max-w-[520px] text-center pb-24 ${
           isUCDSelected ? 'pb-80' : ''
         }`}
       >
@@ -191,38 +192,42 @@ export default function KeepGoing({
               )}
           </div>
 
-          {isUCDSelected && (
-            <div>
-              <p className="text-base font-semibold text-[#0F2530]">
-                What College are you a part of?
-              </p>
-              <p className="mt-1 text-sm leading-snug text-[#005271]">
-                If you have multiple majors or minors, please indicate all
-                colleges that you study under.
-              </p>
+          <div className={isUCDSelected ? '' : 'opacity-50'}>
+            <p className="text-base font-semibold text-[#0F2530]">
+              If you go to UC Davis, what College are you a part of?
+            </p>
+            <p className="mt-1 text-sm leading-snug text-[#005271]">
+              If you have multiple majors or minors, please indicate all colleges
+              that you study under.
+            </p>
 
-              <div className="mt-4 space-y-3 text-left">
-                <MultiSelectGroup
-                  options={COLLEGE_OPTIONS}
-                  value={formData.college || []}
-                  onChange={(next) => {
-                    // enforce "None" behavior
-                    if (next.includes('None') && next.length > 1) {
-                      setFormData({ ...formData, college: ['None'] });
-                      return;
-                    }
-                    setFormData({ ...formData, college: next });
-                  }}
-                />
-              </div>
+            <div className="mt-4 space-y-3 text-left">
+              <MultiSelectGroup
+                options={COLLEGE_OPTIONS}
+                value={formData.college || []}
+                disabled={!isUCDSelected}
+                onChange={(next) => {
+                  if (!isUCDSelected) return;
 
-              {submitted && !formData.college && (
+                  if (next.includes('None') && next.length > 1) {
+                    setFormData({ ...formData, college: ['None'] });
+                    return;
+                  }
+
+                  setFormData({ ...formData, college: next });
+                }}
+              />
+            </div>
+
+            {submitted &&
+              isUCDSelected &&
+              (!Array.isArray(formData.college) ||
+                formData.college.length === 0) && (
                 <p className="mt-3 text-sm font-semibold text-red-400">
                   ERROR: Please select a college.
                 </p>
               )}
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Next button (center like screenshot) */}
