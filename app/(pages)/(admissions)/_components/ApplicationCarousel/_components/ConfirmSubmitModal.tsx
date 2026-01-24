@@ -17,6 +17,23 @@ export function ConfirmSubmitModal({
 }: ConfirmSubmitModalProps) {
   const [mounted, setMounted] = React.useState(false);
 
+  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
+
+  const handleConfirm = async () => {
+    setError(null);
+    setLoading(true);
+
+    try {
+      await onConfirm();
+    } catch (err) {
+      console.error(err);
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => setMounted(true), []);
   if (!open || !mounted) return null;
 
@@ -54,12 +71,17 @@ export function ConfirmSubmitModal({
             <div className="mt-8 flex justify-center">
               <button
                 type="button"
-                onClick={onConfirm}
+                onClick={handleConfirm}
                 className="rounded-full bg-[#005271] px-10 py-3 text-xs font-bold text-white shadow-[0_6px_0_rgba(0,82,113,0.25)] transition hover:opacity-95"
               >
-                YES, SUBMIT
+                {loading ? 'Submitting...' : 'YES, SUBMIT'}
               </button>
             </div>
+            {error && (
+              <p className="pt-3 text-red-600 text-sm font-semibold text-center">
+                {error}
+              </p>
+            )}
 
             {/* Footer art */}
             <div className="mt-10 overflow-hidden rounded-[18px] bg-[#E5EEF1]">

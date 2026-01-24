@@ -1,8 +1,5 @@
 'use client';
 
-//TODO: FIX AND MAKE AUTORESIZE WORK WITH EMBLA
-//TODO: handle submission failure (some kind of visual feedback)
-
 import React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import AutoHeight from 'embla-carousel-auto-height';
@@ -110,20 +107,27 @@ export default function ApplicationCarousel() {
 
   const handleFinalSubmit = async () => {
     //modify payload to account for custom university
-    const { customUniversity, ...rest } = formData; // remove customUniversity from formData
-    const payload = {
-      ...rest,
-      university:
-        formData.university === 'Other'
-          ? customUniversity
-          : formData.university,
-      status: formData.isOver18 ? 'pending' : 'tentatively_rejected',
-    };
-    //submit application
-    const ok = await submit(payload);
-    if (ok) api?.scrollNext();
-
-    //TODO: handle submission failure (some kind of visual feedback)
+    try {
+      const { customUniversity, ...rest } = formData; // remove customUniversity from formData
+      const payload = {
+        ...rest,
+        university:
+          formData.university === 'Other'
+            ? customUniversity
+            : formData.university,
+        status: formData.isOver18 ? 'pending' : 'tentatively_rejected',
+      };
+      //submit application
+      const ok = await submit(payload);
+      if (ok) {
+        api?.scrollNext(); // move to confirmation page
+      } else {
+        throw new Error('Submission failed');
+      }
+    } catch (err) {
+      console.error('Error submitting application: ', err);
+      throw new Error('Submission failed');
+    }
   };
 
   const SLIDES: SlideDef[] = [

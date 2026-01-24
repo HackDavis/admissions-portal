@@ -12,7 +12,6 @@ const AGREEMENT_OPTIONS = [
 export default function MLH({ formData, setFormData, onNext }: any) {
   const [submitted, setSubmitted] = React.useState(false);
   const [showConfirm, setShowConfirm] = React.useState(false);
-  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   // allows reuse of MultiSelectGroup component, but maps to boolean fields in formData
   const agreements: string[] = Object.entries(formData.mlhAgreements)
@@ -29,7 +28,6 @@ export default function MLH({ formData, setFormData, onNext }: any) {
 
   const handleSubmitClick = () => {
     setSubmitted(true);
-    setSubmitError(null);
     setShowConfirm(true);
   };
 
@@ -44,21 +42,15 @@ export default function MLH({ formData, setFormData, onNext }: any) {
   }, [showConfirm]);
 
   const handleConfirmSubmit = async () => {
-    setSubmitError(null);
-
     try {
-      const result = await onNext?.();
+      const result = await onNext?.(); // submit application
       if (result === false) {
-        setSubmitError(
-          'Submission failed. Please try again or refresh the page.'
-        );
+        throw new Error('Submission failed');
       }
-    } catch (err) {
-      setSubmitError(
-        'Submission failed. Please check your connection and try again.'
-      );
-    } finally {
       setShowConfirm(false);
+    } catch (err) {
+      console.error(err);
+      throw new Error('Submission failed');
     }
   };
 
@@ -165,10 +157,6 @@ export default function MLH({ formData, setFormData, onNext }: any) {
           >
             SUBMIT! <span aria-hidden>→</span>
           </button>
-
-          {submitError && (
-            <p className="text-sm font-semibold text-red-500">{submitError}</p>
-          )}
         </div>
       </div>
 
