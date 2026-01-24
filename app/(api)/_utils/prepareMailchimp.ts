@@ -135,13 +135,36 @@ async function getRsvpList() {
 }
 
 async function fetchInvites(slug: string) {
-  const res = await axios.get(
-    `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists/${slug}/release_invitations?page[size]=500`,
-    {
-      headers: { Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}` },
+  const pageSize = 500;
+  let page = 1;
+  let hasMore = true;
+  const unredeemed: TitoInvite[] = [];
+
+  while (hasMore) {
+    const res = await axios.get(
+      `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists/${slug}/release_invitations`,
+      {
+        params: {
+          'page[size]': pageSize,
+          'page[number]': page,
+        },
+        headers: {
+          Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}`,
+        },
+      }
+    );
+
+    const invites = res.data.release_invitations ?? [];
+
+    for (const invite of invites) {
+      if (!invite.redeemed) unredeemed.push(invite);
     }
-  );
-  return res.data.release_invitations.filter((x: any) => !x.redeemed);
+
+    hasMore = invites.length === pageSize;
+    page++;
+  }
+
+  return unredeemed;
 }
 
 // Main
