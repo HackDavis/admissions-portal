@@ -175,6 +175,12 @@ export async function prepareMailchimpInvites(
     | 'tentatively_rejected'
 ) {
   const successfulIds: string[] = [];
+  const BATCH_LIMITS = {
+    tentatively_accepted: 40,
+    tentatively_waitlisted: 100,
+    tentatively_rejected: 100,
+  } as const;
+  const limit = BATCH_LIMITS[targetStatus];
 
   try {
     const requiredEnvs = [
@@ -190,6 +196,12 @@ export async function prepareMailchimpInvites(
 
     const dbApplicants = await getApplicationsByStatus(targetStatus);
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
+    if (dbApplicants.length > limit) {
+      throw new Error(
+        `${targetStatus} batch too large (${dbApplicants.length}). ` +
+          `Limit is ${limit}.`
+      );
+    }
 
     /* Handle accepted/waitlisted/rejected applicants */
     if (targetStatus === 'tentatively_accepted') {
