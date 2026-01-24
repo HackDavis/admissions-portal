@@ -14,7 +14,7 @@ export interface Application {
   levelOfStudy: string; // required by mlh
   major: string;
   minorOrDoubleMajor: string;
-  college: string[];
+  college?: string[];
   year: '1' | '2' | '3' | '4' | '5+';
   shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL';
   dietaryRestrictions: string[];

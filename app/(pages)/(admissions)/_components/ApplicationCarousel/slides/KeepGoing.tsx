@@ -4,11 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { fetchMajors } from '@utils/fetch/fetchMajors';
 import { fetchMinors } from '@utils/fetch/fetchMinors';
+import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 
 const COLLEGE_OPTIONS = [
   'College of Engineering',
   'College of Letters and Science',
-  'College of Biological Science',
+  'College of Biological Sciences',
   'College of Agricultural and Environmental Sciences',
   'Other',
 ];
@@ -53,7 +54,7 @@ export default function KeepGoing({
 
   const isUCDSelected =
     formData.isUCDavisStudent === true ||
-    formData.university === 'University of California, Davis';
+    formData.university === 'University of California Davis';
 
   useEffect(() => {
     if (!isUCDSelected && formData.college) {
@@ -84,7 +85,11 @@ export default function KeepGoing({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center">
+      <div
+        className={`mx-auto w-full max-w-[520px] text-center ${
+          isUCDSelected ? 'pb-80' : ''
+        }`}
+      >
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Keep Going..
         </h1>
@@ -189,22 +194,26 @@ export default function KeepGoing({
           {isUCDSelected && (
             <div>
               <p className="text-base font-semibold text-[#0F2530]">
-                What College are you a part of?*
+                What College are you a part of?
               </p>
               <p className="mt-1 text-sm leading-snug text-[#005271]">
                 If you have multiple majors or minors, please indicate all
                 colleges that you study under.
               </p>
 
-              <div className="mt-4 space-y-3">
-                {COLLEGE_OPTIONS.map((opt) => (
-                  <PillRadio
-                    key={opt}
-                    label={opt}
-                    checked={formData.college === opt}
-                    onSelect={() => setFormData({ ...formData, college: opt })}
-                  />
-                ))}
+              <div className="mt-4 space-y-3 text-left">
+                <MultiSelectGroup
+                  options={COLLEGE_OPTIONS}
+                  value={formData.college || []}
+                  onChange={(next) => {
+                    // enforce "None" behavior
+                    if (next.includes('None') && next.length > 1) {
+                      setFormData({ ...formData, college: ['None'] });
+                      return;
+                    }
+                    setFormData({ ...formData, college: next });
+                  }}
+                />
               </div>
 
               {submitted && !formData.college && (
@@ -272,38 +281,5 @@ function Select({
         ▾
       </span>
     </div>
-  );
-}
-
-function PillRadio({
-  label,
-  checked,
-  onSelect,
-}: {
-  label: string;
-  checked: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="flex w-full items-center gap-4 text-left"
-    >
-      <span
-        className={`grid h-6 w-6 place-items-center rounded-full border ${
-          checked
-            ? 'border-[#005271] bg-[#005271]'
-            : 'border-[#A6BFC7] bg-white'
-        }`}
-        aria-hidden
-      >
-        {checked ? (
-          <span className="h-2.5 w-2.5 rounded-full bg-white" />
-        ) : null}
-      </span>
-
-      <span className="text-sm text-[#0F2530]">{label}</span>
-    </button>
   );
 }

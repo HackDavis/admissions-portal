@@ -21,7 +21,8 @@ export default function FutureHacker({
   const [countries, setCountries] = React.useState<string[]>([]);
 
   const isValid =
-    formData.age && formData.countryOfResidence &&
+    formData.age &&
+    formData.countryOfResidence &&
     formData.university &&
     (formData.university !== 'Other' ||
       (formData.customUniversity || '').trim() !== '');
@@ -35,6 +36,7 @@ export default function FutureHacker({
   }, []);
 
   const uniqueUniversities = Array.from(new Set(universities));
+  const uniqueCountries = Array.from(new Set(countries));
 
   useEffect(() => {
     if (formData.isUCDavisStudent === true) {
@@ -130,7 +132,7 @@ export default function FutureHacker({
                   className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
                 >
                   <option value="" />
-                  {countries.map((c) => (
+                  {uniqueCountries.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>
