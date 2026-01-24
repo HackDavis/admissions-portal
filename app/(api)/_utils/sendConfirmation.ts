@@ -1,35 +1,23 @@
-// emailService.ts
 import emailjs from '@emailjs/browser';
 
-/**
- * Sends a confirmation email via EmailJS using formData
- * @param formData The full application form data
- */
 export async function sendConfirmationEmail(formData: {
   firstName: string;
-  lastName: string;
   email: string;
-  status: string;
-  university?: string;
 }) {
-  // === Replace these with your EmailJS IDs ===
   const SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
   const TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
   const PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
 
-  // --- Map your formData to template params ---
   const templateParams = {
     to_email: formData.email, // recipient email
     to_name: formData.firstName || 'Applicant', // recipient name
-    status: formData.status, // optional: show current status
-    university: formData.university || '', // optional: include university
-    // message: `Hi ${formData.firstName || ""},
+    message: `Hi ${formData.firstName || 'Applicant'},
 
-    // We have received your application${
-    //       formData.university ? ` from ${formData.university}` : ""
-    //     }. Your current status is: ${formData.status}.
-
-    // Thank you for applying!`,
+    Thank you for applying to Hackdavis 2026!
+    Please note that your participation is not yet confirmed. We'll be in touch soon with more details, updates, and important information as the event approaches.
+    
+    Warmly,
+    HackDavis 2026 Team`,
   };
 
   try {

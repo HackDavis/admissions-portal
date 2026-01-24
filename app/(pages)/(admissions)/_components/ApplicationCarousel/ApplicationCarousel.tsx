@@ -9,7 +9,7 @@ import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
-import { sendConfirmationEmail } from '../../../../(api)/_utils/sendConfirmation';
+import { sendConfirmationEmail } from '@utils/sendConfirmation';
 
 import Email from './slides/Email';
 import Contact from './slides/Contact';
@@ -127,7 +127,9 @@ export default function ApplicationCarousel() {
         if (success) {
           alert('Confirmation email sent!');
         } else {
-          alert('Failed to send confirmation email. Please try again later.');
+          alert(
+            'Your application has been recieved. Failed to send confirmation email, please contact us at hello@hackdavis.io to confirm your application submission.'
+          );
         }
       } else {
         throw new Error('Submission failed');
