@@ -1,11 +1,10 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
 
 export default function Confirmation() {
   return (
-    <section className="w-full">
+    <section className="w-full relative">
       <div className="mx-auto w-full max-w-[520px] text-center">
         <p className="text-xs font-semibold tracking-[0.12em] text-[#005271]">
           YOU ARE IN!
