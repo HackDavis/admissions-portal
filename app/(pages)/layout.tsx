@@ -3,6 +3,7 @@ import ClientSessionProvider from './_components/ClientSessionProvider/ClientSes
 import '@globals/styles/globals.scss';
 import metadataJSON from '@globals/metadata.json';
 import fonts from './_globals/fonts';
+import 'react-phone-number-input/style.css';
 
 export const metadata: Metadata = metadataJSON;
 

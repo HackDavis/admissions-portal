@@ -1,9 +1,22 @@
 'use client';
 
 import React from 'react';
-import { useEffect } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
-import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
+import { MultiSelectGroup } from '../_components/MultiSelectGroup';
+
+const YEAR_OPTIONS = [1, 2, 3, 4, '5+'] as const;
+
+const SHIRT_OPTIONS = ['S', 'M', 'L', 'XL', 'XXL'];
+
+const DIETARY_OPTIONS = [
+  'Vegetarian',
+  'Vegan',
+  'Kosher',
+  'Allergies',
+  'Halal',
+  'None',
+  'Other',
+];
 
 interface NearlySetProps {
   formData: any;
@@ -16,143 +29,195 @@ export default function NearlySet({
   setFormData,
   onNext,
 }: NearlySetProps) {
-  const [universities, setUniversities] = React.useState<string[]>([]);
-  useEffect(() => {
-    fetchUniversityNames().then((data) => setUniversities(data));
-  }, []);
-  const uniqueUniversities = Array.from(new Set(universities));
-
-  useEffect(() => {
-    if (formData.isUCDavisStudent === true) {
-      setFormData((prev: any) => ({
-        ...prev,
-        university: 'University of California, Davis',
-      }));
-    }
-  }, [formData.isUCDavisStudent, setFormData]);
-
   const [submitted, setSubmitted] = React.useState(false);
+
+  const isValid =
+    !!formData.year &&
+    !!formData.shirtSize &&
+    Array.isArray(formData.dietaryRestrictions) &&
+    formData.dietaryRestrictions.length > 0 &&
+    typeof formData.connectWithSponsors === 'boolean';
 
   const handleNext = () => {
     setSubmitted(true);
-
-    const isValid =
-      formData.university &&
-      (formData.university !== 'Other' ||
-        (formData.customUniversity || '').trim() !== '');
-
-    if (isValid) {
-      onNext?.();
-    }
+    if (!isValid) return;
+    onNext?.();
   };
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-20">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
-          We’re Nearly Set!
+          We&apos;re Nearly Set!
         </h1>
 
+        <p className="mx-auto mt-4 max-w-[420px] text-sm leading-snug text-[#0F2530]">
+          We never use this information to review applications.
+          <br />
+          Responses are only collected to improve HackDavis.
+        </p>
+
         <div className="mt-12 text-left space-y-10">
+          {/* Year in school */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              Will you be at least 18 years old by DOE?*
+              Year in school?*
             </p>
 
-            <YesNoGroup
-              value={formData.isOver18}
-              onChange={(v) => setFormData({ ...formData, isOver18: v })}
-            />
+            <div className="mt-4 grid grid-cols-3 gap-y-4">
+              {YEAR_OPTIONS.map((opt) => {
+                const val = String(opt);
+                const checked = String(formData.year) === val;
+
+                return (
+                  <label
+                    key={val}
+                    className="flex items-center gap-3 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      name="year"
+                      checked={checked}
+                      onChange={() =>
+                        setFormData({
+                          ...formData,
+                          year: val,
+                        })
+                      }
+                      className="h-4 w-4 accent-[#005271]"
+                    />
+                    <span className="text-sm text-[#0F2530]">{val}</span>
+                  </label>
+                );
+              })}
+            </div>
+
+            {submitted && !formData.year && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please select your year in school.
+              </p>
+            )}
           </div>
 
+          {/* Shirt size */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              Are you a UC Davis student?*
+              Shirt size?*
             </p>
 
-            <YesNoGroup
-              value={formData.isUCDavisStudent}
-              onChange={(v) =>
-                setFormData({ ...formData, isUCDavisStudent: v })
-              }
+            <Select
+              placeholder="Select an option"
+              value={formData.shirtSize || ''}
+              options={SHIRT_OPTIONS}
+              onChange={(v) => setFormData({ ...formData, shirtSize: v })}
             />
+
+            {submitted && !formData.shirtSize && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please select a shirt size.
+              </p>
+            )}
           </div>
 
+          {/* Dietary restrictions */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
-              Which University do you attend?*
+              Do you have any dietary restrictions?*
             </p>
 
-            <div className="mt-4">
-              <div className="relative">
-                <select
-                  value={formData.university}
-                  onChange={(e) =>
-                    setFormData({ ...formData, university: e.target.value })
-                  }
-                  className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
-                >
-                  <option value="" />
-                  {uniqueUniversities.map((uni) => (
-                    <option key={uni} value={uni}>
-                      {uni}
-                    </option>
-                  ))}
-                  <option value="Other">Other</option>
-                </select>
+            <MultiSelectGroup
+              options={DIETARY_OPTIONS}
+              value={formData.dietaryRestrictions || []}
+              onChange={(next) => {
+                // enforce "None" behavior
+                if (next.includes('None') && next.length > 1) {
+                  setFormData({ ...formData, dietaryRestrictions: ['None'] });
+                  return;
+                }
+                setFormData({ ...formData, dietaryRestrictions: next });
+              }}
+            />
 
-                <svg
-                  className="pointer-events-none absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#005271]"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </div>
-              {submitted && !formData.university && (
+            {submitted &&
+              (!Array.isArray(formData.dietaryRestrictions) ||
+                formData.dietaryRestrictions.length === 0) && (
                 <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Wait! You left this one blank.
+                  ERROR: Please select at least one option.
                 </p>
               )}
+          </div>
 
-              <div className="h-32">
-                {formData.university === 'Other' && (
-                  <textarea
-                    value={formData.customUniversity}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        customUniversity: e.target.value,
-                      })
-                    }
-                    placeholder="Please specify your school"
-                    className="mt-4 h-24 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
-                  />
-                )}
-              </div>
-              {submitted &&
-                formData.university === 'Other' &&
-                !(formData.customUniversity || '').trim() && (
-                  <p className="mt-3 text-sm font-semibold text-red-400">
-                    ERROR: Please specify your school.
-                  </p>
-                )}
-            </div>
+          {/* Sponsors connect */}
+          <div>
+            <p className="text-base font-semibold text-[#0F2530]">
+              Would you like to be connected to internship and full-time career
+              opportunities from our sponsors and partners?*
+            </p>
+
+            <YesNoGroup
+              value={formData.connectWithSponsors}
+              onChange={(v) =>
+                setFormData({ ...formData, connectWithSponsors: v })
+              }
+            />
+
+            {submitted && typeof formData.connectWithSponsors !== 'boolean' && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please select an option.
+              </p>
+            )}
           </div>
         </div>
 
         <div className="mt-14 flex justify-center">
           <button
             type="button"
+            disabled={!isValid}
             onClick={handleNext}
-            className="flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95"
+            className={`flex items-center gap-3 rounded-full px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
+              isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
+            }`}
           >
             Next <span aria-hidden>→</span>
           </button>
         </div>
       </div>
     </section>
+  );
+}
+
+function Select({
+  placeholder,
+  value,
+  options,
+  onChange,
+}: {
+  placeholder: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="mt-4 relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+
+      <span className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-[#005271]">
+        ▾
+      </span>
+    </div>
   );
 }
