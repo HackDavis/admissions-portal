@@ -2,15 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis/TrueType/Metropolis-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis/TrueType/Metropolis-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis/TrueType/Metropolis-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis/TrueType/Metropolis-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis/TrueType/Metropolis-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('/fonts/Metropolis/TrueType/Metropolis-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --metropolis: 'Metropolis', sans-serif;
 }
 
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  font-family: var(--metropolis);
 }
 
 h1 {

@@ -9,26 +9,22 @@ export async function sendConfirmationEmail(formData: {
     to_email: formData.email,
     to_name: formData.firstName || 'Applicant',
   };
-  const requiredEnvs = [
-    'NEXT_PUBLIC_EMAILJS_SERVICE_ID',
-    'NEXT_PUBLIC_EMAILJS_TEMPLATE_ID',
-    'NEXT_PUBLIC_EMAILJS_PUBLIC_KEY',
-  ];
+  const SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+  const TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+  const PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
-  for (const env of requiredEnvs) {
-    if (!process.env[env]) {
-      console.error(`Missing Environment Variable(s): ${env}`);
-      return false; // don't block submission
-    }
+  // Explicit check instead of a loop
+  if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+    const missingVars: string[] = [];
+    if (!SERVICE_ID) missingVars.push('NEXT_PUBLIC_EMAILJS_SERVICE_ID');
+    if (!TEMPLATE_ID) missingVars.push('NEXT_PUBLIC_EMAILJS_TEMPLATE_ID');
+    if (!PUBLIC_KEY) missingVars.push('NEXT_PUBLIC_EMAILJS_PUBLIC_KEY');
+    console.error('Missing Environment Variable(s):', missingVars.join(', '));
+    return false;
   }
 
   try {
-    await emailjs.send(
-      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-      process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-      templateParams,
-      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
-    );
+    await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
     return true;
   } catch (err) {
     console.error(

@@ -44,6 +44,9 @@ jobs:
           printf "${{ secrets.MAILCHIMP_API_KEY }}" | vercel env add MAILCHIMP_API_KEY production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_SERVER_PREFIX }}" | vercel env add MAILCHIMP_SERVER_PREFIX production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_AUDIENCE_ID }}" | vercel env add MAILCHIMP_AUDIENCE_ID production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}" | vercel env add NEXT_PUBLIC_EMAILJS_SERVICE_ID production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID }}" | vercel env add NEXT_PUBLIC_EMAILJS_TEMPLATE_ID production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}" | vercel env add NEXT_PUBLIC_EMAILJS_PUBLIC_KEY production --force --token=${{ secrets.VERCEL_TOKEN }}
 
           printf "${{ vars.TITO_EVENT_BASE_URL }}" | vercel env add TITO_EVENT_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.HACKDAVIS_HUB_BASE_URL }}" | vercel env add HACKDAVIS_HUB_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
@@ -74,6 +77,9 @@ jobs:
           MAILCHIMP_API_KEY: ${{ secrets.MAILCHIMP_API_KEY }}
           MAILCHIMP_SERVER_PREFIX: ${{ secrets.MAILCHIMP_SERVER_PREFIX }}
           MAILCHIMP_AUDIENCE_ID: ${{ secrets.MAILCHIMP_AUDIENCE_ID }}
+          NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
+          NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID }}
+          NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
 
           BASE_URL: ${{ vars.ENV_URL }}
           NEXTAUTH_URL: ${{ vars.ENV_URL }}
