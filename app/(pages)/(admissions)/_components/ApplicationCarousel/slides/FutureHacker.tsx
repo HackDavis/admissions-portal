@@ -22,7 +22,7 @@ export default function FutureHacker({
 
   const isValid =
     formData.age &&
-    formData.age > 17 &&
+    formData.age >= 17 &&
     typeof formData.isOver18 === 'boolean' &&
     typeof formData.isUCDavisStudent === 'boolean' &&
     formData.countryOfResidence &&
