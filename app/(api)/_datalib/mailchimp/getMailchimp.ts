@@ -1,18 +1,15 @@
 import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
 import { HttpError, NotFoundError } from '@utils/response/Errors';
-import { ObjectId } from 'mongodb';
 
-export const GetMailchimp = async (id: string) => {
+// Gets a single mailchimp document
+export const GetMailchimp = async () => {
   try {
-    const object_id = new ObjectId(id);
     const db = await getDatabase();
 
-    const mailchimp = await db.collection('mailchimp').findOne({
-      _id: object_id,
-    });
+    const mailchimp = await db.collection('mailchimp').findOne({});
 
-    if (mailchimp === null) {
-      throw new NotFoundError(`mailchimp with id: ${id} not found.`);
+    if (!mailchimp) {
+      throw new NotFoundError('mailchimp document not found.');
     }
 
     return { ok: true, body: mailchimp, error: null };
