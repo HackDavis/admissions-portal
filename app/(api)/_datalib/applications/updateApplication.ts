@@ -12,14 +12,12 @@ import { ApplicationUpdatePayload } from '@/app/_types/application';
 
 const TENTATIVE_STATUSES = [
   'tentatively_accepted',
-  'tentatively_rejected',
   'tentatively_waitlisted',
   'tentatively_waitlist_accepted',
   'tentatively_waitlist_rejected',
 ];
 const PROCESSED_STATUSES = [
   'accepted',
-  'rejected',
   'waitlist_accepted',
   'waitlist_rejected',
 ];

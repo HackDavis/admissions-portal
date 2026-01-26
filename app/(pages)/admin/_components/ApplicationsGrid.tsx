@@ -162,22 +162,6 @@ export default function ApplicationsGrid({
                     </button>
                     <button
                       type="button"
-                      className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
-                      onClick={() =>
-                        onUpdateStatus(
-                          app._id,
-                          'tentatively_rejected',
-                          'unseen',
-                          {
-                            refreshPhase: 'tentative',
-                          }
-                        )
-                      }
-                    >
-                      reject
-                    </button>
-                    <button
-                      type="button"
                       className="border border-yellow-700 bg-yellow-100 px-2 py-1 text-[10px] font-semibold uppercase text-yellow-800"
                       onClick={() =>
                         onUpdateStatus(

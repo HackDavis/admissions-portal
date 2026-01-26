@@ -6,8 +6,6 @@ import { Status } from '@/app/_types/applicationFilters';
 import { exportTitoCSV } from '@utils/exportTito';
 import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
 
-//TODO: Remove all instances of 'rejected' and 'tentatively_rej'
-
 interface FinalizeButtonProps {
   apps: Application[];
   onFinalizeStatus: (
@@ -20,7 +18,6 @@ interface FinalizeButtonProps {
 
 const FINAL_STATUS_MAP: Record<string, Status> = {
   tentatively_accepted: 'accepted',
-  tentatively_rejected: 'rejected',
   tentatively_waitlisted: 'waitlisted',
   tentatively_waitlist_accepted: 'waitlist_accepted',
   tentatively_waitlist_rejected: 'waitlist_rejected',

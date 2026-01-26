@@ -6,7 +6,6 @@ import { Phase } from '@app/_types/applicationFilters';
 
 const TENTATIVE_STATUSES = [
   'tentatively_accepted',
-  'tentatively_rejected',
   'tentatively_waitlisted',
   'tentatively_waitlist_accepted',
   'tentatively_waitlist_rejected',
@@ -14,7 +13,6 @@ const TENTATIVE_STATUSES = [
 
 const PROCESSED_STATUSES = [
   'accepted',
-  'rejected',
   'waitlist_accepted',
   'waitlist_rejected',
 ] as const;
