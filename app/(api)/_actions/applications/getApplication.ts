@@ -10,8 +10,6 @@ export async function getApplication(id: string) {
 }
 
 export async function getManyApplications(query: object = {}) {
-  const res = await GetManyApplications(query, {
-    projection: { email: 1, status: 1 },
-  });
+  const res = await GetManyApplications(query);
   return JSON.parse(JSON.stringify(res));
 }

@@ -138,13 +138,36 @@ async function getRsvpList() {
 }
 
 async function fetchInvites(slug: string) {
-  const res = await axios.get(
-    `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists/${slug}/release_invitations?page[size]=500`,
-    {
-      headers: { Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}` },
+  const pageSize = 500;
+  let page = 1;
+  let hasMore = true;
+  const unredeemed: TitoInvite[] = [];
+
+  while (hasMore) {
+    const res = await axios.get(
+      `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists/${slug}/release_invitations`,
+      {
+        params: {
+          'page[size]': pageSize,
+          'page[number]': page,
+        },
+        headers: {
+          Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}`,
+        },
+      }
+    );
+
+    const invites = res.data.release_invitations ?? [];
+
+    for (const invite of invites) {
+      if (!invite.redeemed) unredeemed.push(invite);
     }
-  );
-  return res.data.release_invitations.filter((x: any) => !x.redeemed);
+
+    hasMore = invites.length === pageSize;
+    page++;
+  }
+
+  return unredeemed;
 }
 
 // Main
@@ -156,6 +179,12 @@ export async function prepareMailchimpInvites(
     | 'tentatively_waitlist_rejected'
 ) {
   const successfulIds: string[] = [];
+  const BATCH_LIMITS = {
+    tentatively_accepted: 40,
+    tentatively_waitlisted: 100,
+    tentatively_rejected: 100,
+  } as const;
+  const limit = BATCH_LIMITS[targetStatus];
 
   try {
     const requiredEnvs = [
@@ -171,6 +200,12 @@ export async function prepareMailchimpInvites(
 
     const dbApplicants = await getApplicationsByStatus(targetStatus);
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
+    if (dbApplicants.length > limit) {
+      throw new Error(
+        `${targetStatus} batch too large (${dbApplicants.length}). ` +
+          `Limit is ${limit}.`
+      );
+    }
 
     /* Handle accepted/waitlisted/rejected applicants */
     if (
