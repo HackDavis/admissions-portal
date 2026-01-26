@@ -182,7 +182,8 @@ export async function prepareMailchimpInvites(
   const BATCH_LIMITS = {
     tentatively_accepted: 40,
     tentatively_waitlisted: 100,
-    tentatively_rejected: 100,
+    tentatively_waitlist_accepted: 100,
+    tentatively_waitlist_rejected: 100,
   } as const;
   const limit = BATCH_LIMITS[targetStatus];
 
