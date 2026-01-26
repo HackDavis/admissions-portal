@@ -109,7 +109,7 @@ export default function ApplicationsGrid({
                       onClick={() =>
                         onUpdateStatus(
                           app._id,
-                          'tentative_waitlist_accept',
+                          'tentatively_waitlist_accepted',
                           'unseen',
                           {
                             refreshPhase: 'tentative',
@@ -125,7 +125,7 @@ export default function ApplicationsGrid({
                       onClick={() =>
                         onUpdateStatus(
                           app._id,
-                          'tentative_waitlist_reject',
+                          'tentatively_waitlist_rejected',
                           'unseen',
                           {
                             refreshPhase: 'tentative',

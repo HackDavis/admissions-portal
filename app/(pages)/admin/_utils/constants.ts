@@ -10,13 +10,13 @@ export const TENTATIVE_STATUSES: Status[] = [
   'tentatively_accepted',
   'tentatively_rejected',
   'tentatively_waitlisted',
-  'tentative_waitlist_accept',
-  'tentative_waitlist_reject',
+  'tentatively_waitlist_accepted',
+  'tentatively_waitlist_rejected',
 ];
 
 export const PROCESSED_STATUSES: Status[] = [
   'accepted',
   'rejected',
-  'waitlist_accept',
-  'waitlist_reject',
+  'waitlist_accepted',
+  'waitlist_rejected',
 ];

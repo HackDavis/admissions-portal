@@ -20,8 +20,8 @@ const FINAL_STATUS_MAP: Record<string, Status> = {
   tentatively_accepted: 'accepted',
   tentatively_rejected: 'rejected',
   tentatively_waitlisted: 'waitlisted',
-  tentative_waitlist_accept: 'waitlist_accept',
-  tentative_waitlist_reject: 'waitlist_reject',
+  tentatively_waitlist_accepted: 'waitlist_accepted',
+  tentatively_waitlist_rejected: 'waitlist_rejected',
 };
 
 export default function FinalizeButton({
@@ -36,26 +36,11 @@ export default function FinalizeButton({
     try {
       // Auto download CSV for tentatively accepted applicants
       await downloadCSV('tentatively_accepted');
-
-      // Update statuses immediately on finalize
-      const appsToFinalize = apps.filter((app) => FINAL_STATUS_MAP[app.status]);
-      if (appsToFinalize.length > 0) {
-        await Promise.all(
-          appsToFinalize.map((app) =>
-            onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
-              wasWaitlisted: app.status === 'tentatively_waitlisted',
-              refreshPhase:
-                app.status === 'tentatively_waitlisted' ? 'unseen' : 'processed',
-            })
-          )
-        );
-      }
-
-      alert('Applicants finalized and CSV downloaded for ACCEPTED applicants!');
+      alert('CSV downloaded for ACCEPTED applicants!');
     } catch (err: any) {
       console.error(err);
       alert(
-        `Failed to finalize applicants: ${err.message ?? err}`
+        `Failed to download CSV: ${err.message ?? err}`
       );
     } finally {
       setIsProcessing(false);
@@ -92,17 +77,18 @@ export default function FinalizeButton({
   async function processMailchimpInvites() {
     setIsProcessing(true);
     const results: string[] = [];
+    let hadError = false;
 
     const batches = [
-      { label: 'Acceptances', types: ['accepted'] as const },
+      { label: 'Acceptances', types: ['tentatively_accepted'] as const },
       {
         label: 'Waitlist Acceptances',
-        types: ['waitlist_accept'] as const,
+        types: ['tentatively_waitlist_accepted'] as const,
       },
-      { label: 'Rejections', types: ['rejected'] as const },
+      { label: 'Rejections', types: ['tentatively_rejected'] as const },
       {
         label: 'Waitlist Rejections',
-        types: ['waitlist_reject'] as const,
+        types: ['tentatively_waitlist_rejected'] as const,
       },
     ] as const;
 
@@ -120,7 +106,23 @@ export default function FinalizeButton({
         if (!res.ok) {
           const errorMsg = res.error ?? 'Unknown API Error';
           results.push(`❌ ${batch.label} HALTED: ${errorMsg}`);
+          hadError = true;
           break;
+        }
+      }
+
+      if (!hadError) {
+        const appsToFinalize = apps.filter((app) => FINAL_STATUS_MAP[app.status]);
+        if (appsToFinalize.length > 0) {
+          await Promise.all(
+            appsToFinalize.map((app) =>
+              onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
+                wasWaitlisted: app.status === 'tentatively_waitlisted',
+                refreshPhase:
+                  app.status === 'tentatively_waitlisted' ? 'unseen' : 'processed',
+              })
+            )
+          );
         }
       }
 

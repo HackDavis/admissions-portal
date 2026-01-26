@@ -155,12 +155,12 @@ export async function prepareMailchimpInvites(
     | 'tentatively_accepted'
     | 'tentatively_waitlisted'
     | 'tentatively_rejected'
-    | 'tentative_waitlist_accept'
-    | 'tentative_waitlist_reject'
+    | 'tentatively_waitlist_accepted'
+    | 'tentatively_waitlist_rejected'
     | 'accepted'
     | 'rejected'
-    | 'waitlist_accept'
-    | 'waitlist_reject'
+    | 'waitlist_accepted'
+    | 'waitlist_rejected'
 ) {
   const successfulIds: string[] = [];
 
@@ -182,9 +182,9 @@ export async function prepareMailchimpInvites(
     /* Handle accepted/waitlisted/rejected applicants */
     if (
       targetStatus === 'tentatively_accepted' ||
-      targetStatus === 'tentative_waitlist_accept' ||
+      targetStatus === 'tentatively_waitlist_accepted' ||
       targetStatus === 'accepted' ||
-      targetStatus === 'waitlist_accept'
+      targetStatus === 'waitlist_accepted'
     ) {
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
