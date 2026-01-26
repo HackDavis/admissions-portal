@@ -28,6 +28,11 @@ function getMailchimpClient() {
 async function getHubSession(): Promise<AxiosInstance> {
   const session = axios.create();
   try {
+    console.log(
+      'Hub login URL:',
+      `${process.env.HACKDAVIS_HUB_BASE_URL}/api/auth/login`
+    );
+    console.log('Hub login email:', process.env.HUB_ADMIN_EMAIL);
     const res = await session.post(
       `${process.env.HACKDAVIS_HUB_BASE_URL}/api/auth/login`,
       {
@@ -150,6 +155,12 @@ export async function prepareMailchimpInvites(
     | 'tentatively_accepted'
     | 'tentatively_waitlisted'
     | 'tentatively_rejected'
+    | 'tentative_waitlist_accept'
+    | 'tentative_waitlist_reject'
+    | 'accepted'
+    | 'rejected'
+    | 'waitlist_accept'
+    | 'waitlist_reject'
 ) {
   const successfulIds: string[] = [];
 
@@ -169,7 +180,12 @@ export async function prepareMailchimpInvites(
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
 
     /* Handle accepted/waitlisted/rejected applicants */
-    if (targetStatus === 'tentatively_accepted') {
+    if (
+      targetStatus === 'tentatively_accepted' ||
+      targetStatus === 'tentative_waitlist_accept' ||
+      targetStatus === 'accepted' ||
+      targetStatus === 'waitlist_accept'
+    ) {
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
       const rsvpList = await getRsvpList();

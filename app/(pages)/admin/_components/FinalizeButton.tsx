@@ -12,7 +12,7 @@ interface FinalizeButtonProps {
     appId: string,
     nextStatus: Status,
     fromPhase: 'tentative',
-    options?: { wasWaitlisted?: boolean; refreshPhase?: 'processed' }
+    options?: { wasWaitlisted?: boolean; refreshPhase?: 'processed' | 'unseen' }
   ) => void;
 }
 
@@ -20,6 +20,8 @@ const FINAL_STATUS_MAP: Record<string, Status> = {
   tentatively_accepted: 'accepted',
   tentatively_rejected: 'rejected',
   tentatively_waitlisted: 'waitlisted',
+  tentative_waitlist_accept: 'waitlist_accept',
+  tentative_waitlist_reject: 'waitlist_reject',
 };
 
 export default function FinalizeButton({
@@ -30,9 +32,34 @@ export default function FinalizeButton({
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFinalize = async () => {
-    // Auto download CSV
-    await downloadCSV('tentatively_accepted');
-    alert('Applicants finalized and CSV downloaded for ACCEPTED applicants!');
+    setIsProcessing(true);
+    try {
+      // Auto download CSV for tentatively accepted applicants
+      await downloadCSV('tentatively_accepted');
+
+      // Update statuses immediately on finalize
+      const appsToFinalize = apps.filter((app) => FINAL_STATUS_MAP[app.status]);
+      if (appsToFinalize.length > 0) {
+        await Promise.all(
+          appsToFinalize.map((app) =>
+            onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
+              wasWaitlisted: app.status === 'tentatively_waitlisted',
+              refreshPhase:
+                app.status === 'tentatively_waitlisted' ? 'unseen' : 'processed',
+            })
+          )
+        );
+      }
+
+      alert('Applicants finalized and CSV downloaded for ACCEPTED applicants!');
+    } catch (err: any) {
+      console.error(err);
+      alert(
+        `Failed to finalize applicants: ${err.message ?? err}`
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   async function downloadCSV(status: Status) {
@@ -67,42 +94,28 @@ export default function FinalizeButton({
     const results: string[] = [];
 
     const batches = [
-      { label: 'Acceptances', type: 'tentatively_accepted' },
-      { label: 'Waitlist', type: 'tentatively_waitlisted' },
-      { label: 'Rejections', type: 'tentatively_rejected' },
+      { label: 'Acceptances', types: ['accepted'] as const },
+      {
+        label: 'Waitlist Acceptances',
+        types: ['waitlist_accept'] as const,
+      },
+      { label: 'Rejections', types: ['rejected'] as const },
+      {
+        label: 'Waitlist Rejections',
+        types: ['waitlist_reject'] as const,
+      },
     ] as const;
 
     // Sends Mailchimp invites
     try {
       for (const batch of batches) {
-        const batchApps = apps.filter((a) => a.status === batch.type);
-        if (batchApps.length === 0) {
-          results.push(`☑️ ${batch.label}: 0 processed`);
-          continue;
-        }
-
-        const res = await prepareMailchimpInvites(batch.type);
-        if (res.ids && res.ids.length > 0) {
-          // apps successfully processed in this batch
-          const successfulApps = batchApps.filter((app) =>
-            res.ids.includes(app._id)
-          );
-
-          // Update tentative statuses
-          const updates = successfulApps.map((app) =>
-            onFinalizeStatus(
-              app._id,
-              FINAL_STATUS_MAP[app.status],
-              'tentative',
-              {
-                wasWaitlisted: app.status === 'tentatively_waitlisted',
-                refreshPhase: 'processed',
-              }
-            )
-          );
-          await Promise.all(updates);
-          results.push(`✅ ${batch.label}: ${res.ids.length} processed`);
-        }
+        const res = await prepareMailchimpInvites(batch.types[0]);
+        const processedCount = res.ids?.length ?? 0;
+        results.push(
+          processedCount > 0
+            ? `✅ ${batch.label}: ${processedCount} processed`
+            : `☑️ ${batch.label}: 0 processed`
+        );
 
         if (!res.ok) {
           const errorMsg = res.error ?? 'Unknown API Error';

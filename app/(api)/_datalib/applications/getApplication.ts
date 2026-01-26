@@ -8,12 +8,19 @@ const TENTATIVE_STATUSES = [
   'tentatively_accepted',
   'tentatively_rejected',
   'tentatively_waitlisted',
+  'tentative_waitlist_accept',
+  'tentative_waitlist_reject',
 ] as const;
 
-const PROCESSED_STATUSES = ['accepted', 'rejected', 'waitlisted'] as const;
+const PROCESSED_STATUSES = [
+  'accepted',
+  'rejected',
+  'waitlist_accept',
+  'waitlist_reject',
+] as const;
 
 const PHASE_TO_STATUSES: Record<Phase, readonly string[]> = {
-  unseen: ['pending'],
+  unseen: ['pending', 'waitlisted'],
   tentative: TENTATIVE_STATUSES,
   processed: PROCESSED_STATUSES,
 };
