@@ -214,7 +214,9 @@ export async function prepareMailchimpInvites(
           `2026_${statusTemplate}_template` // name of template in mailchimp
         );
 
-        console.log(`Mailchimp email sent for ${app.email}`);
+        //TODO: Update mailchimp api counter
+
+        console.log(`Mailchimp email prepared for ${app.email}`);
         await new Promise((r) => setTimeout(r, 400)); // slight delay
         successfulIds.push(app._id);
       }

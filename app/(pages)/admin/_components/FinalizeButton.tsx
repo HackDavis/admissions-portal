@@ -76,7 +76,6 @@ export default function FinalizeButton({
   async function processMailchimpInvites() {
     setIsProcessing(true);
     const results: string[] = [];
-    let hadError = false;
 
     const batches = [
       { label: 'Acceptances', types: ['tentatively_accepted'] as const },
@@ -95,29 +94,14 @@ export default function FinalizeButton({
       for (const batch of batches) {
         const res = await prepareMailchimpInvites(batch.types[0]);
         const processedCount = res.ids?.length ?? 0;
-        results.push(
-          processedCount > 0
-            ? `✅ ${batch.label}: ${processedCount} processed`
-            : `☑️ ${batch.label}: 0 processed`
-        );
 
-        // Stop further processing of other batches if error occurs
-        if (!res.ok) {
-          const errorMsg = res.error ?? 'Unknown API Error';
-          results.push(`❌ ${batch.label} HALTED: ${errorMsg}`);
-          hadError = true;
-          break;
-        }
-      }
-
-      //TODO: Move this logic back into the loop above (so at least one batch can finalize if others fail)
-      if (!hadError) {
-        const appsToFinalize = apps.filter(
-          (app) => FINAL_STATUS_MAP[app.status]
-        );
-        if (appsToFinalize.length > 0) {
+        // We have to update application statuses here to account for partial-success
+        if (processedCount > 0) {
+          const successfulApps = apps.filter((app) =>
+            res.ids.includes(app._id)
+          );
           await Promise.all(
-            appsToFinalize.map((app) =>
+            successfulApps.map((app) =>
               onFinalizeStatus(
                 app._id,
                 FINAL_STATUS_MAP[app.status],
@@ -132,6 +116,19 @@ export default function FinalizeButton({
               )
             )
           );
+        }
+
+        results.push(
+          processedCount > 0
+            ? `✅ ${batch.label}: ${processedCount} processed`
+            : `☑️ ${batch.label}: 0 processed`
+        );
+
+        // Stop further processing of other batches if error occurs
+        if (!res.ok) {
+          const errorMsg = res.error ?? 'Unknown API Error';
+          results.push(`❌ ${batch.label} HALTED: ${errorMsg}`);
+          break;
         }
       }
 
