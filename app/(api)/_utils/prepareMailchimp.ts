@@ -28,10 +28,6 @@ function getMailchimpClient() {
 async function getHubSession(): Promise<AxiosInstance> {
   const session = axios.create();
   try {
-    console.log(
-      'Hub login URL:',
-      `${process.env.HACKDAVIS_HUB_BASE_URL}/api/auth/login`
-    );
     console.log('Hub login email:', process.env.HUB_ADMIN_EMAIL);
     const res = await session.post(
       `${process.env.HACKDAVIS_HUB_BASE_URL}/api/auth/login`,
@@ -154,13 +150,8 @@ export async function prepareMailchimpInvites(
   targetStatus:
     | 'tentatively_accepted'
     | 'tentatively_waitlisted'
-    | 'tentatively_rejected'
     | 'tentatively_waitlist_accepted'
     | 'tentatively_waitlist_rejected'
-    | 'accepted'
-    | 'rejected'
-    | 'waitlist_accepted'
-    | 'waitlist_rejected'
 ) {
   const successfulIds: string[] = [];
 
@@ -182,10 +173,9 @@ export async function prepareMailchimpInvites(
     /* Handle accepted/waitlisted/rejected applicants */
     if (
       targetStatus === 'tentatively_accepted' ||
-      targetStatus === 'tentatively_waitlist_accepted' ||
-      targetStatus === 'accepted' ||
-      targetStatus === 'waitlist_accepted'
+      targetStatus === 'tentatively_waitlist_accepted'
     ) {
+      // Process accepted or waitlist accepted applicants
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
       const rsvpList = await getRsvpList();
@@ -214,6 +204,7 @@ export async function prepareMailchimpInvites(
           throw new Error(`Hub URL generation failed for ${app.email}`);
         console.log('Hub URL sending to Mailchimp:', hubUrl);
 
+        const statusTemplate = targetStatus.replace(/^tentatively_/, '');
         // Add/update Mailchimp
         await addToMailchimp(
           app.email,
@@ -221,7 +212,7 @@ export async function prepareMailchimpInvites(
           app.lastName,
           titoMatch.unique_url,
           hubUrl,
-          'accepted_template'
+          `2026_${statusTemplate}_template` // name of template in mailchimp
         );
 
         console.log(`Mailchimp email sent for ${app.email}`);
@@ -233,13 +224,14 @@ export async function prepareMailchimpInvites(
       console.log(`Processing waitlisted/rejected via Database → Mailchimp\n`);
 
       for (const app of dbApplicants) {
+        const statusTemplate = targetStatus.replace(/^tentatively_/, '');
         await addToMailchimp(
           app.email,
           app.firstName,
           app.lastName,
           '', // No Tito URL
           '', // No Hub URL
-          'waitlisted_template'
+          `2026_${statusTemplate}_template` // name of template in mailchimp
         );
         successfulIds.push(app._id);
       }

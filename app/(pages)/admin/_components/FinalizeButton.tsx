@@ -39,9 +39,7 @@ export default function FinalizeButton({
       alert('CSV downloaded for ACCEPTED applicants!');
     } catch (err: any) {
       console.error(err);
-      alert(
-        `Failed to download CSV: ${err.message ?? err}`
-      );
+      alert(`Failed to download CSV: ${err.message ?? err}`);
     } finally {
       setIsProcessing(false);
     }
@@ -112,15 +110,24 @@ export default function FinalizeButton({
       }
 
       if (!hadError) {
-        const appsToFinalize = apps.filter((app) => FINAL_STATUS_MAP[app.status]);
+        const appsToFinalize = apps.filter(
+          (app) => FINAL_STATUS_MAP[app.status]
+        );
         if (appsToFinalize.length > 0) {
           await Promise.all(
             appsToFinalize.map((app) =>
-              onFinalizeStatus(app._id, FINAL_STATUS_MAP[app.status], 'tentative', {
-                wasWaitlisted: app.status === 'tentatively_waitlisted',
-                refreshPhase:
-                  app.status === 'tentatively_waitlisted' ? 'unseen' : 'processed',
-              })
+              onFinalizeStatus(
+                app._id,
+                FINAL_STATUS_MAP[app.status],
+                'tentative',
+                {
+                  wasWaitlisted: app.status === 'tentatively_waitlisted',
+                  refreshPhase:
+                    app.status === 'tentatively_waitlisted'
+                      ? 'unseen'
+                      : 'processed',
+                }
+              )
             )
           );
         }

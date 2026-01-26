@@ -117,7 +117,7 @@ export default function ApplicationsGrid({
                         )
                       }
                     >
-                    accept
+                      accept
                     </button>
                     <button
                       type="button"
@@ -133,7 +133,7 @@ export default function ApplicationsGrid({
                         )
                       }
                     >
-                    FINAL REJECT
+                      FINAL REJECT
                     </button>
                   </>
                 ) : (
