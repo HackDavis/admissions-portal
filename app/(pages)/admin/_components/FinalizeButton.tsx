@@ -6,6 +6,8 @@ import { Status } from '@/app/_types/applicationFilters';
 import { exportTitoCSV } from '@utils/exportTito';
 import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
 
+//TODO: Remove all instances of 'rejected' and 'tentatively_rej'
+
 interface FinalizeButtonProps {
   apps: Application[];
   onFinalizeStatus: (
@@ -35,6 +37,8 @@ export default function FinalizeButton({
     setIsProcessing(true);
     try {
       // Auto download CSV for (tentatively) accepted & waitlist-accepted applicants
+
+      //TODO: Combine both into single CSV download function
       await downloadCSV('tentatively_accepted');
       await downloadCSV('tentatively_waitlist_accepted');
       alert('CSV downloaded for all ACCEPTED applicants!');
@@ -79,6 +83,7 @@ export default function FinalizeButton({
 
     const batches = [
       { label: 'Acceptances', types: ['tentatively_accepted'] as const },
+      { label: 'Waitlists', types: ['tentatively_waitlisted'] as const },
       {
         label: 'Waitlist Acceptances',
         types: ['tentatively_waitlist_accepted'] as const,

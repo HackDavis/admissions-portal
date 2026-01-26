@@ -4,6 +4,9 @@ import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 import { getApplicationsByStatus } from './exportTito';
 
+//TODO: Clear previous tags from waitlisted applicants OR presidents send in a specific order?
+// Order: accepted -> waitlist accepted -> waitlist rejected --> waitlisted (then waitlist accepted arent affected by this)
+
 interface TitoInvite {
   email: string;
   unique_url: string;
@@ -211,7 +214,7 @@ export async function prepareMailchimpInvites(
           app.lastName,
           titoMatch.unique_url,
           hubUrl,
-          `2026_${statusTemplate}_template` // name of template in mailchimp
+          `${statusTemplate}_template` // name of tag in mailchimp
         );
 
         //TODO: Update mailchimp api counter
@@ -232,7 +235,7 @@ export async function prepareMailchimpInvites(
           app.lastName,
           '', // No Tito URL
           '', // No Hub URL
-          `2026_${statusTemplate}_template` // name of template in mailchimp
+          `${statusTemplate}_template` // name of tag in mailchimp
         );
         successfulIds.push(app._id);
       }

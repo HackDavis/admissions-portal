@@ -59,9 +59,15 @@ export default function ApplicationsGrid({
                     type="button"
                     className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
                     onClick={() =>
-                      onUpdateStatus(app._id, 'pending', 'tentative', {
-                        refreshPhase: 'unseen',
-                      })
+                      onUpdateStatus(
+    app._id,
+    app.wasWaitlisted ? 'waitlisted' : 'pending',
+    'tentative',
+    {
+      wasWaitlisted: app.wasWaitlisted,
+      refreshPhase: 'unseen',
+    }
+  )
                     }
                   >
                     undo selection
