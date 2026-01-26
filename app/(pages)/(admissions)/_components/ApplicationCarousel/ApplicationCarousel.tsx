@@ -240,7 +240,11 @@ export default function ApplicationCarousel() {
   React.useEffect(() => {
     if (!api) return;
 
-    const update = () => setIndex(api.selectedScrollSnap());
+    const update = () => {
+      setIndex(api.selectedScrollSnap());
+      // Scroll to top of page whenever slide changes
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
     update();
 
     api.on('select', update);
