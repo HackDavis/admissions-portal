@@ -28,7 +28,6 @@ function getMailchimpClient() {
 async function getHubSession(): Promise<AxiosInstance> {
   const session = axios.create();
   try {
-    console.log('Hub login email:', process.env.HUB_ADMIN_EMAIL);
     const res = await session.post(
       `${process.env.HACKDAVIS_HUB_BASE_URL}/api/auth/login`,
       {

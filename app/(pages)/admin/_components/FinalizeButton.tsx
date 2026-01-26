@@ -34,9 +34,10 @@ export default function FinalizeButton({
   const handleFinalize = async () => {
     setIsProcessing(true);
     try {
-      // Auto download CSV for tentatively accepted applicants
+      // Auto download CSV for (tentatively) accepted & waitlist-accepted applicants
       await downloadCSV('tentatively_accepted');
-      alert('CSV downloaded for ACCEPTED applicants!');
+      await downloadCSV('tentatively_waitlist_accepted');
+      alert('CSV downloaded for all ACCEPTED applicants!');
     } catch (err: any) {
       console.error(err);
       alert(`Failed to download CSV: ${err.message ?? err}`);
@@ -83,7 +84,6 @@ export default function FinalizeButton({
         label: 'Waitlist Acceptances',
         types: ['tentatively_waitlist_accepted'] as const,
       },
-      { label: 'Rejections', types: ['tentatively_rejected'] as const },
       {
         label: 'Waitlist Rejections',
         types: ['tentatively_waitlist_rejected'] as const,
@@ -101,6 +101,7 @@ export default function FinalizeButton({
             : `☑️ ${batch.label}: 0 processed`
         );
 
+        // Stop further processing of other batches if error occurs
         if (!res.ok) {
           const errorMsg = res.error ?? 'Unknown API Error';
           results.push(`❌ ${batch.label} HALTED: ${errorMsg}`);
@@ -109,6 +110,7 @@ export default function FinalizeButton({
         }
       }
 
+      //TODO: Move this logic back into the loop above (so at least one batch can finalize if others fail)
       if (!hadError) {
         const appsToFinalize = apps.filter(
           (app) => FINAL_STATUS_MAP[app.status]
