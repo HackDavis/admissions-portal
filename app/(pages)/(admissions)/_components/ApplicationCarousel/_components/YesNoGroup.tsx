@@ -8,6 +8,7 @@ export interface YesNoGroupProps {
   onChange: (value: boolean) => void;
   yesLabel?: string;
   noLabel?: string;
+  disabled?: boolean;
 }
 
 export function YesNoGroup({
@@ -15,6 +16,7 @@ export function YesNoGroup({
   onChange,
   yesLabel = 'Yes',
   noLabel = 'No',
+  disabled = false,
 }: YesNoGroupProps) {
   return (
     <div className="mt-4 flex flex-col gap-3">
@@ -22,11 +24,13 @@ export function YesNoGroup({
         label={yesLabel}
         active={value === true}
         onClick={() => onChange(true)}
+        disabled={disabled}
       />
       <YesNoOption
         label={noLabel}
         active={value === false}
         onClick={() => onChange(false)}
+        disabled={disabled}
       />
     </div>
   );
@@ -36,20 +40,23 @@ function YesNoOption({
   label,
   active,
   onClick,
+  disabled = false,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       className={[
         'flex w-fit items-center gap-3 rounded-full transition',
         active
           ? 'bg-[#173B47] px-4 py-2 text-white shadow-[4px_4px_0_rgba(159,182,190,0.8)]'
           : 'px-1 py-1 ml-3 text-[#005271]',
+        disabled ? 'opacity-50 cursor-not-allowed' : '', // grey out if disabled
       ].join(' ')}
     >
       <span
@@ -58,6 +65,7 @@ function YesNoOption({
           active
             ? 'border-white bg-[#9FB6BE] text-[#173B47]'
             : 'border-[#9FB6BE] bg-white',
+          disabled ? 'opacity-50' : '',
         ].join(' ')}
       >
         {active && <FiCheck className="h-3.5 w-3.5" />}

@@ -50,6 +50,17 @@ export default function FutureHacker({
     }
   }, [formData.isUCDavisStudent, setFormData]);
 
+  useEffect(() => {
+    setFormData((prev: any) => {
+      if (prev.age >= 18 && prev.isOver18 !== true) {
+        return { ...prev, isOver18: true };
+      } else if (prev.age < 18 && prev.isOver18 === true) {
+        return { ...prev, isOver18: null };
+      }
+      return prev; // no change
+    });
+  }, [formData.age, setFormData]);
+
   const handleNext = () => {
     setSubmitted(true);
     if (!isValid) return;
@@ -91,7 +102,7 @@ export default function FutureHacker({
               </p>
             )}
 
-            {formData.age && formData.age < 17 && (
+            {formData.age != '' && formData.age < 17 && (
               <p className="mt-3 text-sm font-semibold text-red-400">
                 ERROR: You must be at least 17 years old.
               </p>
@@ -99,7 +110,7 @@ export default function FutureHacker({
           </div>
 
           {/* OVER 18 */}
-          <div>
+          <div className={formData.age < 18 ? '' : 'opacity-50'}>
             <p className="text-base font-semibold text-[#0F2530]">
               Will you be at least 18 years old by DOE?*
             </p>
@@ -107,6 +118,7 @@ export default function FutureHacker({
             <YesNoGroup
               value={formData.isOver18}
               onChange={(v) => setFormData({ ...formData, isOver18: v })}
+              disabled={formData.age >= 18}
             />
             {submitted && typeof formData.isOver18 !== 'boolean' && (
               <p className="mt-3 text-sm font-semibold text-red-400">

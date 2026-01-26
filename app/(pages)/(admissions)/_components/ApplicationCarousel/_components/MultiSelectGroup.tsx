@@ -7,17 +7,17 @@ export interface MultiSelectGroupProps {
   options: string[];
   value: string[];
   onChange: (value: string[]) => void;
-  disabled?: boolean; // ✅ NEW
+  disabled?: boolean;
 }
 
 export function MultiSelectGroup({
   options,
   value,
   onChange,
-  disabled = false, // ✅ NEW
+  disabled = false,
 }: MultiSelectGroupProps) {
   function toggle(option: string) {
-    if (disabled) return; // ✅ NEW (no-op when disabled)
+    if (disabled) return; // (no-op when disabled)
 
     if (value.includes(option)) {
       onChange(value.filter((v) => v !== option));
