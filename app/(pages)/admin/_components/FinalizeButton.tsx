@@ -56,11 +56,11 @@ export default function FinalizeButton({
 
   async function downloadCSV(statuses: Status[]) {
     try {
-      console.log(`Exporting ${status} applicants to CSV...\n`);
+      console.log(`Exporting ${statuses} applicants to CSV...\n`);
 
       const csv = await exportTitoCSV(statuses); // server action
       if (!csv || csv.trim() === '') {
-        alert(`No ${status} applicants found to export.`);
+        alert(`No ${statuses} applicants found to export.`);
         return;
       }
 
