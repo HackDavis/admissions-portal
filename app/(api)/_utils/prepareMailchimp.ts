@@ -4,9 +4,6 @@ import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 import { getApplicationsByStatuses } from './exportTito';
 
-//TODO: Clear previous tags from waitlisted applicants OR presidents send in a specific order?
-// Order: accepted -> waitlist accepted -> waitlist rejected --> waitlisted (then waitlist accepted arent affected by this)
-
 interface TitoInvite {
   email: string;
   unique_url: string;
