@@ -31,7 +31,7 @@ export const CreateApplication = async (body: object) => {
 
     const parsedBodyWithTimestamp = {
       ...parsedBody,
-      submittedAt: new Date().toISOString(),
+      submittedAt: new Date(),
     };
 
     const creationStatus = await db

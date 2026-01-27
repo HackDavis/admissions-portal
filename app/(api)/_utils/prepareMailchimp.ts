@@ -4,6 +4,9 @@ import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 import { getApplicationsByStatus } from './exportTito';
 
+//TODO: Clear previous tags from waitlisted applicants OR presidents send in a specific order?
+// Order: accepted -> waitlist accepted -> waitlist rejected --> waitlisted (then waitlist accepted arent affected by this)
+
 interface TitoInvite {
   email: string;
   unique_url: string;
@@ -135,13 +138,36 @@ async function getRsvpList() {
 }
 
 async function fetchInvites(slug: string) {
-  const res = await axios.get(
-    `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists/${slug}/release_invitations?page[size]=500`,
-    {
-      headers: { Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}` },
+  const pageSize = 500;
+  let page = 1;
+  let hasMore = true;
+  const unredeemed: TitoInvite[] = [];
+
+  while (hasMore) {
+    const res = await axios.get(
+      `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists/${slug}/release_invitations`,
+      {
+        params: {
+          'page[size]': pageSize,
+          'page[number]': page,
+        },
+        headers: {
+          Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}`,
+        },
+      }
+    );
+
+    const invites = res.data.release_invitations ?? [];
+
+    for (const invite of invites) {
+      if (!invite.redeemed) unredeemed.push(invite);
     }
-  );
-  return res.data.release_invitations.filter((x: any) => !x.redeemed);
+
+    hasMore = invites.length === pageSize;
+    page++;
+  }
+
+  return unredeemed;
 }
 
 // Main
@@ -149,9 +175,17 @@ export async function prepareMailchimpInvites(
   targetStatus:
     | 'tentatively_accepted'
     | 'tentatively_waitlisted'
-    | 'tentatively_rejected'
+    | 'tentatively_waitlist_accepted'
+    | 'tentatively_waitlist_rejected'
 ) {
   const successfulIds: string[] = [];
+  const BATCH_LIMITS = {
+    tentatively_accepted: 40,
+    tentatively_waitlisted: 100,
+    tentatively_waitlist_accepted: 100,
+    tentatively_waitlist_rejected: 100,
+  } as const;
+  const limit = BATCH_LIMITS[targetStatus];
 
   try {
     const requiredEnvs = [
@@ -167,9 +201,19 @@ export async function prepareMailchimpInvites(
 
     const dbApplicants = await getApplicationsByStatus(targetStatus);
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
+    if (dbApplicants.length > limit) {
+      throw new Error(
+        `${targetStatus} batch too large (${dbApplicants.length}). ` +
+          `Limit is ${limit}.`
+      );
+    }
 
     /* Handle accepted/waitlisted/rejected applicants */
-    if (targetStatus === 'tentatively_accepted') {
+    if (
+      targetStatus === 'tentatively_accepted' ||
+      targetStatus === 'tentatively_waitlist_accepted'
+    ) {
+      // Process accepted or waitlist accepted applicants
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
       const rsvpList = await getRsvpList();
@@ -198,6 +242,7 @@ export async function prepareMailchimpInvites(
           throw new Error(`Hub URL generation failed for ${app.email}`);
         console.log('Hub URL sending to Mailchimp:', hubUrl);
 
+        const statusTemplate = targetStatus.replace(/^tentatively_/, '');
         // Add/update Mailchimp
         await addToMailchimp(
           app.email,
@@ -205,10 +250,12 @@ export async function prepareMailchimpInvites(
           app.lastName,
           titoMatch.unique_url,
           hubUrl,
-          'accepted_template'
+          `${statusTemplate}_template` // name of tag in mailchimp
         );
 
-        console.log(`Mailchimp email sent for ${app.email}`);
+        //TODO: Update mailchimp api counter
+
+        console.log(`Mailchimp email prepared for ${app.email}`);
         await new Promise((r) => setTimeout(r, 400)); // slight delay
         successfulIds.push(app._id);
       }
@@ -217,13 +264,14 @@ export async function prepareMailchimpInvites(
       console.log(`Processing waitlisted/rejected via Database → Mailchimp\n`);
 
       for (const app of dbApplicants) {
+        const statusTemplate = targetStatus.replace(/^tentatively_/, '');
         await addToMailchimp(
           app.email,
           app.firstName,
           app.lastName,
           '', // No Tito URL
           '', // No Hub URL
-          'waitlisted_template'
+          `${statusTemplate}_template` // name of tag in mailchimp
         );
         successfulIds.push(app._id);
       }

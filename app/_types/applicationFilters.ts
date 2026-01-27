@@ -1,11 +1,13 @@
 export type Status =
   | 'pending'
   | 'tentatively_accepted'
-  | 'tentatively_rejected'
   | 'tentatively_waitlisted'
+  | 'tentatively_waitlist_accepted'
+  | 'tentatively_waitlist_rejected'
   | 'accepted'
-  | 'rejected'
-  | 'waitlisted';
+  | 'waitlisted'
+  | 'waitlist_accepted'
+  | 'waitlist_rejected';
 
 export type StatusFilter = 'all' | Status;
 

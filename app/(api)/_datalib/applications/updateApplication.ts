@@ -12,11 +12,21 @@ import { ApplicationUpdatePayload } from '@/app/_types/application';
 
 const TENTATIVE_STATUSES = [
   'tentatively_accepted',
-  'tentatively_rejected',
   'tentatively_waitlisted',
+  'tentatively_waitlist_accepted',
+  'tentatively_waitlist_rejected',
 ];
-const PROCESSED_STATUSES = ['accepted', 'rejected', 'waitlisted'];
-const ALL_STATUSES = ['pending', ...TENTATIVE_STATUSES, ...PROCESSED_STATUSES];
+const PROCESSED_STATUSES = [
+  'accepted',
+  'waitlist_accepted',
+  'waitlist_rejected',
+];
+const ALL_STATUSES = [
+  'pending',
+  'waitlisted',
+  ...TENTATIVE_STATUSES,
+  ...PROCESSED_STATUSES,
+];
 
 export const UpdateApplication = async (
   id: string,
@@ -34,7 +44,7 @@ export const UpdateApplication = async (
       throw new Error(`Invalid status: "${updateData.status}".`);
     }
 
-    const now = new Date().toISOString();
+    const now = new Date();
     if (TENTATIVE_STATUSES.includes(updateData.status)) {
       updateData.reviewedAt = now;
     }

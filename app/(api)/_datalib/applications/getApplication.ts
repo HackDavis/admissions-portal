@@ -6,14 +6,19 @@ import { Phase } from '@app/_types/applicationFilters';
 
 const TENTATIVE_STATUSES = [
   'tentatively_accepted',
-  'tentatively_rejected',
   'tentatively_waitlisted',
+  'tentatively_waitlist_accepted',
+  'tentatively_waitlist_rejected',
 ] as const;
 
-const PROCESSED_STATUSES = ['accepted', 'rejected', 'waitlisted'] as const;
+const PROCESSED_STATUSES = [
+  'accepted',
+  'waitlist_accepted',
+  'waitlist_rejected',
+] as const;
 
 const PHASE_TO_STATUSES: Record<Phase, readonly string[]> = {
-  unseen: ['pending'],
+  unseen: ['pending', 'waitlisted'],
   tentative: TENTATIVE_STATUSES,
   processed: PROCESSED_STATUSES,
 };

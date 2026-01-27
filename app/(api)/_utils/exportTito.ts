@@ -1,6 +1,6 @@
 'use server';
 
-import { GetManyApplications } from '@datalib/applications/getApplication';
+import { getAdminApplications } from '@actions/applications/getApplication';
 import { Application } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
 
@@ -13,7 +13,14 @@ export async function getApplicationsByStatus(
   status: string
 ): Promise<Application[]> {
   const query = { status: status };
-  const res = await GetManyApplications(query);
+  const projection = {
+    firstName: 1,
+    lastName: 1,
+    email: 1,
+    status: 1,
+  };
+
+  const res = await getAdminApplications(query, projection);
 
   if (!res.ok) throw new Error(res.error ?? 'Failed to fetch applicants');
 
@@ -23,7 +30,7 @@ export async function getApplicationsByStatus(
     console.log(`No ${status} applicants found`);
   }
 
-  return (res.body ?? []).map((app: any) => ({
+  return applicants.map((app: any) => ({
     ...app,
     _id: String(app._id),
   }));
