@@ -2,13 +2,19 @@
 import { auth } from '@/auth';
 import { GetManyApplications } from '@datalib/applications/getApplication';
 
-export async function getAdminApplications(query: any) {
+export async function getAdminApplications(
+  query: any,
+  projection?: Record<string, number>
+) {
   const session = await auth();
   if (session?.user?.role !== 'admin') {
     return { ok: false, error: 'Unauthorized' };
   }
 
-  const res = await GetManyApplications(query);
+  const res = await GetManyApplications(
+    query,
+    projection ? { projection } : {}
+  );
   if (!res.ok) return res;
 
   const serializedBody = (res.body ?? []).map((app: any) => ({

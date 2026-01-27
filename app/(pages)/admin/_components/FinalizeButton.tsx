@@ -23,6 +23,12 @@ const FINAL_STATUS_MAP: Record<string, Status> = {
   tentatively_waitlist_rejected: 'waitlist_rejected',
 };
 
+const WAITLIST_STATUSES = [
+  'tentatively_waitlisted',
+  'tentatively_waitlist_accepted',
+  'tentatively_waitlist_rejected',
+];
+
 export default function FinalizeButton({
   apps,
   onFinalizeStatus,
@@ -109,7 +115,7 @@ export default function FinalizeButton({
                 FINAL_STATUS_MAP[app.status],
                 'tentative',
                 {
-                  wasWaitlisted: app.status === 'tentatively_waitlisted',
+                  wasWaitlisted: WAITLIST_STATUSES.includes(app.status),
                   refreshPhase:
                     app.status === 'tentatively_waitlisted'
                       ? 'unseen'
