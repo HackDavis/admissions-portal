@@ -79,7 +79,7 @@ export const GetManyApplications = async (
 
     const projection = options?.projection;
     const sort = options?.sort ?? { submittedAt: -1 };
-    const limit = typeof options?.limit === 'number' ? options!.limit : 50;
+    const limit = typeof options?.limit === 'number' ? options!.limit : 0;
     const skip = typeof options?.skip === 'number' ? options!.skip : 0;
 
     const cursor = col
