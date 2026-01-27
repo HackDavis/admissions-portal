@@ -10,7 +10,7 @@ import {
 } from '@/app/_types/applicationFilters';
 
 import { PHASES } from '../_utils/constants';
-import { getAdminApplications } from '@actions/applications/getAdminApplications';
+import { getApplication } from '@actions/applications/getApplication';
 import { updateApplication } from '@actions/applications/updateApplication';
 
 import { ApplicationUpdatePayload } from '@/app/_types/application';
@@ -56,7 +56,7 @@ export default function useApplications() {
         const status = getStatusForPhase(phase);
 
         //action call to get applications
-        const res = await getAdminApplications({ phase, ucd, status });
+        const res = await getApplication({ phase, ucd, status });
 
         if (!cancelled) {
           if (res.ok && Array.isArray(res.body)) {

@@ -1,16 +1,26 @@
 'use server';
-import {
-  GetApplication,
-  GetManyApplications,
-} from '@datalib/applications/getApplication';
+import { auth } from '@/auth';
+import { GetManyApplications } from '@datalib/applications/getApplication';
 
-// These functions should not be called directly in code, please use the proper wrapper functions: getAdminApplications.ts, checkEmail.ts
-export async function getApplication(id: string) {
-  const res = await GetApplication(id);
-  return JSON.parse(JSON.stringify(res));
-}
+export async function getApplication(
+  query: any,
+  projection?: Record<string, number>
+) {
+  const session = await auth();
+  if (session?.user?.role !== 'admin') {
+    return { ok: false, error: 'Unauthorized' };
+  }
 
-export async function getManyApplications(query: object = {}) {
-  const res = await GetManyApplications(query);
-  return JSON.parse(JSON.stringify(res));
+  const res = await GetManyApplications(
+    query,
+    projection ? { projection } : {}
+  );
+  if (!res.ok) return res;
+
+  const serializedBody = (res.body ?? []).map((app: any) => ({
+    ...app,
+    _id: String(app._id),
+  }));
+
+  return { ok: true, body: serializedBody };
 }
