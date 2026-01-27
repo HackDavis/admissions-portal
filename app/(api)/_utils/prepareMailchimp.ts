@@ -2,7 +2,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
-import { getApplicationsByStatus } from './exportTito';
+import { getApplicationsByStatuses } from './exportTito';
 
 //TODO: Clear previous tags from waitlisted applicants OR presidents send in a specific order?
 // Order: accepted -> waitlist accepted -> waitlist rejected --> waitlisted (then waitlist accepted arent affected by this)
@@ -199,7 +199,7 @@ export async function prepareMailchimpInvites(
         throw new Error(`Missing Environment Variable: ${env}`);
     }
 
-    const dbApplicants = await getApplicationsByStatus(targetStatus);
+    const dbApplicants = await getApplicationsByStatuses(targetStatus);
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
     if (dbApplicants.length > limit) {
       throw new Error(

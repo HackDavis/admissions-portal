@@ -40,10 +40,11 @@ export default function FinalizeButton({
     setIsProcessing(true);
     try {
       // Auto download CSV for (tentatively) accepted & waitlist-accepted applicants
-
-      //TODO: Combine both into single CSV download function
-      await downloadCSV('tentatively_accepted');
-      await downloadCSV('tentatively_waitlist_accepted');
+      const statuses: Status[] = [
+        'tentatively_accepted',
+        'tentatively_waitlist_accepted',
+      ];
+      await downloadCSV(statuses);
       alert('CSV downloaded for all ACCEPTED applicants!');
     } catch (err: any) {
       console.error(err);
@@ -53,11 +54,11 @@ export default function FinalizeButton({
     }
   };
 
-  async function downloadCSV(status: Status) {
+  async function downloadCSV(statuses: Status[]) {
     try {
       console.log(`Exporting ${status} applicants to CSV...\n`);
 
-      const csv = await exportTitoCSV(status); // server action
+      const csv = await exportTitoCSV(statuses); // server action
       if (!csv || csv.trim() === '') {
         alert(`No ${status} applicants found to export.`);
         return;
