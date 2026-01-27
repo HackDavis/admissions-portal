@@ -22,8 +22,6 @@ export async function getApplicationsByStatus(
 
   const res = await getAdminApplications(query, projection);
 
-  console.log(res);
-
   if (!res.ok) throw new Error(res.error ?? 'Failed to fetch applicants');
 
   const applicants = res.body ?? [];

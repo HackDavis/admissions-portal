@@ -161,7 +161,7 @@ export default function FinalizeButton({
         className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
         title="finalize tentative applicants"
         onClick={handleFinalize}
-        disabled={apps.length === 0}
+        disabled={isProcessing || apps.length === 0}
       >
         finalize
       </button>
