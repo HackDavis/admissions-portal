@@ -1,8 +1,17 @@
 'use server';
 import { auth } from '@/auth';
-import { GetManyApplications } from '@datalib/applications/getApplication';
+import {
+  // GetApplication,
+  GetManyApplications,
+} from '@datalib/applications/getApplication';
 
-export async function getApplication(
+// Uncomment if needed:
+// export async function getApplication(id: string) {
+//   const res = await GetApplication(id);
+//   return JSON.parse(JSON.stringify(res));
+// }
+
+export async function getAdminApplications(
   query: any,
   projection?: Record<string, number>
 ) {

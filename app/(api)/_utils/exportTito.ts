@@ -1,6 +1,6 @@
 'use server';
 
-import { getApplication } from '@actions/applications/getApplication';
+import { getAdminApplications } from '@actions/applications/getApplication';
 import { Application } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
 
@@ -20,7 +20,7 @@ export async function getApplicationsByStatus(
     status: 1,
   };
 
-  const res = await getApplication(query, projection);
+  const res = await getAdminApplications(query, projection);
 
   if (!res.ok) throw new Error(res.error ?? 'Failed to fetch applicants');
 
