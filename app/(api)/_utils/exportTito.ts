@@ -1,29 +1,42 @@
 'use server';
 
-import { GetManyApplications } from '@datalib/applications/getApplication';
+import { getAdminApplications } from '@actions/applications/getApplication';
 import { Application } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
 
-export async function exportTitoCSV(status: Status) {
-  const applicants = await getApplicationsByStatus(status);
+export async function exportTitoCSV(statuses: Status | Status[]) {
+  const applicants = await getApplicationsByStatuses(statuses);
   return generateCSV(applicants);
 }
 
-export async function getApplicationsByStatus(
-  status: string
+export async function getApplicationsByStatuses(
+  statuses: Status | Status[]
 ): Promise<Application[]> {
-  const query = { status: status };
-  const res = await GetManyApplications(query);
+  const query = {
+    status: Array.isArray(statuses) ? { $in: statuses } : statuses,
+  };
+  const projection = {
+    firstName: 1,
+    lastName: 1,
+    email: 1,
+    status: 1,
+  };
+
+  const res = await getAdminApplications(query, projection);
 
   if (!res.ok) throw new Error(res.error ?? 'Failed to fetch applicants');
 
   const applicants = res.body ?? [];
-  console.log(`Found ${applicants.length} tentatively_accepted applicants`);
+
+  console.log(
+    `Found ${applicants.length} applicants for statuses: ${statuses}`
+  );
+
   if (applicants.length === 0) {
-    console.log(`No ${status} applicants found`);
+    console.log(`No ${statuses} applicants found`);
   }
 
-  return (res.body ?? []).map((app: any) => ({
+  return applicants.map((app: any) => ({
     ...app,
     _id: String(app._id),
   }));

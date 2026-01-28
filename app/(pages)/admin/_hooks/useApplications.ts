@@ -10,7 +10,7 @@ import {
 } from '@/app/_types/applicationFilters';
 
 import { PHASES } from '../_utils/constants';
-import { getAdminApplications } from '@actions/applications/getAdminApplications';
+import { getAdminApplications } from '@actions/applications/getApplication';
 import { updateApplication } from '@actions/applications/updateApplication';
 
 import { ApplicationUpdatePayload } from '@/app/_types/application';
@@ -104,8 +104,13 @@ export default function useApplications() {
 
       const payload: ApplicationUpdatePayload = {
         status: nextStatus,
-        wasWaitlisted: options?.wasWaitlisted,
       };
+
+      if (nextStatus === 'waitlisted') {
+        payload.wasWaitlisted = true;
+      } else if (options?.wasWaitlisted !== undefined) {
+        payload.wasWaitlisted = options.wasWaitlisted;
+      }
 
       try {
         const res = await updateApplication(appId, payload);

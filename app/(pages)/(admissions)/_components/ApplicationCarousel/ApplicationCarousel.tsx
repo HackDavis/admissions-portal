@@ -116,7 +116,8 @@ export default function ApplicationCarousel() {
           formData.university === 'Other'
             ? customUniversity
             : formData.university,
-        status: formData.isOver18 === true ? 'pending' : 'tentatively_rejected',
+        status:
+          formData.isOver18 === true ? 'pending' : 'tentatively_waitlisted',
       };
       //submit application
       const ok = await submit(payload);
@@ -240,7 +241,11 @@ export default function ApplicationCarousel() {
   React.useEffect(() => {
     if (!api) return;
 
-    const update = () => setIndex(api.selectedScrollSnap());
+    const update = () => {
+      setIndex(api.selectedScrollSnap());
+      // Scroll to top of page whenever slide changes
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
     update();
 
     api.on('select', update);
