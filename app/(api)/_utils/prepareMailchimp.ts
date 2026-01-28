@@ -3,6 +3,7 @@
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 import { getApplicationsByStatuses } from './exportTito';
+import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 
 interface TitoInvite {
   email: string;
@@ -111,12 +112,15 @@ async function addToMailchimp(
   // Log what we are sending for testing
   console.log('Sending to Mailchimp:', payload);
 
+  //TODO: Check api status limit before each call (and execute rotation if needed)
+
   try {
     const res = await mailchimp.put(
       `/lists/${process.env.MAILCHIMP_AUDIENCE_ID}/members/${subscriberHash}`,
       payload
     );
     console.log(`Mailchimp updated for ${email}:`, res.data.merge_fields);
+    await updateMailchimp({ apiCallsMade: 1 });
   } catch (err: any) {
     throw new Error(
       `Failed to update Mailchimp for ${email}: ${
@@ -240,6 +244,7 @@ export async function prepareMailchimpInvites(
         console.log('Hub URL sending to Mailchimp:', hubUrl);
 
         const statusTemplate = targetStatus.replace(/^tentatively_/, '');
+
         // Add/update Mailchimp
         await addToMailchimp(
           app.email,
@@ -249,8 +254,6 @@ export async function prepareMailchimpInvites(
           hubUrl,
           `${statusTemplate}_template` // name of tag in mailchimp
         );
-
-        //TODO: Update mailchimp api counter
 
         console.log(`Mailchimp email prepared for ${app.email}`);
         await new Promise((r) => setTimeout(r, 400)); // slight delay
@@ -262,6 +265,7 @@ export async function prepareMailchimpInvites(
 
       for (const app of dbApplicants) {
         const statusTemplate = targetStatus.replace(/^tentatively_/, '');
+
         await addToMailchimp(
           app.email,
           app.firstName,

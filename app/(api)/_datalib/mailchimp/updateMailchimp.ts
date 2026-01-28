@@ -1,33 +1,36 @@
 import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
-import { ObjectId } from 'mongodb';
 
 import isBodyEmpty from '@utils/request/isBodyEmpty';
 import parseAndReplace from '@utils/request/parseAndReplace';
-import {
-  HttpError,
-  NoContentError,
-  NotFoundError,
-} from '@utils/response/Errors';
+import { HttpError, NoContentError } from '@utils/response/Errors';
 
-export const UpdateMailchimp = async (id: string, body: object) => {
+export const UpdateMailchimp = async (body: any) => {
   try {
-    const object_id = new ObjectId(id);
     if (isBodyEmpty(body)) {
       throw new NoContentError();
     }
     const parsedBody = await parseAndReplace(body);
 
     const db = await getDatabase();
-    const mailchimp = await db.collection('mailchimp').updateOne(
-      {
-        _id: object_id,
-      },
-      parsedBody
-    );
 
-    if (mailchimp.matchedCount === 0) {
-      throw new NotFoundError(`Mailchimp with id: ${id} not found.`);
+    const update: any = {};
+
+    // If we passed apiCallsMade: 1, use $inc. Otherwise, use $set.
+    if (parsedBody.apiCallsMade !== undefined) {
+      update.$inc = { apiCallsMade: parsedBody.apiCallsMade };
+      delete parsedBody.apiCallsMade;
     }
+
+    if (Object.keys(parsedBody).length > 0) {
+      update.$set = parsedBody;
+    }
+
+    const mailchimp = await db
+      .collection('mailchimp')
+      .findOneAndUpdate({}, update, {
+        returnDocument: 'after',
+        upsert: true, // Creates the doc if it doesn't exist
+      });
 
     return { ok: true, body: mailchimp, error: null };
   } catch (e) {

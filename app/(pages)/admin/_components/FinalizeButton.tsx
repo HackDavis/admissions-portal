@@ -6,6 +6,7 @@ import { Status } from '@/app/_types/applicationFilters';
 import { exportTitoCSV } from '@utils/exportTito';
 import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
 import { useMailchimp } from '../_hooks/useMailchimp';
+import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 
 interface FinalizeButtonProps {
   apps: Application[];
@@ -93,6 +94,7 @@ export default function FinalizeButton({
   async function processMailchimpInvites() {
     setIsProcessing(true);
     const results: string[] = [];
+    let hadError = false;
 
     const batches = [
       { label: 'Acceptances', types: ['tentatively_accepted'] as const },
@@ -147,7 +149,17 @@ export default function FinalizeButton({
         if (!res.ok) {
           const errorMsg = res.error ?? 'Unknown API Error';
           results.push(`🆘 ${batch.label} HALTED: ${errorMsg}`);
+          hadError = true;
           break;
+        }
+      }
+
+      // increment batchNumber
+      if (!hadError) {
+        try {
+          await updateMailchimp({ batchNumber: currentBatch + 1 });
+        } catch (err) {
+          console.error('Failed to increment Mailchimp batch number: ', err);
         }
       }
 
