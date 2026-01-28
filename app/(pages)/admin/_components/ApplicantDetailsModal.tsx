@@ -36,8 +36,10 @@ export default function ApplicantDetailsModal({
     { label: 'email', value: applicant.email },
     { label: 'phone', value: applicant.phone },
     { label: 'age', value: applicant.age },
+    { label: 'is over 18', value: applicant.isOver18 },
     { label: 'ucd', value: applicant.isUCDavisStudent },
     { label: 'university', value: applicant.university },
+    { label: 'country of residence', value: applicant.countryOfResidence },
     { label: 'level of study', value: applicant.levelOfStudy },
     { label: 'major', value: applicant.major },
     { label: 'minor / double major', value: applicant.minorOrDoubleMajor },
@@ -46,11 +48,10 @@ export default function ApplicantDetailsModal({
     { label: 'shirt size', value: applicant.shirtSize },
     { label: 'dietary restrictions', value: applicant.dietaryRestrictions },
     { label: 'connect with sponsors', value: applicant.connectWithSponsors },
-    {
-      label: 'resume',
-      value: applicant.resume,
-      href: toUrl(applicant.resume),
-    },
+    { label: 'gender', value: applicant.gender },
+    { label: 'race', value: applicant.race },
+    { label: 'attended hackdavis before', value: applicant.attendedHackDavis },
+    { label: 'first hackathon', value: applicant.firstHackathon },
     {
       label: 'linkedin',
       value: applicant.linkedin,
@@ -61,13 +62,25 @@ export default function ApplicantDetailsModal({
       value: applicant.githubOrPortfolio,
       href: toUrl(applicant.githubOrPortfolio),
     },
+    {
+      label: 'resume',
+      value: applicant.resume,
+      href: toUrl(applicant.resume),
+    },
     { label: 'connect with hackdavis', value: applicant.connectWithHackDavis },
     { label: 'connect with mlh', value: applicant.connectWithMLH },
+    {
+      label: 'mlh agreements',
+      value:
+        applicant.mlhAgreements.mlhCodeOfConduct &&
+        applicant.mlhAgreements.eventLogisticsInformation,
+    },
     { label: 'status', value: applicant.status },
     { label: 'was waitlisted', value: applicant.wasWaitlisted },
     { label: 'submitted at', value: applicant.submittedAt },
     { label: 'reviewed at', value: applicant.reviewedAt },
     { label: 'processed at', value: applicant.processedAt },
+    { label: 'batch', value: applicant.batchNumber },
   ];
 
   return (
