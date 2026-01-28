@@ -1,6 +1,6 @@
 'use client';
 
-import { useMailchimp } from "../_hooks/useMailchimp";
+import { useMailchimp } from '../_hooks/useMailchimp';
 // import Link from 'next/link';
 
 interface AdminHeaderProps {
@@ -12,7 +12,7 @@ export default function AdminHeader({
   totalCount,
   onLogout,
 }: AdminHeaderProps) {
-  const { mailchimp } =  useMailchimp();
+  const { mailchimp } = useMailchimp();
   const mc = mailchimp ?? {
     batchNumber: 'N/A',
     apiCallsMade: 0,

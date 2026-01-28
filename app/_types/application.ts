@@ -34,6 +34,7 @@ export interface Application {
   }; // required by mlh
   status: Status;
   wasWaitlisted: boolean;
+  batchNumber?: number;
   submittedAt: Date | string;
   reviewedAt?: Date | string;
   processedAt?: Date | string;
@@ -41,6 +42,7 @@ export interface Application {
 
 export interface ApplicationUpdatePayload {
   status: Status;
+  batchNumber?: number;
   wasWaitlisted?: boolean;
   reviewedAt?: Date | string;
   processedAt?: Date | string;

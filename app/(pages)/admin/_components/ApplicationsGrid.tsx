@@ -21,7 +21,11 @@ interface ApplicationsGridProps {
     appId: string,
     nextStatus: Status,
     fromPhase: Phase,
-    options?: { wasWaitlisted?: boolean; refreshPhase?: Phase }
+    options?: {
+      wasWaitlisted?: boolean;
+      refreshPhase?: Phase;
+      batchNumber?: number;
+    }
   ) => void;
 }
 

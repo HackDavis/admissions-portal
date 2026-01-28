@@ -5,6 +5,7 @@ import { Application } from '@/app/_types/application';
 import { Status } from '@/app/_types/applicationFilters';
 import { exportTitoCSV } from '@utils/exportTito';
 import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
+import { useMailchimp } from '../_hooks/useMailchimp';
 
 interface FinalizeButtonProps {
   apps: Application[];
@@ -12,7 +13,11 @@ interface FinalizeButtonProps {
     appId: string,
     nextStatus: Status,
     fromPhase: 'tentative',
-    options?: { wasWaitlisted?: boolean; refreshPhase?: 'processed' | 'unseen' }
+    options?: {
+      wasWaitlisted?: boolean;
+      refreshPhase?: 'processed' | 'unseen';
+      batchNumber?: number;
+    }
   ) => void;
 }
 
@@ -35,6 +40,10 @@ export default function FinalizeButton({
 }: FinalizeButtonProps) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const { mailchimp } = useMailchimp();
+
+  const currentBatch = mailchimp?.batchNumber ?? 0;
 
   const handleFinalize = async () => {
     setIsProcessing(true);
@@ -121,6 +130,7 @@ export default function FinalizeButton({
                     app.status === 'tentatively_waitlisted'
                       ? 'unseen'
                       : 'processed',
+                  batchNumber: currentBatch,
                 }
               )
             )

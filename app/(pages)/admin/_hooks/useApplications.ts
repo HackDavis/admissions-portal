@@ -98,13 +98,21 @@ export default function useApplications() {
       appId: string,
       nextStatus: Status,
       fromPhase: Phase,
-      options?: { wasWaitlisted?: boolean; refreshPhase?: Phase }
+      options?: {
+        wasWaitlisted?: boolean;
+        refreshPhase?: Phase;
+        batchNumber?: number;
+      }
     ) => {
       setError(null);
 
       const payload: ApplicationUpdatePayload = {
         status: nextStatus,
       };
+
+      if (options?.batchNumber) {
+        payload.batchNumber = options.batchNumber;
+      }
 
       if (nextStatus === 'waitlisted') {
         payload.wasWaitlisted = true;
