@@ -179,7 +179,7 @@ export async function prepareMailchimpInvites(
   const BATCH_LIMITS = {
     tentatively_accepted: 40,
     tentatively_waitlisted: 100,
-    tentatively_waitlist_accepted: 100,
+    tentatively_waitlist_accepted: 40,
     tentatively_waitlist_rejected: 100,
   } as const;
   const limit = BATCH_LIMITS[targetStatus];
@@ -281,7 +281,8 @@ export async function prepareMailchimpInvites(
       error: null,
     };
   } catch (err: any) {
-    console.error('Processing Halted:', err.message);
+    const detail = err.response?.data?.detail || err.message;
+    console.error('Processing Halted:', detail);
     // Return what was finished before the crash so the UI can update those specific records
     return {
       ok: false,

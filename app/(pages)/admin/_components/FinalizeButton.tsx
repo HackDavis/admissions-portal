@@ -130,13 +130,13 @@ export default function FinalizeButton({
         results.push(
           processedCount > 0
             ? `✅ ${batch.label}: ${processedCount} processed`
-            : `☑️ ${batch.label}: 0 processed`
+            : `🆗 ${batch.label}: 0 processed`
         );
 
         // Stop further processing of other batches if error occurs
         if (!res.ok) {
           const errorMsg = res.error ?? 'Unknown API Error';
-          results.push(`❌ ${batch.label} HALTED: ${errorMsg}`);
+          results.push(`🆘 ${batch.label} HALTED: ${errorMsg}`);
           break;
         }
       }
