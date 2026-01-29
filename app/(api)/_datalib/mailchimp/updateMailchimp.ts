@@ -10,27 +10,36 @@ export const UpdateMailchimp = async (body: any) => {
       throw new NoContentError();
     }
     const parsedBody = await parseAndReplace(body);
-
     const db = await getDatabase();
 
-    const update: any = {};
+    const update: any = { $inc: {}, $set: {} };
 
-    // If we passed apiCallsMade: 1, use $inc. Otherwise, use $set.
-    if (parsedBody.apiCallsMade !== undefined) {
-      update.$inc = { apiCallsMade: parsedBody.apiCallsMade };
-      delete parsedBody.apiCallsMade;
-    }
+    const incrementableKeys = ['apiCallsMade', 'batchNumber', 'apiKeyIndex'];
+
+    // If we passed incrementableKeys: 1, use $inc. Otherwise, use $set to REST to 0.
+    incrementableKeys.forEach((key) => {
+      if (parsedBody[key] !== undefined) {
+        // Use 0 to RESET
+        if (parsedBody[key] === 0) {
+          update.$set[key] = 0;
+        } else {
+          // Otherwise increment
+          update.$inc[key] = parsedBody[key];
+        }
+        delete parsedBody[key];
+      }
+    });
 
     if (Object.keys(parsedBody).length > 0) {
-      update.$set = parsedBody;
+      update.$set = { ...update.$set, ...parsedBody };
     }
+
+    if (Object.keys(update.$inc).length === 0) delete update.$inc;
+    if (Object.keys(update.$set).length === 0) delete update.$set;
 
     const mailchimp = await db
       .collection('mailchimp')
-      .findOneAndUpdate({}, update, {
-        returnDocument: 'after',
-        upsert: true, // Creates the doc if it doesn't exist
-      });
+      .findOneAndUpdate({}, update, { returnDocument: 'after', upsert: true });
 
     return { ok: true, body: mailchimp, error: null };
   } catch (e) {

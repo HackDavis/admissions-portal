@@ -157,7 +157,7 @@ export default function FinalizeButton({
       // increment batchNumber
       if (!hadError) {
         try {
-          await updateMailchimp({ batchNumber: currentBatch + 1 });
+          await updateMailchimp({ batchNumber: 1 }); // increment batch number by 1
         } catch (err) {
           console.error('Failed to increment Mailchimp batch number: ', err);
         }
@@ -214,8 +214,7 @@ export default function FinalizeButton({
               <p>4. Upload the downloaded CSV file</p>
               <p>5. Tito will create all the invitations!</p>
               <p>
-                After import, click the button below to send out Mailchimp
-                invites!
+                After import, click the button below to export to Mailchimp!
               </p>
             </div>
 

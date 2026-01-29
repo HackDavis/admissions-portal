@@ -4,7 +4,10 @@ import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 import { getApplicationsByStatuses } from './exportTito';
 import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
-import { getMailchimp } from '@actions/mailchimp/getMailchimp';
+import {
+  getMailchimpAPIKey,
+  checkMailchimpAPILimit,
+} from './mailchimpApiStatus';
 
 interface TitoInvite {
   email: string;
@@ -14,17 +17,8 @@ interface TitoInvite {
   redeemed: boolean;
 }
 
-async function getMailchimpAPIKey() {
-  const res = await getMailchimp();
-  if (!res.ok) {
-    throw new Error(res.error || 'Failed to fetch Mailchimp API status');
-  }
-  return res.body.apiKeyIndex;
-}
-
 // Mailchimp axios client
-function getMailchimpClient() {
-  const apiKeyIndex = getMailchimpAPIKey();
+function getMailchimpClient(apiKeyIndex: number) {
   const serverPrefix = process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`];
   const apiKey = process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`];
 
@@ -103,7 +97,9 @@ async function addToMailchimp(
   hubUrl: string,
   tag: string
 ) {
-  const mailchimp = getMailchimpClient();
+  const apiKeyIndex = await getMailchimpAPIKey();
+  const mailchimp = getMailchimpClient(apiKeyIndex);
+  const audienceId = process.env[`MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`];
 
   const subscriberHash = crypto
     .createHash('md5')
@@ -121,13 +117,12 @@ async function addToMailchimp(
     },
     tags: [tag],
   };
-  const apiKeyIndex = getMailchimpAPIKey();
-  const audienceId = process.env[`MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`];
+  console.log('Using Mailchimp API Key Index:', apiKeyIndex);
 
   // Log what we are sending for testing
   console.log('Sending to Mailchimp:', payload);
 
-  //TODO: Check api status limit before each call (and execute rotation if needed)
+  await checkMailchimpAPILimit();
 
   try {
     const res = await mailchimp.put(
@@ -135,7 +130,7 @@ async function addToMailchimp(
       payload
     );
     console.log(`Mailchimp updated for ${email}:`, res.data.merge_fields);
-    await updateMailchimp({ apiCallsMade: 1 });
+    await updateMailchimp({ apiCallsMade: 1 }); // increment api calls by 1
   } catch (err: any) {
     throw new Error(
       `Failed to update Mailchimp for ${email}: ${
@@ -202,12 +197,13 @@ export async function prepareMailchimpInvites(
     tentatively_waitlist_rejected: 100,
   } as const;
   const limit = BATCH_LIMITS[targetStatus];
+  const apiKeyIndex = await getMailchimpAPIKey();
 
   try {
     const requiredEnvs = [
-      'MAILCHIMP_API_KEY',
-      'MAILCHIMP_SERVER_PREFIX',
-      'MAILCHIMP_AUDIENCE_ID',
+      `MAILCHIMP_API_KEY_${apiKeyIndex}`,
+      `MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`,
+      `MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`,
       'TITO_AUTH_TOKEN',
     ];
     for (const env of requiredEnvs) {
