@@ -4,6 +4,7 @@ import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 import { getApplicationsByStatuses } from './exportTito';
 import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
+import { getMailchimp } from '@actions/mailchimp/getMailchimp';
 
 interface TitoInvite {
   email: string;
@@ -13,14 +14,26 @@ interface TitoInvite {
   redeemed: boolean;
 }
 
+async function getMailchimpAPIKey() {
+  const res = await getMailchimp();
+  if (!res.ok) {
+    throw new Error(res.error || 'Failed to fetch Mailchimp API status');
+  }
+  return res.body.apiKeyIndex;
+}
+
 // Mailchimp axios client
 function getMailchimpClient() {
+  const apiKeyIndex = getMailchimpAPIKey();
+  const serverPrefix = process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`];
+  const apiKey = process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`];
+
   return axios.create({
-    baseURL: `https://${process.env.MAILCHIMP_SERVER_PREFIX}.api.mailchimp.com/3.0`,
+    baseURL: `https://${serverPrefix}.api.mailchimp.com/3.0`,
     headers: {
-      Authorization: `Basic ${Buffer.from(
-        `anystring:${process.env.MAILCHIMP_API_KEY}`
-      ).toString('base64')}`,
+      Authorization: `Basic ${Buffer.from(`anystring:${apiKey}`).toString(
+        'base64'
+      )}`,
     },
   });
 }
@@ -108,6 +121,8 @@ async function addToMailchimp(
     },
     tags: [tag],
   };
+  const apiKeyIndex = getMailchimpAPIKey();
+  const audienceId = process.env[`MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`];
 
   // Log what we are sending for testing
   console.log('Sending to Mailchimp:', payload);
@@ -116,7 +131,7 @@ async function addToMailchimp(
 
   try {
     const res = await mailchimp.put(
-      `/lists/${process.env.MAILCHIMP_AUDIENCE_ID}/members/${subscriberHash}`,
+      `/lists/${audienceId}/members/${subscriberHash}`,
       payload
     );
     console.log(`Mailchimp updated for ${email}:`, res.data.merge_fields);
