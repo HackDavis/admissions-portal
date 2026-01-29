@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { getMailchimp } from '@actions/mailchimp/getMailchimp';
+import { Mailchimp } from '@/app/_types/mailchimp';
 
 export function useMailchimp() {
-  const [mailchimp, setMailchimp] = useState<any>(null);
+  const [mailchimp, setMailchimp] = useState<Mailchimp | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {

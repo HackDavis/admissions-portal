@@ -45,8 +45,8 @@ export default function AdminHeader({
         <p className="mt-1 text-xs">
           Calls: {mc.apiCallsMade}/{mc.maxApiCalls} (key #{mc.apiKeyIndex})
         </p>
-        <p className="mt-1 text-xs">Last update: {mc.lastUpdate}</p>
-        <p className="mt-1 text-xs">Last reset: {mc.lastReset}</p>
+        <p className="mt-1 text-xs">Last update: {mc.lastUpdate.toString()}</p>
+        <p className="mt-1 text-xs">Last reset: {mc.lastReset.toString()}</p>
       </div>
     </header>
   );

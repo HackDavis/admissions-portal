@@ -3,10 +3,9 @@
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 import { getApplicationsByStatuses } from './exportTito';
-import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 import {
   getMailchimpAPIKey,
-  checkMailchimpAPILimit,
+  checkMailchimpAPILimitAndIncrement,
 } from './mailchimpApiStatus';
 
 interface TitoInvite {
@@ -97,6 +96,9 @@ async function addToMailchimp(
   hubUrl: string,
   tag: string
 ) {
+  await checkMailchimpAPILimitAndIncrement(); //check and update api key if necessary
+
+  // fetch dynamic api key index
   const apiKeyIndex = await getMailchimpAPIKey();
   const mailchimp = getMailchimpClient(apiKeyIndex);
   const audienceId = process.env[`MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`];
@@ -115,14 +117,11 @@ async function addToMailchimp(
       MMERGE7: titoUrl,
       MMERGE8: hubUrl,
     },
-    tags: [tag],
+    tags: [tag], //TODO: clear pre-existing tags
   };
-  console.log('Using Mailchimp API Key Index:', apiKeyIndex);
 
   // Log what we are sending for testing
   console.log('Sending to Mailchimp:', payload);
-
-  await checkMailchimpAPILimit();
 
   try {
     const res = await mailchimp.put(
@@ -130,7 +129,6 @@ async function addToMailchimp(
       payload
     );
     console.log(`Mailchimp updated for ${email}:`, res.data.merge_fields);
-    await updateMailchimp({ apiCallsMade: 1 }); // increment api calls by 1
   } catch (err: any) {
     throw new Error(
       `Failed to update Mailchimp for ${email}: ${

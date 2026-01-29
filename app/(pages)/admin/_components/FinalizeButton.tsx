@@ -157,7 +157,7 @@ export default function FinalizeButton({
       // increment batchNumber
       if (!hadError) {
         try {
-          await updateMailchimp({ batchNumber: 1 }); // increment batch number by 1
+          await updateMailchimp({ batchNumber: 1, lastUpdate: new Date() }); // increment batch number by 1
         } catch (err) {
           console.error('Failed to increment Mailchimp batch number: ', err);
         }
