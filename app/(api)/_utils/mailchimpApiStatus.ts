@@ -14,10 +14,12 @@ export async function reserveMailchimpAPIKeyIndex() {
   if (!res.ok) {
     throw new Error(res.error || 'Failed to fetch Mailchimp API status');
   }
-  if (res.body.apiKeyIndex > res.body.maxApiKeys - 1)
+  if (res.body.apiKeyIndex > res.body.maxApiKeys) {
+    // 1-based index for api keys
     throw new Error(
       'All Mailchimp API keys exhausted, please contact tech lead.'
     );
+  }
 
   if (res.body.apiCallsMade >= res.body.maxApiCalls - 1) {
     // safe buffer of 1 call
