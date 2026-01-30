@@ -15,13 +15,17 @@ export async function reserveMailchimpAPIKeyIndex() {
     throw new Error(res.error || 'Failed to fetch Mailchimp API status');
   }
   if (res.body.apiKeyIndex > res.body.maxApiKeys - 1)
-    if (res.body.apiCallsMade >= res.body.maxApiCalls) {
-      await incrementMailchimpAPIKey();
-      await resetMailchimpAPICalls();
-    }
+    throw new Error(
+      'All Mailchimp API keys exhausted, please contact tech lead.'
+    );
+
+  if (res.body.apiCallsMade >= res.body.maxApiCalls - 1) {
+    // safe buffer of 1 call
+    await incrementMailchimpAPIKey();
+    await resetMailchimpAPICalls();
+  }
   await updateMailchimp({ apiCallsMade: 1, lastUpdate: new Date() }); // increment api calls by 1
   return res.body.apiKeyIndex;
-  return;
 }
 
 async function incrementMailchimpAPIKey() {

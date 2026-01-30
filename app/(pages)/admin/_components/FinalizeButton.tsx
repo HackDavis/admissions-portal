@@ -44,7 +44,7 @@ export default function FinalizeButton({
 
   const { mailchimp } = useMailchimp();
 
-  const currentBatch = mailchimp?.batchNumber;
+  const currentBatch = mailchimp?.batchNumber ?? -1;
 
   const handleFinalize = async () => {
     setIsProcessing(true);
