@@ -3,6 +3,10 @@
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 import { getApplicationsByStatuses } from './exportTito';
+import {
+  getMailchimpAPIKey,
+  reserveMailchimpAPIKeyIndex,
+} from './mailchimpApiStatus';
 
 interface TitoInvite {
   email: string;
@@ -13,13 +17,16 @@ interface TitoInvite {
 }
 
 // Mailchimp axios client
-function getMailchimpClient() {
+function getMailchimpClient(apiKeyIndex: number) {
+  const serverPrefix = process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`];
+  const apiKey = process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`];
+
   return axios.create({
-    baseURL: `https://${process.env.MAILCHIMP_SERVER_PREFIX}.api.mailchimp.com/3.0`,
+    baseURL: `https://${serverPrefix}.api.mailchimp.com/3.0`,
     headers: {
-      Authorization: `Basic ${Buffer.from(
-        `anystring:${process.env.MAILCHIMP_API_KEY}`
-      ).toString('base64')}`,
+      Authorization: `Basic ${Buffer.from(`anystring:${apiKey}`).toString(
+        'base64'
+      )}`,
     },
   });
 }
@@ -89,7 +96,11 @@ async function addToMailchimp(
   hubUrl: string,
   tag: string
 ) {
-  const mailchimp = getMailchimpClient();
+  const apiKeyIndex = await reserveMailchimpAPIKeyIndex(); //get and update api key if necessary
+
+  // update dynamic api key index
+  const mailchimp = getMailchimpClient(apiKeyIndex);
+  const audienceId = process.env[`MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`];
 
   const subscriberHash = crypto
     .createHash('md5')
@@ -105,7 +116,7 @@ async function addToMailchimp(
       MMERGE7: titoUrl,
       MMERGE8: hubUrl,
     },
-    tags: [tag],
+    tags: [tag], //TODO: clear pre-existing tags
   };
 
   // Log what we are sending for testing
@@ -113,7 +124,7 @@ async function addToMailchimp(
 
   try {
     const res = await mailchimp.put(
-      `/lists/${process.env.MAILCHIMP_AUDIENCE_ID}/members/${subscriberHash}`,
+      `/lists/${audienceId}/members/${subscriberHash}`,
       payload
     );
     console.log(`Mailchimp updated for ${email}:`, res.data.merge_fields);
@@ -183,12 +194,13 @@ export async function prepareMailchimpInvites(
     tentatively_waitlist_rejected: 100,
   } as const;
   const limit = BATCH_LIMITS[targetStatus];
+  const apiKeyIndex = await getMailchimpAPIKey();
 
   try {
     const requiredEnvs = [
-      'MAILCHIMP_API_KEY',
-      'MAILCHIMP_SERVER_PREFIX',
-      'MAILCHIMP_AUDIENCE_ID',
+      `MAILCHIMP_API_KEY_${apiKeyIndex}`,
+      `MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`,
+      `MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`,
       'TITO_AUTH_TOKEN',
     ];
     for (const env of requiredEnvs) {
@@ -240,6 +252,7 @@ export async function prepareMailchimpInvites(
         console.log('Hub URL sending to Mailchimp:', hubUrl);
 
         const statusTemplate = targetStatus.replace(/^tentatively_/, '');
+
         // Add/update Mailchimp
         await addToMailchimp(
           app.email,
@@ -249,8 +262,6 @@ export async function prepareMailchimpInvites(
           hubUrl,
           `${statusTemplate}_template` // name of tag in mailchimp
         );
-
-        //TODO: Update mailchimp api counter
 
         console.log(`Mailchimp email prepared for ${app.email}`);
         await new Promise((r) => setTimeout(r, 400)); // slight delay
@@ -262,6 +273,7 @@ export async function prepareMailchimpInvites(
 
       for (const app of dbApplicants) {
         const statusTemplate = targetStatus.replace(/^tentatively_/, '');
+
         await addToMailchimp(
           app.email,
           app.firstName,

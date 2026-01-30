@@ -84,6 +84,13 @@ export default function PhaseColumn({
               <p className="text-xs">school: {app.university ?? '-'}</p>
               <p className="text-xs">major: {app.major ?? '-'}</p>
               <p className="text-xs">year: {app.year ?? '-'}</p>
+              <p
+                className={`text-xs ${
+                  !app.isOver18 ? 'font-bold text-red-600' : ''
+                }`}
+              >
+                is over 18: {app.isOver18 ? 'yes' : 'no'}
+              </p>
               <p className="text-xs">
                 status:{' '}
                 <span className="font-medium">{prettyStatus(app.status)}</span>

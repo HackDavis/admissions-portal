@@ -5,6 +5,8 @@ import { Application } from '@/app/_types/application';
 import { Status } from '@/app/_types/applicationFilters';
 import { exportTitoCSV } from '@utils/exportTito';
 import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
+import { useMailchimp } from '../_hooks/useMailchimp';
+import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 
 interface FinalizeButtonProps {
   apps: Application[];
@@ -12,7 +14,11 @@ interface FinalizeButtonProps {
     appId: string,
     nextStatus: Status,
     fromPhase: 'tentative',
-    options?: { wasWaitlisted?: boolean; refreshPhase?: 'processed' | 'unseen' }
+    options?: {
+      wasWaitlisted?: boolean;
+      refreshPhase?: 'processed' | 'unseen';
+      batchNumber?: number;
+    }
   ) => void;
 }
 
@@ -35,6 +41,10 @@ export default function FinalizeButton({
 }: FinalizeButtonProps) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const { mailchimp } = useMailchimp();
+
+  const currentBatch = mailchimp?.batchNumber ?? -1;
 
   const handleFinalize = async () => {
     setIsProcessing(true);
@@ -84,6 +94,7 @@ export default function FinalizeButton({
   async function processMailchimpInvites() {
     setIsProcessing(true);
     const results: string[] = [];
+    let hadError = false;
 
     const batches = [
       { label: 'Acceptances', types: ['tentatively_accepted'] as const },
@@ -121,6 +132,7 @@ export default function FinalizeButton({
                     app.status === 'tentatively_waitlisted'
                       ? 'unseen'
                       : 'processed',
+                  batchNumber: currentBatch,
                 }
               )
             )
@@ -137,7 +149,17 @@ export default function FinalizeButton({
         if (!res.ok) {
           const errorMsg = res.error ?? 'Unknown API Error';
           results.push(`🆘 ${batch.label} HALTED: ${errorMsg}`);
+          hadError = true;
           break;
+        }
+      }
+
+      // increment batchNumber
+      if (!hadError) {
+        try {
+          await updateMailchimp({ batchNumber: 1, lastUpdate: new Date() }); // increment batch number by 1
+        } catch (err) {
+          console.error('Failed to increment Mailchimp batch number: ', err);
         }
       }
 
@@ -192,8 +214,7 @@ export default function FinalizeButton({
               <p>4. Upload the downloaded CSV file</p>
               <p>5. Tito will create all the invitations!</p>
               <p>
-                After import, click the button below to send out Mailchimp
-                invites!
+                After import, click the button below to export to Mailchimp!
               </p>
             </div>
 
