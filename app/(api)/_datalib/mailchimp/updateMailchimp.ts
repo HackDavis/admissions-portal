@@ -16,7 +16,7 @@ export const UpdateMailchimp = async (body: any) => {
 
     const incrementableKeys = ['apiCallsMade', 'batchNumber', 'apiKeyIndex'];
 
-    // If we passed incrementableKeys: 1, use $inc. Otherwise, use $set to REST to 0.
+    // If we passed incrementableKeys: 1, use $inc. Otherwise, use $set to RESET to 0.
     incrementableKeys.forEach((key) => {
       if (parsedBody[key] !== undefined) {
         // Use 0 to RESET

@@ -9,19 +9,19 @@ export async function getMailchimpAPIKey() {
   return res.body.apiKeyIndex;
 }
 
-export async function checkMailchimpAPILimitAndIncrement() {
-  let wasAtLimit = false;
+export async function reserveMailchimpAPIKeyIndex() {
   const res = await getMailchimp();
   if (!res.ok) {
     throw new Error(res.error || 'Failed to fetch Mailchimp API status');
   }
-  if (res.body.apiCallsMade >= res.body.maxApiCalls) {
-    await incrementMailchimpAPIKey();
-    await resetMailchimpAPICalls();
-    wasAtLimit = true;
-  }
+  if (res.body.apiKeyIndex > res.body.maxApiKeys - 1)
+    if (res.body.apiCallsMade >= res.body.maxApiCalls) {
+      await incrementMailchimpAPIKey();
+      await resetMailchimpAPICalls();
+    }
   await updateMailchimp({ apiCallsMade: 1, lastUpdate: new Date() }); // increment api calls by 1
-  return wasAtLimit;
+  return res.body.apiKeyIndex;
+  return;
 }
 
 async function incrementMailchimpAPIKey() {

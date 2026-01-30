@@ -4,6 +4,7 @@ export interface Mailchimp {
   apiCallsMade: number;
   maxApiCalls: number;
   apiKeyIndex: number;
+  maxApiKeys: number;
   lastUpdate: Date | string;
   lastReset: Date | string;
 }

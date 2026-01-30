@@ -18,6 +18,7 @@ export default function AdminHeader({
     apiCallsMade: 0,
     maxApiCalls: 0,
     apiKeyIndex: 0,
+    maxApiKeys: 0,
     lastUpdate: 'N/A',
     lastReset: 'N/A',
   };
@@ -43,7 +44,8 @@ export default function AdminHeader({
         <p className="mt-1 text-xs font-semibold">Mailchimp API status</p>
         <p className="mt-1 text-xs">Batch: {mc.batchNumber}</p>
         <p className="mt-1 text-xs">
-          Calls: {mc.apiCallsMade}/{mc.maxApiCalls} (key #{mc.apiKeyIndex})
+          Calls: {mc.apiCallsMade}/{mc.maxApiCalls} (key #{mc.apiKeyIndex}/
+          {mc.maxApiKeys})
         </p>
         <p className="mt-1 text-xs">Last update: {mc.lastUpdate.toString()}</p>
         <p className="mt-1 text-xs">Last reset: {mc.lastReset.toString()}</p>

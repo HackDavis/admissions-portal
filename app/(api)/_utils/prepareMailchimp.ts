@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { getApplicationsByStatuses } from './exportTito';
 import {
   getMailchimpAPIKey,
-  checkMailchimpAPILimitAndIncrement,
+  reserveMailchimpAPIKeyIndex,
 } from './mailchimpApiStatus';
 
 interface TitoInvite {
@@ -96,10 +96,9 @@ async function addToMailchimp(
   hubUrl: string,
   tag: string
 ) {
-  await checkMailchimpAPILimitAndIncrement(); //check and update api key if necessary
+  const apiKeyIndex = await reserveMailchimpAPIKeyIndex(); //get and update api key if necessary
 
-  // fetch dynamic api key index
-  const apiKeyIndex = await getMailchimpAPIKey();
+  // update dynamic api key index
   const mailchimp = getMailchimpClient(apiKeyIndex);
   const audienceId = process.env[`MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`];
 

@@ -6,7 +6,7 @@ export const GetMailchimp = async () => {
   try {
     const db = await getDatabase();
 
-    const mailchimp = await db.collection('mailchimp').findOne({});
+    const mailchimp = await db.collection('mailchimp').findOne({}); // there should only be one document in db
 
     if (!mailchimp) {
       throw new NotFoundError('mailchimp document not found.');
