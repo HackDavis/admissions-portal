@@ -225,9 +225,12 @@ export async function prepareMailchimpInvites(
       // Process accepted or waitlist accepted applicants
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
-      const rsvpList = await getRsvpList();
+      const [rsvpList, hubSession] = await Promise.all([
+        getRsvpList(),
+        getHubSession(),
+      ]);
+
       const titoInvites: TitoInvite[] = await fetchInvites(rsvpList.slug);
-      const hubSession = await getHubSession();
 
       for (const app of dbApplicants) {
         console.log(`\nProcessing: ${app.email}`);

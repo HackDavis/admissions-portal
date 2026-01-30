@@ -148,7 +148,7 @@ export default function FinalizeButton({
         // Stop further processing of other batches if error occurs
         if (!res.ok) {
           const errorMsg = res.error ?? 'Unknown API Error';
-          results.push(`🆘 ${batch.label} HALTED: ${errorMsg}`);
+          results.push(`❌ ${batch.label} HALTED: ${errorMsg}`);
           hadError = true;
           break;
         }
