@@ -153,7 +153,7 @@ async function fetchInvites(slug: string) {
       if (!invite.redeemed) {
         inviteMap.set(invite.email.toLowerCase(), invite.unique_url);
       } else {
-        console.error('Invite already redeemed for', invite.email);
+        console.warn('Invite already redeemed for', invite.email);
       }
     }
 
@@ -186,6 +186,7 @@ export async function prepareMailchimpInvites(
 
   const successfulIds: string[] = [];
   const errorDetails: string[] = [];
+  const MAX_CONCURRENT_REQUESTS = 10;
 
   try {
     const dbApplicants = await getApplicationsByStatuses(targetStatus);
@@ -225,12 +226,15 @@ export async function prepareMailchimpInvites(
 
     // Process mailchimp for each applicant
     const results: (string | null)[] = [];
-    const CHUNK_SIZE = 10;
 
     // Note: Hub rate limit is unknown (likely stateless), but have successfully tested with 60+ acceptances at once
     // Mailchimp rate limit is 10 requests per second for free accounts
-    for (let i = 0; i < applicantsWithKeys.length; i += CHUNK_SIZE) {
-      const chunk = applicantsWithKeys.slice(i, i + CHUNK_SIZE);
+    for (
+      let i = 0;
+      i < applicantsWithKeys.length;
+      i += MAX_CONCURRENT_REQUESTS
+    ) {
+      const chunk = applicantsWithKeys.slice(i, i + MAX_CONCURRENT_REQUESTS);
 
       const chunkResults = await Promise.all(
         chunk.map(async ({ app, apiKeyIndex }) => {
@@ -244,8 +248,13 @@ export async function prepareMailchimpInvites(
                 ] as string,
               });
             }
-            const { mailchimpClient, audienceId } =
-              clientCache.get(apiKeyIndex)!;
+            const cachedClient = clientCache.get(apiKeyIndex);
+            if (!cachedClient) {
+              throw new Error(
+                `Mailchimp client cache missing for apiKeyIndex ${apiKeyIndex}`
+              );
+            }
+            const { mailchimpClient, audienceId } = cachedClient;
 
             let titoUrl = '';
             let hubUrl = '';

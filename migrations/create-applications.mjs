@@ -209,7 +209,7 @@ export async function up(db) {
             description: 'processedAt must be a date',
           },
         },
-        additionalProperties: false,
+        additionalProperties: true,
       },
     },
   });

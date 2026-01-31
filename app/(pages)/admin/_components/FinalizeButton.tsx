@@ -187,7 +187,7 @@ export default function FinalizeButton({
         onClick={handleFinalize}
         disabled={isProcessing || apps.length === 0 || apps.length > 110}
       >
-        {apps.length > 110 ? 'batch too large (>110)' : 'finalize'}
+        {apps.length > 110 ? 'batch size limit: 110' : 'finalize'}
       </button>
 
       {/* Popup menu */}
