@@ -216,17 +216,24 @@ export async function prepareMailchimpInvites(
       { mailchimpClient: AxiosInstance; audienceId: string }
     >();
 
+    // Pre-fetch api key indices for all applicants
+    const applicantsWithKeys = [];
+    for (const app of dbApplicants) {
+      const apiKeyIndex = await reserveMailchimpAPIKeyIndex();
+      applicantsWithKeys.push({ app, apiKeyIndex });
+    }
+
     // Process mailchimp for each applicant
     const results: (string | null)[] = [];
     const CHUNK_SIZE = 10;
-    for (let i = 0; i < dbApplicants.length; i += CHUNK_SIZE) {
-      const chunk = dbApplicants.slice(i, i + CHUNK_SIZE);
+
+    for (let i = 0; i < applicantsWithKeys.length; i += CHUNK_SIZE) {
+      const chunk = applicantsWithKeys.slice(i, i + CHUNK_SIZE);
 
       const chunkResults = await Promise.all(
-        chunk.map(async (app) => {
+        chunk.map(async ({ app, apiKeyIndex }) => {
           try {
             // Cache mailchimp clients by api key index
-            const apiKeyIndex = await reserveMailchimpAPIKeyIndex(); // update dynamic api key index
             if (!clientCache.has(apiKeyIndex)) {
               clientCache.set(apiKeyIndex, {
                 mailchimpClient: getMailchimpClient(apiKeyIndex),
