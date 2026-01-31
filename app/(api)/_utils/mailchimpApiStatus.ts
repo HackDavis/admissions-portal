@@ -25,8 +25,6 @@ export async function reserveMailchimpAPIKeyIndex() {
 
   if (res.body.apiCallsMade >= res.body.maxApiCalls - 1) {
     // safe buffer of 1 call
-    await incrementMailchimpAPIKey();
-    await resetMailchimpAPICalls();
 
     // Confirm environment variables for new api key index
     const requiredEnvs = [
@@ -38,6 +36,9 @@ export async function reserveMailchimpAPIKeyIndex() {
       if (!process.env[env])
         throw new Error(`Missing Environment Variable: ${env}`);
     }
+
+    await incrementMailchimpAPIKey();
+    await resetMailchimpAPICalls();
   }
   await updateMailchimp({ apiCallsMade: 1, lastUpdate: new Date() }); // increment api calls by 1
   return res.body.apiKeyIndex;

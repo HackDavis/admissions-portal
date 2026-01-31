@@ -172,14 +172,30 @@ export async function prepareMailchimpInvites(
     | 'tentatively_waitlist_accepted'
     | 'tentatively_waitlist_rejected'
 ) {
+  const requiredEnvs = [
+    'TITO_AUTH_TOKEN',
+    'TITO_EVENT_BASE_URL',
+    'HACKDAVIS_HUB_BASE_URL',
+    'HUB_ADMIN_EMAIL',
+    'HUB_ADMIN_PASSWORD',
+  ];
+  for (const env of requiredEnvs) {
+    if (!process.env[env])
+      throw new Error(`Missing Environment Variable: ${env}`);
+  }
+
   const successfulIds: string[] = [];
+  const errorDetails: string[] = [];
+
   try {
     const dbApplicants = await getApplicationsByStatuses(targetStatus);
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
 
     const statusTemplate = targetStatus.replace(/^tentatively_/, '');
     const tag = `${statusTemplate}_template`; // name of tag in mailchimp
-    const isAccepted = targetStatus.includes('accepted');
+    const isAccepted =
+      targetStatus === 'tentatively_accepted' ||
+      targetStatus === 'tentatively_waitlist_accepted';
 
     let titoInvitesMap = new Map<string, string>();
     let hubSession: AxiosInstance | null = null;
@@ -201,56 +217,69 @@ export async function prepareMailchimpInvites(
     >();
 
     // Process mailchimp for each applicant
-    const results = await Promise.all(
-      dbApplicants.map(async (app) => {
-        try {
-          // Cache mailchimp clients by api key index
-          const apiKeyIndex = await reserveMailchimpAPIKeyIndex(); // update dynamic api key index
-          if (!clientCache.has(apiKeyIndex)) {
-            clientCache.set(apiKeyIndex, {
-              mailchimpClient: getMailchimpClient(apiKeyIndex),
-              audienceId: process.env[
-                `MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`
-              ] as string,
-            });
-          }
-          const { mailchimpClient, audienceId } = clientCache.get(apiKeyIndex)!;
+    const results: (string | null)[] = [];
+    const CHUNK_SIZE = 10;
+    for (let i = 0; i < dbApplicants.length; i += CHUNK_SIZE) {
+      const chunk = dbApplicants.slice(i, i + CHUNK_SIZE);
 
-          let titoUrl = '';
-          let hubUrl = '';
-          console.log(`\nProcessing: ${app.email}`);
+      const chunkResults = await Promise.all(
+        chunk.map(async (app) => {
+          try {
+            // Cache mailchimp clients by api key index
+            const apiKeyIndex = await reserveMailchimpAPIKeyIndex(); // update dynamic api key index
+            if (!clientCache.has(apiKeyIndex)) {
+              clientCache.set(apiKeyIndex, {
+                mailchimpClient: getMailchimpClient(apiKeyIndex),
+                audienceId: process.env[
+                  `MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`
+                ] as string,
+              });
+            }
+            const { mailchimpClient, audienceId } =
+              clientCache.get(apiKeyIndex)!;
 
-          if (isAccepted && hubSession) {
-            titoUrl = titoInvitesMap.get(app.email.toLowerCase()) || '';
-            if (!titoUrl) throw new Error(`Tito URL missing for ${app.email}`);
+            let titoUrl = '';
+            let hubUrl = '';
+            console.log(`\nProcessing: ${app.email}`);
 
-            hubUrl = await createHubInvite(
-              hubSession,
+            if (isAccepted && hubSession) {
+              titoUrl = titoInvitesMap.get(app.email.toLowerCase()) || '';
+              if (!titoUrl)
+                throw new Error(`Tito URL missing for ${app.email}`);
+
+              hubUrl = await createHubInvite(
+                hubSession,
+                app.firstName,
+                app.lastName,
+                app.email
+              );
+              if (!hubUrl)
+                throw new Error(`Hub URL generation failed for ${app.email}`);
+            }
+
+            await addToMailchimp(
+              mailchimpClient,
+              audienceId,
+              app.email,
               app.firstName,
               app.lastName,
-              app.email
+              titoUrl,
+              hubUrl,
+              tag
             );
-            if (!hubUrl)
-              throw new Error(`Hub URL generation failed for ${app.email}`);
+            return app._id;
+          } catch (err: any) {
+            const reason =
+              err.response?.data?.detail || err.message || 'Unknown Error';
+            const context = `[${app.email}]: ${reason}`;
+            console.error(`Failed: ${context}`);
+            errorDetails.push(context);
+            return null;
           }
-
-          await addToMailchimp(
-            mailchimpClient,
-            audienceId,
-            app.email,
-            app.firstName,
-            app.lastName,
-            titoUrl,
-            hubUrl,
-            tag
-          );
-          return app._id;
-        } catch (err) {
-          console.error(`Failed: ${app.email}`, err);
-          return null;
-        }
-      })
-    );
+        })
+      );
+      results.push(...chunkResults);
+    }
 
     const finalIds = results.filter((id): id is string => id !== null);
     successfulIds.push(...finalIds);
@@ -265,7 +294,7 @@ export async function prepareMailchimpInvites(
       error:
         failedCount === 0
           ? null
-          : `Process completed with ${failedCount} failure(s)`,
+          : `${failedCount} FAILED:\n${errorDetails.join('\n')}`,
     };
   } catch (err: any) {
     return { ok: false, ids: successfulIds, error: err.message };

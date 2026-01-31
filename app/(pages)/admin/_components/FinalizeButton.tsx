@@ -139,26 +139,16 @@ export default function FinalizeButton({
           );
         }
 
-        results.push(
-          processedCount > 0
-            ? `✅ ${batch.label}: ${processedCount} processed`
-            : `🆗 ${batch.label}: 0 processed`
-        );
+        const statusEmoji = res.ok && !res.error ? '✅' : '❌';
+        let batchMessage = `${statusEmoji} ${batch.label}: ${processedCount} processed`;
 
-        //PARTIAL FAILURE
-        if (res.ok && res.error) {
-          const errorMsg = res.error;
-          results.push(`❌ ${batch.label} PARTIAL FAILURE: ${errorMsg}`);
+        // Full and partial failures
+        if (res.error) {
+          batchMessage += `\n${res.error}`;
           hadError = true;
         }
 
-        // FULL FAILURE
-        if (!res.ok) {
-          const errorMsg = res.error ?? 'Unknown API Error';
-          results.push(`❌ ${batch.label} FAILURE: ${errorMsg}`);
-          hadError = true;
-          break;
-        }
+        results.push(batchMessage);
       }
 
       // increment batchNumber
@@ -191,9 +181,9 @@ export default function FinalizeButton({
         className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
         title="finalize tentative applicants"
         onClick={handleFinalize}
-        disabled={isProcessing || apps.length === 0}
+        disabled={isProcessing || apps.length === 0 || apps.length > 110}
       >
-        finalize
+        {apps.length > 110 ? 'batch too large (>110)' : 'finalize'}
       </button>
 
       {/* Popup menu */}
