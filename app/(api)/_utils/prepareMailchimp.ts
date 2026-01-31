@@ -297,6 +297,8 @@ export async function prepareMailchimpInvites(
     const failedCount = totalRequested - finalIds.length;
 
     console.log('Done. Check Mailchimp UI for updated merge fields!');
+
+    // NOTE: ALLOWS FOR PARTIAL SUCCESS
     return {
       ok: true,
       ids: successfulIds,
