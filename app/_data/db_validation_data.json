@@ -1,0 +1,27 @@
+{
+  "years": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5+"
+  ],
+  "shirtSizes": [
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL"
+  ],
+  "statuses": [
+    "pending",
+    "tentatively_accepted",
+    "tentatively_waitlisted",
+    "tentatively_waitlist_accepted",
+    "tentatively_waitlist_rejected",
+    "accepted",
+    "waitlisted",
+    "waitlist_accepted",
+    "waitlist_rejected"
+  ]
+}
