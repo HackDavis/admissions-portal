@@ -25,7 +25,7 @@ export interface Application {
   firstHackathon: boolean;
   linkedin: string; // required by mlh
   githubOrPortfolio?: string;
-  resume: string;
+  resume?: string;
   connectWithHackDavis: boolean;
   connectWithMLH: boolean; // required by mlh
   mlhAgreements: {

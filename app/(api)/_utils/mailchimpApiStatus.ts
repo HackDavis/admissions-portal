@@ -14,7 +14,9 @@ export async function reserveMailchimpAPIKeyIndex() {
   if (!res.ok) {
     throw new Error(res.error || 'Failed to fetch Mailchimp API status');
   }
-  if (res.body.apiKeyIndex > res.body.maxApiKeys) {
+
+  const currApiKeyIndex = res.body.apiKeyIndex;
+  if (currApiKeyIndex > res.body.maxApiKeys) {
     // 1-based index for api keys
     throw new Error(
       'All Mailchimp API keys exhausted, please contact tech lead.'
@@ -23,6 +25,18 @@ export async function reserveMailchimpAPIKeyIndex() {
 
   if (res.body.apiCallsMade >= res.body.maxApiCalls - 1) {
     // safe buffer of 1 call
+
+    // Confirm environment variables for new api key index
+    const requiredEnvs = [
+      `MAILCHIMP_API_KEY_${currApiKeyIndex + 1}`,
+      `MAILCHIMP_SERVER_PREFIX_${currApiKeyIndex + 1}`,
+      `MAILCHIMP_AUDIENCE_ID_${currApiKeyIndex + 1}`,
+    ];
+    for (const env of requiredEnvs) {
+      if (!process.env[env])
+        throw new Error(`Missing Environment Variable: ${env}`);
+    }
+
     await incrementMailchimpAPIKey();
     await resetMailchimpAPICalls();
   }

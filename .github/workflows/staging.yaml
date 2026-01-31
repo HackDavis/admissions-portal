@@ -29,6 +29,11 @@ jobs:
 
       - name: Lint and build code
         run: npm run build
+      
+      - name: Run migrations
+        run: npx migrate-mongo up
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
