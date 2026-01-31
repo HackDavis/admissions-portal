@@ -152,6 +152,7 @@ async function fetchInvites(slug: string) {
     for (const invite of invites) {
       if (!invite.redeemed) {
         inviteMap.set(invite.email.toLowerCase(), invite.unique_url);
+      } else {
         console.error('Invite already redeemed for', invite.email);
       }
     }
@@ -172,24 +173,6 @@ export async function prepareMailchimpInvites(
     | 'tentatively_waitlist_rejected'
 ) {
   const successfulIds: string[] = [];
-  // update dynamic api key index
-  const apiKeyIndex = await reserveMailchimpAPIKeyIndex();
-  const mailchimpClient = getMailchimpClient(apiKeyIndex);
-  const audienceId = process.env[
-    `MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`
-  ] as string;
-
-  const requiredEnvs = [
-    `MAILCHIMP_API_KEY_${apiKeyIndex}`,
-    `MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`,
-    `MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`,
-    'TITO_AUTH_TOKEN',
-  ];
-  for (const env of requiredEnvs) {
-    if (!process.env[env])
-      throw new Error(`Missing Environment Variable: ${env}`);
-  }
-
   try {
     const dbApplicants = await getApplicationsByStatuses(targetStatus);
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
@@ -202,7 +185,7 @@ export async function prepareMailchimpInvites(
     let hubSession: AxiosInstance | null = null;
 
     if (isAccepted) {
-      // Get tito and hub he accepted or waitlist_accepted applicants
+      // Get tito and hub for accepted and waitlist_accepted applicants
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
       const rsvpList = await getRsvpList();
@@ -211,9 +194,28 @@ export async function prepareMailchimpInvites(
         getHubSession(),
       ]);
     }
+
+    const clientCache = new Map<
+      number,
+      { mailchimpClient: AxiosInstance; audienceId: string }
+    >();
+
+    // Process mailchimp for each applicant
     const results = await Promise.all(
       dbApplicants.map(async (app) => {
         try {
+          // Cache mailchimp clients by api key index
+          const apiKeyIndex = await reserveMailchimpAPIKeyIndex(); // update dynamic api key index
+          if (!clientCache.has(apiKeyIndex)) {
+            clientCache.set(apiKeyIndex, {
+              mailchimpClient: getMailchimpClient(apiKeyIndex),
+              audienceId: process.env[
+                `MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`
+              ] as string,
+            });
+          }
+          const { mailchimpClient, audienceId } = clientCache.get(apiKeyIndex)!;
+
           let titoUrl = '';
           let hubUrl = '';
           console.log(`\nProcessing: ${app.email}`);

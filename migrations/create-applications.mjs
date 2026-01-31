@@ -49,19 +49,19 @@ export async function up(db) {
           },
           email: {
             bsonType: 'string',
-            description: 'email must be an string',
+            description: 'email must be a string',
           },
           firstName: {
             bsonType: 'string',
-            description: 'firstName must be an string',
+            description: 'firstName must be a string',
           },
           lastName: {
             bsonType: 'string',
-            description: 'lastName must be an string',
+            description: 'lastName must be a string',
           },
           phone: {
             bsonType: 'string',
-            description: 'phone must be an string',
+            description: 'phone must be a string',
           },
           age: {
             bsonType: 'int',
@@ -77,23 +77,23 @@ export async function up(db) {
           },
           university: {
             bsonType: 'string',
-            description: 'university must be an string',
+            description: 'university must be a string',
           },
           countryOfResidence: {
             bsonType: 'string',
-            description: 'countryOfResidence must be an string',
+            description: 'countryOfResidence must be a string',
           },
           levelOfStudy: {
             bsonType: 'string',
-            description: 'levelOfStudy must be an string',
+            description: 'levelOfStudy must be a string',
           },
           major: {
             bsonType: 'string',
-            description: 'major must be an string',
+            description: 'major must be a string',
           },
           minorOrDoubleMajor: {
             bsonType: 'string',
-            description: 'minorOrDoubleMajor must be an string',
+            description: 'minorOrDoubleMajor must be a string',
           },
           college: {
             bsonType: 'array',
@@ -151,15 +151,15 @@ export async function up(db) {
           },
           linkedin: {
             bsonType: 'string',
-            description: 'linkedin must be an string',
+            description: 'linkedin must be a string',
           },
           githubOrPortfolio: {
             bsonType: 'string',
-            description: 'githubOrPortfolio must be an string',
+            description: 'githubOrPortfolio must be a string',
           },
           resume: {
             bsonType: 'string',
-            description: 'resume must be an string',
+            description: 'resume must be a string',
           },
           connectWithHackDavis: {
             bsonType: 'bool',
