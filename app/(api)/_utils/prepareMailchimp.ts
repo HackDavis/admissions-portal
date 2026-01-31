@@ -227,6 +227,8 @@ export async function prepareMailchimpInvites(
     const results: (string | null)[] = [];
     const CHUNK_SIZE = 10;
 
+    // Note: Hub rate limit is unknown (likely stateless), but have successfully tested with 60+ acceptances at once
+    // Mailchimp rate limit is 10 requests per second for free accounts
     for (let i = 0; i < applicantsWithKeys.length; i += CHUNK_SIZE) {
       const chunk = applicantsWithKeys.slice(i, i + CHUNK_SIZE);
 

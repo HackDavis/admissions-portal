@@ -142,13 +142,17 @@ export default function FinalizeButton({
         const statusEmoji = res.ok && !res.error ? '✅' : '❌';
         let batchMessage = `${statusEmoji} ${batch.label}: ${processedCount} processed`;
 
-        // Full and partial failures
         if (res.error) {
+          // Partial & full failure
           batchMessage += `\n${res.error}`;
           hadError = true;
         }
-
         results.push(batchMessage);
+
+        if (!res.ok) {
+          // Full failure (server misconfig, network, etc)
+          break;
+        }
       }
 
       // increment batchNumber
