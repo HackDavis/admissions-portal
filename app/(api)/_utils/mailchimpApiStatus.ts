@@ -15,7 +15,7 @@ export async function reserveMailchimpAPIKeyIndex() {
     throw new Error(res.error || 'Failed to fetch Mailchimp API status');
   }
 
-  const currApiKeyIndex = res.body.apiKeyIndex;
+  let currApiKeyIndex = res.body.apiKeyIndex;
   if (currApiKeyIndex > res.body.maxApiKeys) {
     // 1-based index for api keys
     throw new Error(
@@ -39,9 +39,10 @@ export async function reserveMailchimpAPIKeyIndex() {
 
     await incrementMailchimpAPIKey();
     await resetMailchimpAPICalls();
+    currApiKeyIndex += 1;
   }
   await updateMailchimp({ apiCallsMade: 1, lastUpdate: new Date() }); // increment api calls by 1
-  return res.body.apiKeyIndex;
+  return currApiKeyIndex;
 }
 
 async function incrementMailchimpAPIKey() {
