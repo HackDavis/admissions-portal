@@ -60,7 +60,7 @@ async function generateCSV(applicants: Application[]) {
       a.firstName,
       a.lastName,
       a.email,
-      '2026-05-09 23:59 PST', // expiry time
+      process.env.TITO_TICKET_EXPIRY, // expiry time
       'Y', // redirect
       '', // discount code
       'Y', // ticket assignment
