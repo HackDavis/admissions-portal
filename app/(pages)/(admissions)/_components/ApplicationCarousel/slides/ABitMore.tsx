@@ -150,7 +150,7 @@ export default function ABitMore({
               className="mt-3 h-28 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />
 
-            {submitted && !formData.resume?.trim() && (
+            {submitted && resumeRequired && !formData.resume?.trim() && (
               <p className="mt-2 text-sm font-semibold text-red-400">
                 ERROR: Please enter a link to your resume.
               </p>
