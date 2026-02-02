@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { YesNoGroup } from '../_components/YesNoGroup';
 
 interface ABitMoreProps {
   formData: any;
@@ -15,6 +16,8 @@ export default function ABitMore({
 }: ABitMoreProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
+  const resumeRequired = formData.connectWithSponsors === true;
+
   const isLinkedInValid = (url: string) =>
     /^https?:\/\/(www\.)?linkedin\.com\/.+$/.test(url.trim());
 
@@ -28,10 +31,11 @@ export default function ABitMore({
   };
 
   const isValid =
+    typeof formData.connectWithSponsors === 'boolean' &&
     !!formData.linkedin?.trim() &&
     isLinkedInValid(formData.linkedin) &&
-    !!formData.resume?.trim() &&
-    isValidUrl(formData.resume);
+    (!resumeRequired ||
+      (!!formData.resume?.trim() && isValidUrl(formData.resume)));
 
   const handleNext = () => {
     setSubmitted(true);
@@ -41,7 +45,7 @@ export default function ABitMore({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-5">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Just a bit more...
         </h1>
@@ -53,6 +57,27 @@ export default function ABitMore({
         </p>
 
         <div className="mx-auto mt-12 w-full max-w-lg space-y-10 text-left">
+          {/* Sponsors connect */}
+          <div>
+            <p className="text-base font-semibold text-[#0F2530]">
+              Would you like to be connected to internship and full-time career
+              opportunities from our sponsors and partners?*
+            </p>
+
+            <YesNoGroup
+              value={formData.connectWithSponsors}
+              onChange={(v) =>
+                setFormData({ ...formData, connectWithSponsors: v })
+              }
+            />
+
+            {submitted && typeof formData.connectWithSponsors !== 'boolean' && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please select an option.
+              </p>
+            )}
+          </div>
+
           {/* LinkedIn */}
           <div>
             <label className="block text-sm font-semibold text-[#0F2530]">
@@ -112,7 +137,8 @@ export default function ABitMore({
           {/* Resume (text box per your note) */}
           <div>
             <label className="block text-sm font-semibold text-[#0F2530]">
-              Please enter a publicly accessible link to your resume!*
+              Please enter a publicly accessible link to your resume!
+              {resumeRequired && '*'}
             </label>
 
             <textarea
