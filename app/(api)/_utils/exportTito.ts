@@ -52,7 +52,7 @@ async function generateCSV(applicants: Application[]) {
     'Expiry Time',
     'Redirect?',
     'Discount Code',
-    'test ticket', //name of the ticket in tito
+    process.env.TITO_HACKER_TICKET_NAME, //name of the ticket in tito
   ];
 
   const rows = applicants.map((a) =>
