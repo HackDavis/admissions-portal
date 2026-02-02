@@ -2,7 +2,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
-import { getApplicationsByStatuses } from './exportTito';
+import { getApplicationsByStatuses } from './generateTitoCSV';
 import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
 
 // Mailchimp axios client
@@ -127,7 +127,7 @@ async function getRsvpList() {
   return res.data.rsvp_lists[0]; //ONLY checks first rsvp list
 }
 
-async function fetchInvites(slug: string) {
+async function fetchUnredeemedInvites(slug: string) {
   const pageSize = 500;
   let page = 1;
   let hasMore = true;
@@ -207,7 +207,7 @@ export async function prepareMailchimpInvites(
 
       const rsvpList = await getRsvpList();
       [titoInvitesMap, hubSession] = await Promise.all([
-        fetchInvites(rsvpList.slug),
+        fetchUnredeemedInvites(rsvpList.slug),
         getHubSession(),
       ]);
     }
