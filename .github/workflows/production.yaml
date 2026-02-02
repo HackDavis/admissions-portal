@@ -19,28 +19,91 @@ jobs:
       - name: Install node
         uses: actions/setup-node@v4
         with:
-          node-version: '21.1.0'
+          node-version: '21.7.3'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
+
+      - name: Lint and build code
+        run: npm run build
       
       - name: Run migrations
         run: npx migrate-mongo up
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
 
-      - name: Lint and build code, then publish to Vercel
-        run: npx vercel --token ${{ secrets.VERCEL_TOKEN }} -n ${{ vars.VERCEL_PROJECT }} --yes --prod
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Sync Environment Variables
+        run: |
+          printf "${{ secrets.MONGODB_URI }}" | vercel env add MONGODB_URI production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.AUTH_SECRET }}" | vercel env add AUTH_SECRET production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.TITO_AUTH_TOKEN }}" | vercel env add TITO_AUTH_TOKEN production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.HUB_ADMIN_PASSWORD }}" | vercel env add HUB_ADMIN_PASSWORD production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.MONGODB_DB }}" | vercel env add MONGODB_DB production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.MONGODB_COLLECTION }}" | vercel env add MONGODB_COLLECTION production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}" | vercel env add NEXT_PUBLIC_EMAILJS_SERVICE_ID production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID }}" | vercel env add NEXT_PUBLIC_EMAILJS_TEMPLATE_ID production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}" | vercel env add NEXT_PUBLIC_EMAILJS_PUBLIC_KEY production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.MAILCHIMP_API_KEY_1 }}" | vercel env add MAILCHIMP_API_KEY_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.MAILCHIMP_SERVER_PREFIX_1 }}" | vercel env add MAILCHIMP_SERVER_PREFIX_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.MAILCHIMP_AUDIENCE_ID_1 }}" | vercel env add MAILCHIMP_AUDIENCE_ID_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.MAILCHIMP_API_KEY_2 }}" | vercel env add MAILCHIMP_API_KEY_2 production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.MAILCHIMP_SERVER_PREFIX_2 }}" | vercel env add MAILCHIMP_SERVER_PREFIX_2 production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.MAILCHIMP_AUDIENCE_ID_2 }}" | vercel env add MAILCHIMP_AUDIENCE_ID_2 production --force --token=${{ secrets.VERCEL_TOKEN }}
+
+          printf "${{ vars.TITO_EVENT_BASE_URL }}" | vercel env add TITO_EVENT_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.HACKDAVIS_HUB_BASE_URL }}" | vercel env add HACKDAVIS_HUB_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.HUB_ADMIN_EMAIL }}" | vercel env add HUB_ADMIN_EMAIL production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.TITO_DASHBOARD_URL }}" | vercel env add TITO_DASHBOARD_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.TITO_HACKER_TICKET_NAME }}" | vercel env add TITO_HACKER_TICKET_NAME production --force --token=${{ secrets.VERCEL_TOKEN }}
+          
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build Project on Github
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          BASE_URL: ${{ vars.ENV_URL }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          NEXTAUTH_URL: ${{ vars.ENV_URL }}
           TITO_AUTH_TOKEN: ${{ secrets.TITO_AUTH_TOKEN }}
-          TITO_EVENT_BASE_URL: ${{ vars.TITO_AUTH_TOKEN }}
-          HACKDAVIS_HUB_BASE_URL: ${{ vars.ENV_URL }}
+          HUB_ADMIN_PASSWORD: ${{ secrets.HUB_ADMIN_PASSWORD }}
+          MONGODB_DB: ${{ secrets.MONGODB_DB }}
+          MONGODB_COLLECTION: ${{ secrets.MONGODB_COLLECTION }}
+          NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
+          NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID }}
+          NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
+          MAILCHIMP_API_KEY_1: ${{ secrets.MAILCHIMP_API_KEY_1 }}
+          MAILCHIMP_SERVER_PREFIX_1: ${{ secrets.MAILCHIMP_SERVER_PREFIX_1 }}
+          MAILCHIMP_AUDIENCE_ID_1: ${{ secrets.MAILCHIMP_AUDIENCE_ID_1 }}
+          MAILCHIMP_API_KEY_2: ${{ secrets.MAILCHIMP_API_KEY_2 }}
+          MAILCHIMP_SERVER_PREFIX_2: ${{ secrets.MAILCHIMP_SERVER_PREFIX_2 }}
+          MAILCHIMP_AUDIENCE_ID_2: ${{ secrets.MAILCHIMP_AUDIENCE_ID_2 }}
+
+          BASE_URL: ${{ vars.ENV_URL }}
+          NEXTAUTH_URL: ${{ vars.ENV_URL }}
+          TITO_EVENT_BASE_URL: ${{ vars.TITO_EVENT_BASE_URL }}
+          HACKDAVIS_HUB_BASE_URL: ${{ vars.HACKDAVIS_HUB_BASE_URL }}
           HUB_ADMIN_EMAIL: ${{ vars.HUB_ADMIN_EMAIL }}
-          HUB_ADMIN_PASSWORD: ${{ secrets.HUB_ADMIN_EMAIL }}
+          TITO_DASHBOARD_URL: ${{ vars.TITO_DASHBOARD_URL }}
+          TITO_HACKER_TICKET_NAME: ${{ vars.TITO_HACKER_TICKET_NAME }}
+
+      - name: Deploy Project to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Success
         run: echo "🚀  Deploy successful - BLAST OFF WOO! (woot woot) !!! 🐕 🐕 🐕 🚀 "
