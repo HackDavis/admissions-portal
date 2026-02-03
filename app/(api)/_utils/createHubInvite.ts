@@ -63,10 +63,17 @@ export async function getUnredeemedHubEmails() {
     'accepted',
     'waitlist_accepted',
   ]);
-  const applicantEmails = acceptedApplicants.map((a) => a.email.toLowerCase());
+  const applicantEmails = Array.from(
+    new Set(acceptedApplicants.map((a) => a.email.toLowerCase()))
+  );
 
-  const hubUsersMap = await getManyUsers(applicantEmails);
+  const res = await getManyUsers({ email: { $in: applicantEmails } });
+  const redeemedEmails = new Set(
+    (Array.isArray(res?.body) ? res.body : []).map((u: any) =>
+      u.email.toLowerCase()
+    )
+  );
 
   // Cross-check applicants that have unredeemed hub invites
-  return applicantEmails.filter((email) => !hubUsersMap.has(email));
+  return applicantEmails.filter((email) => !redeemedEmails.has(email));
 }

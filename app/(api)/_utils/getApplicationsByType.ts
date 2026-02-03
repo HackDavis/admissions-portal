@@ -41,8 +41,10 @@ export async function getApplicationsByStatuses(
 
 export async function getApplicationsForRsvpReminder() {
   const unredeemedHubEmails = await getUnredeemedHubEmails();
+  console.log('Unredeemed Hub emails:', unredeemedHubEmails);
   const rsvpList = await getTitoRsvpList();
   const unredeemedTitoMap = await getUnredeemedTitoInvites(rsvpList.slug);
+  console.log('Unredeemed Tito emails:', unredeemedTitoMap);
 
   // Merge unredeemed invites from both Hub and Tito (deduplicate by email)
   const emailSet = new Set<string>([
@@ -50,9 +52,10 @@ export async function getApplicationsForRsvpReminder() {
     ...Array.from(unredeemedTitoMap.keys()),
   ]);
   const uniqueEmails = Array.from(emailSet);
+  console.log('Unique unredeemed (hub or tito) emails:', uniqueEmails);
 
   if (uniqueEmails.length === 0) {
-    console.log('No unredeemed applicants found for reminder.');
+    console.log('No unredeemed applicants found.');
     return [];
   }
 
@@ -72,6 +75,7 @@ export async function getApplicationsForRsvpReminder() {
   if (!res.ok) throw new Error(res.error ?? 'Failed to fetch applicants');
 
   const applicants = res.body ?? [];
+  console.log('Applicants to rsvp remind:', applicants);
 
   return applicants.map((app: any) => ({
     ...app,

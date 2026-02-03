@@ -1,7 +1,8 @@
 'use client';
 
 import { useMailchimp } from '../_hooks/useMailchimp';
-// import Link from 'next/link';
+import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
+import { useState } from 'react';
 
 interface AdminHeaderProps {
   totalCount: number;
@@ -12,6 +13,25 @@ export default function AdminHeader({
   totalCount,
   onLogout,
 }: AdminHeaderProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  async function processRsvpReminders() {
+    setIsProcessing(true);
+    const res = await prepareMailchimpInvites('rsvp_reminder');
+    if (!res.ok) {
+      console.error('Error processing RSVP reminders:', res.error);
+    }
+
+    const processedCount = res.ids?.length ?? 0;
+    if (processedCount > 0) {
+      alert(`Successfully processed ${processedCount} RSVP reminders!`);
+    } else {
+      alert('No RSVP reminders to process.');
+    }
+
+    setIsProcessing(false);
+  }
+
   const { mailchimp } = useMailchimp();
   const mc = mailchimp ?? {
     batchNumber: 'N/A',
@@ -34,12 +54,14 @@ export default function AdminHeader({
         </p>
       </div>
 
-      {/* <Link
-        href="/admin/applicants"
-        className="inline-flex items-center border-2 border-black px-3 py-1 text-xs font-medium uppercase"
+      <button
+        onClick={processRsvpReminders}
+        className="special-button px-2 py-1 text-xs"
+        disabled={isProcessing}
       >
-        view all applicants
-      </Link> */}
+        {isProcessing ? 'Checking...' : 'send rsvp reminders'}
+      </button>
+
       <div>
         <p className="mt-1 text-xs font-semibold">Mailchimp API status</p>
         <p className="mt-1 text-xs">Batch: {mc.batchNumber}</p>
