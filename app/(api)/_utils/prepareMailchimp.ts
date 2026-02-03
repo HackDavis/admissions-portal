@@ -4,6 +4,8 @@ import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
 import { getApplicationsByStatuses } from './generateTitoCSV';
 import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
+import { getRsvpList, fetchUnredeemedInvites } from './fetchTitoInvites';
+import { getHubSession, createHubInvite } from './createHubInvites';
 
 // Mailchimp axios client
 function getMailchimpClient(apiKeyIndex: number) {
@@ -18,59 +20,6 @@ function getMailchimpClient(apiKeyIndex: number) {
       )}`,
     },
   });
-}
-
-// Login to Hub to start authenticated session
-async function getHubSession(): Promise<AxiosInstance> {
-  const session = axios.create();
-  try {
-    const res = await session.post(
-      `${process.env.HACKDAVIS_HUB_BASE_URL}/api/auth/login`,
-      {
-        email: process.env.HUB_ADMIN_EMAIL,
-        password: process.env.HUB_ADMIN_PASSWORD,
-      }
-    );
-    if (res.status !== 200) throw new Error('Hub login failed');
-    return session;
-  } catch (err: any) {
-    throw new Error(`Hub Authentication Error: ${err.message}`);
-  }
-}
-
-// Create hacker invite link
-async function createHubInvite(
-  session: AxiosInstance,
-  first: string,
-  last: string,
-  email: string
-): Promise<string> {
-  try {
-    const res = await session.post(
-      `${process.env.HACKDAVIS_HUB_BASE_URL}/api/invite`,
-      {
-        data: { email, name: `${first} ${last}`, role: 'hacker' },
-      }
-    );
-
-    console.log('Hub invite response for', email, res.data);
-
-    if (!res.data?.ok || !res.data.body) {
-      throw new Error(`Hub invite failed for ${email}`);
-    }
-
-    const path = res.data.body;
-
-    // Validate hub invite url
-    if (path.startsWith('undefined') || path.endsWith('&null')) {
-      throw new Error(`Invalid invite path returned: ${path}`);
-    }
-
-    return path;
-  } catch (err) {
-    console.error('Hub invite failed for', email, err);
-    throw err;
-  }
 }
 
 // Mailchimp add/update contact
@@ -119,51 +68,6 @@ async function addToMailchimp(
   }
 }
 
-// Fetch from Tito
-async function getRsvpList() {
-  const res = await axios.get(`${process.env.TITO_EVENT_BASE_URL}/rsvp_lists`, {
-    headers: { Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}` },
-  });
-  return res.data.rsvp_lists[0]; //ONLY checks first rsvp list
-}
-
-async function fetchUnredeemedInvites(slug: string) {
-  const pageSize = 500;
-  let page = 1;
-  let hasMore = true;
-  const inviteMap = new Map<string, string>();
-
-  while (hasMore) {
-    const res = await axios.get(
-      `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists/${slug}/release_invitations`,
-      {
-        params: {
-          'page[size]': pageSize,
-          'page[number]': page,
-        },
-        headers: {
-          Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}`,
-        },
-      }
-    );
-
-    const invites = res.data.release_invitations ?? [];
-
-    for (const invite of invites) {
-      if (!invite.redeemed) {
-        inviteMap.set(invite.email.toLowerCase(), invite.unique_url);
-      } else {
-        console.warn('Invite already redeemed for', invite.email);
-      }
-    }
-
-    hasMore = invites.length === pageSize;
-    page++;
-  }
-
-  return inviteMap;
-}
-
 // Main
 export async function prepareMailchimpInvites(
   targetStatus:
@@ -171,6 +75,7 @@ export async function prepareMailchimpInvites(
     | 'tentatively_waitlisted'
     | 'tentatively_waitlist_accepted'
     | 'tentatively_waitlist_rejected'
+    | 'rsvp_reminder'
 ) {
   const requiredEnvs = [
     'TITO_AUTH_TOKEN',
@@ -188,8 +93,16 @@ export async function prepareMailchimpInvites(
   const errorDetails: string[] = [];
   const MAX_CONCURRENT_REQUESTS = 10;
 
+  let dbApplicants = [];
+
   try {
-    const dbApplicants = await getApplicationsByStatuses(targetStatus);
+    if (targetStatus === 'rsvp_reminder') {
+      throw new Error('RSVP Reminder not yet implemented');
+      //TODO: create getApplicantsForRsvpReminder function
+    } else {
+      dbApplicants = await getApplicationsByStatuses(targetStatus);
+    }
+
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
 
     const statusTemplate = targetStatus.replace(/^tentatively_/, '');
@@ -275,6 +188,7 @@ export async function prepareMailchimpInvites(
                 throw new Error(`Hub URL generation failed for ${app.email}`);
             }
 
+            // Accounts for both accepted and other statuses
             await addToMailchimp(
               mailchimpClient,
               audienceId,
