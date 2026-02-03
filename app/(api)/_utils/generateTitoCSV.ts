@@ -4,7 +4,7 @@ import { getAdminApplications } from '@actions/applications/getApplication';
 import { Application } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
 
-export async function exportTitoCSV(statuses: Status | Status[]) {
+export async function generateTitoCSV(statuses: Status | Status[]) {
   const applicants = await getApplicationsByStatuses(statuses);
   return generateCSV(applicants);
 }
