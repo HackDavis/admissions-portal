@@ -1,8 +1,7 @@
 'use server';
 
-const TITO_API_TOKEN = process.env.TITO_API_TOKEN;
-const TITO_ACCOUNT_SLUG = process.env.TITO_ACCOUNT_SLUG;
-const TITO_EVENT_SLUG = process.env.TITO_EVENT_SLUG;
+const TITO_AUTH_TOKEN = process.env.TITO_AUTH_TOKEN;
+const TITO_EVENT_BASE_URL = process.env.TITO_EVENT_BASE_URL;
 
 interface Release {
   id: string;
@@ -19,20 +18,20 @@ interface Response {
 
 export default async function getReleases(): Promise<Response> {
   try {
-    if (!TITO_API_TOKEN || !TITO_ACCOUNT_SLUG || !TITO_EVENT_SLUG) {
+    if (!TITO_AUTH_TOKEN || !TITO_EVENT_BASE_URL) {
       const error = 'Missing Tito API configuration in environment variables';
       console.error('[Tito API] getReleases:', error);
       throw new Error(error);
     }
 
-    const url = `https://api.tito.io/v3/${TITO_ACCOUNT_SLUG}/${TITO_EVENT_SLUG}/releases`;
+    const url = `${TITO_EVENT_BASE_URL}/releases`;
 
     console.log('[Tito API] Fetching releases from:', url);
 
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Token token=${TITO_API_TOKEN}`,
+        Authorization: `Token token=${TITO_AUTH_TOKEN}`,
         Accept: 'application/json',
       },
     });
@@ -49,7 +48,7 @@ export default async function getReleases(): Promise<Response> {
     const releases = data.releases || [];
 
     console.log('[Tito API] Successfully fetched', releases.length, 'releases');
-    console.log('[Tito API] Full releases response:', JSON.stringify(data, null, 2));
+    // console.log('[Tito API] Full releases response:', JSON.stringify(data, null, 2));
 
     return {
       ok: true,

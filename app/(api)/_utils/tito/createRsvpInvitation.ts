@@ -1,8 +1,7 @@
 'use server';
 
-const TITO_API_TOKEN = process.env.TITO_API_TOKEN;
-const TITO_ACCOUNT_SLUG = process.env.TITO_ACCOUNT_SLUG;
-const TITO_EVENT_SLUG = process.env.TITO_EVENT_SLUG;
+const TITO_AUTH_TOKEN = process.env.TITO_AUTH_TOKEN;
+const TITO_EVENT_BASE_URL = process.env.TITO_EVENT_BASE_URL;
 
 interface InvitationData {
   firstName: string;
@@ -34,7 +33,7 @@ export default async function createRsvpInvitation(
   data: InvitationData
 ): Promise<Response> {
   try {
-    if (!TITO_API_TOKEN || !TITO_ACCOUNT_SLUG || !TITO_EVENT_SLUG) {
+    if (!TITO_AUTH_TOKEN || !TITO_EVENT_BASE_URL) {
       const error = 'Missing Tito API configuration in environment variables';
       console.error('[Tito API] createRsvpInvitation:', error);
       throw new Error(error);
@@ -70,7 +69,7 @@ export default async function createRsvpInvitation(
       throw new Error(error);
     }
 
-    const url = `https://api.tito.io/v3/${TITO_ACCOUNT_SLUG}/${TITO_EVENT_SLUG}/rsvp_lists/${data.rsvpListSlug}/release_invitations`;
+    const url = `${TITO_EVENT_BASE_URL}/rsvp_lists/${data.rsvpListSlug}/release_invitations`;
 
     // Build the request body according to the API documentation
     const requestBody: {
@@ -103,7 +102,7 @@ export default async function createRsvpInvitation(
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        Authorization: `Token token=${TITO_API_TOKEN}`,
+        Authorization: `Token token=${TITO_AUTH_TOKEN}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -124,8 +123,11 @@ export default async function createRsvpInvitation(
     const responseData = await response.json();
     const invitation = responseData.release_invitation;
 
-    console.log('[Tito API] Successfully created invitation:', invitation);
-    console.log('[Tito API] Full response data:', JSON.stringify(responseData, null, 2));
+    // console.log('[Tito API] Successfully created invitation:', invitation);
+    // console.log(
+    //   '[Tito API] Full response data:',
+    //   JSON.stringify(responseData, null, 2)
+    // );
     if (invitation.unique_url) {
       console.log('[Tito API] Unique invitation URL:', invitation.unique_url);
     }

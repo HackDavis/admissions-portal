@@ -7,8 +7,39 @@ import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
 
 // Mailchimp axios client
 function getMailchimpClient(apiKeyIndex: number) {
+  console.log('[Mailchimp] Getting client for API key index:', apiKeyIndex);
+
   const serverPrefix = process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`];
   const apiKey = process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`];
+
+  console.log('[Mailchimp] Server prefix:', serverPrefix);
+  console.log('[Mailchimp] API key configured:', !!apiKey);
+  console.log('[Mailchimp] Checking environment variables:');
+  console.log(
+    `[Mailchimp] MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}:`,
+    process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`]
+  );
+  console.log(
+    `[Mailchimp] MAILCHIMP_API_KEY_${apiKeyIndex}:`,
+    !!process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`]
+  );
+  console.log(
+    `[Mailchimp] MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}:`,
+    process.env[`MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`]
+  );
+
+  if (!serverPrefix || !apiKey) {
+    console.error(
+      `[Mailchimp] Missing environment variables for index ${apiKeyIndex}`
+    );
+    console.error(
+      `[Mailchimp] Available env vars:`,
+      Object.keys(process.env).filter((k) => k.startsWith('MAILCHIMP_'))
+    );
+    throw new Error(
+      `Missing Mailchimp configuration for API key index ${apiKeyIndex}. Please set MAILCHIMP_SERVER_PREFIX_${apiKeyIndex} and MAILCHIMP_API_KEY_${apiKeyIndex}`
+    );
+  }
 
   return axios.create({
     baseURL: `https://${serverPrefix}.api.mailchimp.com/3.0`,
@@ -23,18 +54,50 @@ function getMailchimpClient(apiKeyIndex: number) {
 // Login to Hub to start authenticated session
 async function getHubSession(): Promise<AxiosInstance> {
   const session = axios.create();
+  const hubUrl = process.env.HACKDAVIS_HUB_BASE_URL;
+  const hubEmail = process.env.HUB_ADMIN_EMAIL;
+
+  console.log('[Hub Auth] Attempting to login to Hub...');
+  console.log('[Hub Auth] Hub URL:', hubUrl);
+  console.log('[Hub Auth] Admin email:', hubEmail);
+  console.log(
+    '[Hub Auth] Password configured:',
+    !!process.env.HUB_ADMIN_PASSWORD
+  );
+
   try {
-    const res = await session.post(
-      `${process.env.HACKDAVIS_HUB_BASE_URL}/api/auth/login`,
-      {
-        email: process.env.HUB_ADMIN_EMAIL,
-        password: process.env.HUB_ADMIN_PASSWORD,
-      }
-    );
-    if (res.status !== 200) throw new Error('Hub login failed');
+    const loginUrl = `${hubUrl}/api/auth/login`;
+    console.log('[Hub Auth] Full login URL:', loginUrl);
+
+    const res = await session.post(loginUrl, {
+      email: hubEmail,
+      password: process.env.HUB_ADMIN_PASSWORD,
+    });
+
+    console.log('[Hub Auth] Response status:', res.status);
+    console.log('[Hub Auth] Response data:', JSON.stringify(res.data, null, 2));
+
+    if (res.status !== 200) {
+      console.error('[Hub Auth] Login failed with non-200 status:', res.status);
+      console.error('[Hub Auth] Response:', res.data);
+      throw new Error('Hub login failed');
+    }
+
+    console.log('[Hub Auth] Login successful!');
     return session;
   } catch (err: any) {
-    throw new Error(`Hub Authentication Error: ${err.message}`);
+    console.error('[Hub Auth] Login exception occurred');
+    console.error('[Hub Auth] Error message:', err.message);
+    console.error('[Hub Auth] Error response status:', err.response?.status);
+    console.error(
+      '[Hub Auth] Error response data:',
+      JSON.stringify(err.response?.data, null, 2)
+    );
+    console.error('[Hub Auth] Full error:', err);
+    throw new Error(
+      `Hub Authentication Error: ${err.message} | Status: ${err.response
+        ?.status} | Data: ${JSON.stringify(err.response?.data)}`
+    );
   }
 }
 
@@ -45,17 +108,25 @@ async function createHubInvite(
   last: string,
   email: string
 ): Promise<string> {
+  console.log(`[Hub Invite] Creating invite for: ${email}`);
+
   try {
-    const res = await session.post(
-      `${process.env.HACKDAVIS_HUB_BASE_URL}/api/invite`,
-      {
-        data: { email, name: `${first} ${last}`, role: 'hacker' },
-      }
+    const inviteUrl = `${process.env.HACKDAVIS_HUB_BASE_URL}/api/invite`;
+    const payload = {
+      data: { email, name: `${first} ${last}`, role: 'hacker' },
+    };
+
+    const res = await session.post(inviteUrl, payload);
+
+    console.log(
+      `[Hub Invite] Response data for ${email}:`,
+      JSON.stringify(res.data, null, 2)
     );
 
-    console.log('Hub invite response for', email, res.data);
-
     if (!res.data?.ok || !res.data.body) {
+      console.error(`[Hub Invite] Invalid response structure for ${email}`);
+      console.error(`[Hub Invite] res.data.ok:`, res.data?.ok);
+      console.error(`[Hub Invite] res.data.body:`, res.data?.body);
       throw new Error(`Hub invite failed for ${email}`);
     }
 
@@ -66,9 +137,18 @@ async function createHubInvite(
       throw new Error(`Invalid invite path returned: ${path}`);
     }
 
+    console.log(
+      `[Hub Invite] Successfully created invite for ${email}: ${path}`
+    );
     return path;
-  } catch (err) {
-    console.error('Hub invite failed for', email, err);
+  } catch (err: any) {
+    console.error(`[Hub Invite] Exception for ${email}`);
+    console.error(`[Hub Invite] Error message:`, err.message);
+    console.error(`[Hub Invite] Error response status:`, err.response?.status);
+    console.error(
+      `[Hub Invite] Error response data:`,
+      JSON.stringify(err.response?.data, null, 2)
+    );
     throw err;
   }
 }
