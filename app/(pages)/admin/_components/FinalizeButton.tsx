@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Application } from '@/app/_types/application';
 import { Status } from '@/app/_types/applicationFilters';
-import { exportTitoCSV } from '@utils/exportTito';
+import { generateTitoCSV } from '@utils/generateTitoCSV';
 import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
 import { useMailchimp } from '../_hooks/useMailchimp';
 import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
@@ -68,7 +68,7 @@ export default function FinalizeButton({
     try {
       console.log(`Exporting ${statuses} applicants to CSV...\n`);
 
-      const csv = await exportTitoCSV(statuses); // server action
+      const csv = await generateTitoCSV(statuses); // server action
       if (!csv || csv.trim() === '') {
         alert(`No ${statuses} applicants found to export.`);
         return;
@@ -90,8 +90,8 @@ export default function FinalizeButton({
     }
   }
 
-  // Sends Mailchimp email && updates application status
-  async function processMailchimpInvites() {
+  // Prepares Mailchimp invites && updates application status
+  async function processAllApplicants() {
     setIsProcessing(true);
     const results: string[] = [];
     let hadError = false;
@@ -109,7 +109,7 @@ export default function FinalizeButton({
       },
     ] as const;
 
-    // Sends Mailchimp invites
+    // Prepares Mailchimp invites
     try {
       for (const batch of batches) {
         const res = await prepareMailchimpInvites(batch.types[0]);
@@ -222,11 +222,11 @@ export default function FinalizeButton({
             {/* Buttons */}
             <div className="flex justify-end space-x-2">
               <button
-                onClick={processMailchimpInvites}
+                onClick={processAllApplicants}
                 className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
                 disabled={isProcessing}
               >
-                {isProcessing ? 'Processing...' : 'Mailchimp Invite'}
+                {isProcessing ? 'Processing...' : 'Process Applicants'}
               </button>
               <button
                 onClick={() => setIsPopupOpen(false)}

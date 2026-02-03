@@ -57,27 +57,6 @@ export default function ABitMore({
         </p>
 
         <div className="mx-auto mt-12 w-full max-w-lg space-y-10 text-left">
-          {/* Sponsors connect */}
-          <div>
-            <p className="text-base font-semibold text-[#0F2530]">
-              Would you like to be connected to internship and full-time career
-              opportunities from our sponsors and partners?*
-            </p>
-
-            <YesNoGroup
-              value={formData.connectWithSponsors}
-              onChange={(v) =>
-                setFormData({ ...formData, connectWithSponsors: v })
-              }
-            />
-
-            {submitted && typeof formData.connectWithSponsors !== 'boolean' && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please select an option.
-              </p>
-            )}
-          </div>
-
           {/* LinkedIn */}
           <div>
             <label className="block text-sm font-semibold text-[#0F2530]">
@@ -132,6 +111,27 @@ export default function ABitMore({
                   ERROR: Please enter a valid URL.
                 </p>
               )}
+          </div>
+
+          {/* Sponsors connect */}
+          <div>
+            <p className="text-base font-semibold text-[#0F2530]">
+              Would you like to be connected to internship and full-time career
+              opportunities from our sponsors and partners?*
+            </p>
+
+            <YesNoGroup
+              value={formData.connectWithSponsors}
+              onChange={(v) =>
+                setFormData({ ...formData, connectWithSponsors: v })
+              }
+            />
+
+            {submitted && typeof formData.connectWithSponsors !== 'boolean' && (
+              <p className="mt-3 text-sm font-semibold text-red-400">
+                ERROR: Please select an option.
+              </p>
+            )}
           </div>
 
           {/* Resume (text box per your note) */}

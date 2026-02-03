@@ -1,14 +1,6 @@
 import { getMailchimp } from '@actions/mailchimp/getMailchimp';
 import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 
-export async function getMailchimpAPIKey() {
-  const res = await getMailchimp();
-  if (!res.ok) {
-    throw new Error(res.error || 'Failed to fetch Mailchimp API status');
-  }
-  return res.body.apiKeyIndex;
-}
-
 export async function reserveMailchimpAPIKeyIndex() {
   const res = await getMailchimp();
   if (!res.ok) {
