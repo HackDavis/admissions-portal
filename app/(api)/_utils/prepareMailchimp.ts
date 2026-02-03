@@ -2,9 +2,12 @@
 
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
-import { getApplicationsByStatuses } from './generateTitoCSV';
+import {
+  getApplicationsByStatuses,
+  getApplicationsForRsvpReminder,
+} from './getApplicationsByType';
 import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
-import { getRsvpList, fetchUnredeemedInvites } from './fetchTitoInvites';
+import { getTitoRsvpList, getUnredeemedTitoInvites } from './getTitoInvites';
 import { getHubSession, createHubInvite } from './createHubInvites';
 
 // Mailchimp axios client
@@ -97,8 +100,7 @@ export async function prepareMailchimpInvites(
 
   try {
     if (targetStatus === 'rsvp_reminder') {
-      throw new Error('RSVP Reminder not yet implemented');
-      //TODO: create getApplicantsForRsvpReminder function
+      dbApplicants = await getApplicationsForRsvpReminder();
     } else {
       dbApplicants = await getApplicationsByStatuses(targetStatus);
     }
@@ -118,9 +120,9 @@ export async function prepareMailchimpInvites(
       // Get tito and hub for accepted and waitlist_accepted applicants
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
-      const rsvpList = await getRsvpList();
+      const rsvpList = await getTitoRsvpList();
       [titoInvitesMap, hubSession] = await Promise.all([
-        fetchUnredeemedInvites(rsvpList.slug),
+        getUnredeemedTitoInvites(rsvpList.slug),
         getHubSession(),
       ]);
     }

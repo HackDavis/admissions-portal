@@ -54,3 +54,7 @@ export async function createHubInvite(
     throw err;
   }
 }
+
+export async function getUnredeemedHubInvites() {
+  //TODO: get unredeemed invites from hub: aka map ACCEPTED and WAITLIST_ACCEPTED applicants to hub 'users' --> if doesn't exist, then unredeemed
+}

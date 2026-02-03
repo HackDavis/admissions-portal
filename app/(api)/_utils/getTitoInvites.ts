@@ -3,14 +3,14 @@
 import axios from 'axios';
 
 // Fetch from Tito
-export async function getRsvpList() {
+export async function getTitoRsvpList() {
   const res = await axios.get(`${process.env.TITO_EVENT_BASE_URL}/rsvp_lists`, {
     headers: { Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}` },
   });
   return res.data.rsvp_lists[0]; //ONLY checks first rsvp list
 }
 
-export async function fetchUnredeemedInvites(slug: string) {
+export async function getUnredeemedTitoInvites(slug: string) {
   const pageSize = 500;
   let page = 1;
   let hasMore = true;
