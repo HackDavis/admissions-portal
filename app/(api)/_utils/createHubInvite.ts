@@ -1,6 +1,8 @@
 'use server';
 
 import axios, { AxiosInstance } from 'axios';
+import { getApplicationsByStatuses } from './getApplicationsByType';
+import { getManyUsers } from '../_actions/users/getUser';
 
 // Login to Hub to start authenticated session
 export async function getHubSession(): Promise<AxiosInstance> {
@@ -55,6 +57,16 @@ export async function createHubInvite(
   }
 }
 
-export async function getUnredeemedHubInvites() {
-  //TODO: get unredeemed invites from hub: aka map ACCEPTED and WAITLIST_ACCEPTED applicants to hub 'users' --> if doesn't exist, then unredeemed
+export async function getUnredeemedHubEmails() {
+  // Get all accepted and waitlist_accepted applicants
+  const acceptedApplicants = await getApplicationsByStatuses([
+    'accepted',
+    'waitlist_accepted',
+  ]);
+  const applicantEmails = acceptedApplicants.map((a) => a.email.toLowerCase());
+
+  const hubUsersMap = await getManyUsers(applicantEmails);
+
+  // Cross-check applicants that have unredeemed hub invites
+  return applicantEmails.filter((email) => !hubUsersMap.has(email));
 }

@@ -3,6 +3,8 @@
 import { getAdminApplications } from '@actions/applications/getApplication';
 import { Application } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
+import { getUnredeemedHubEmails } from './createHubInvite';
+import { getUnredeemedTitoInvites, getTitoRsvpList } from './getTitoInvites';
 
 export async function getApplicationsByStatuses(
   statuses: Status | Status[]
@@ -38,12 +40,41 @@ export async function getApplicationsByStatuses(
 }
 
 export async function getApplicationsForRsvpReminder() {
-  // Filters out duplicate emails for Tito and Hub invites
-  // TODO: call getUnredeemedHubInvites and getUnredeemedTitoInvites and cross reference
-  //   const applicants = res.body ?? [];
-  //   return applicants.map((app: any) => ({
-  //     ...app,
-  //     _id: String(app._id),
-  //   }));
-  return [];
+  const unredeemedHubEmails = await getUnredeemedHubEmails();
+  const rsvpList = await getTitoRsvpList();
+  const unredeemedTitoMap = await getUnredeemedTitoInvites(rsvpList.slug);
+
+  // Merge unredeemed invites from both Hub and Tito (deduplicate by email)
+  const emailSet = new Set<string>([
+    ...unredeemedHubEmails,
+    ...Array.from(unredeemedTitoMap.keys()),
+  ]);
+  const uniqueEmails = Array.from(emailSet);
+
+  if (uniqueEmails.length === 0) {
+    console.log('No unredeemed applicants found for reminder.');
+    return [];
+  }
+
+  const query = {
+    email: { $in: uniqueEmails },
+  };
+
+  const projection = {
+    firstName: 1,
+    lastName: 1,
+    email: 1,
+    status: 1,
+  };
+
+  const res = await getAdminApplications(query, projection);
+
+  if (!res.ok) throw new Error(res.error ?? 'Failed to fetch applicants');
+
+  const applicants = res.body ?? [];
+
+  return applicants.map((app: any) => ({
+    ...app,
+    _id: String(app._id),
+  }));
 }

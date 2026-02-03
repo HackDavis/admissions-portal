@@ -8,7 +8,7 @@ import {
 } from './getApplicationsByType';
 import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
 import { getTitoRsvpList, getUnredeemedTitoInvites } from './getTitoInvites';
-import { getHubSession, createHubInvite } from './createHubInvites';
+import { getHubSession, createHubInvite } from './createHubInvite';
 
 // Mailchimp axios client
 function getMailchimpClient(apiKeyIndex: number) {
