@@ -49,7 +49,11 @@ export default async function getRsvpLists(): Promise<Response> {
     const data = await response.json();
     const rsvpLists = data.rsvp_lists || [];
 
-    console.log('[Tito API] Successfully fetched', rsvpLists.length, 'RSVP lists');
+    console.log(
+      '[Tito API] Successfully fetched',
+      rsvpLists.length,
+      'RSVP lists'
+    );
 
     return {
       ok: true,

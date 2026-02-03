@@ -123,9 +123,7 @@ export default function FinalizeButton({
 
     setIsProcessing(true);
 
-    const errors: string[] = [];
     const titoFailures: string[] = [];
-    const hubFailures: string[] = [];
     const mailchimpFailures: string[] = [];
     let processedResults = '';
 
@@ -145,7 +143,9 @@ export default function FinalizeButton({
         `[Process All] ${acceptedApps.length} accepted (will get Tito tickets)`
       );
       console.log(
-        `[Process All] ${allApps.length - acceptedApps.length} non-accepted (no Tito tickets)`
+        `[Process All] ${
+          allApps.length - acceptedApps.length
+        } non-accepted (no Tito tickets)`
       );
 
       // STEP 1: Create Tito invitations (accepted only)
@@ -224,7 +224,7 @@ export default function FinalizeButton({
           // Error format: "X FAILED:\n[email]: reason\n[email]: reason"
           const errorLines = res.error.split('\n').slice(1); // Skip first line (count)
 
-          errorLines.forEach((line) => {
+          errorLines.forEach((line: string) => {
             const match = line.match(/\[([^\]]+)\]:\s*(.+)/);
             if (match) {
               const email = match[1].toLowerCase();
@@ -234,9 +234,10 @@ export default function FinalizeButton({
           });
 
           // Also catch any apps in this batch that weren't successful but no specific error
+          const batchStatus = batch.types[0];
           const failedApps = apps.filter(
             (app) =>
-              batch.types.includes(app.status as any) &&
+              app.status === batchStatus &&
               !res.ids.includes(app._id) &&
               !mailchimpErrorMap.has(app.email.toLowerCase())
           );
@@ -263,7 +264,9 @@ export default function FinalizeButton({
       processedResults = mailchimpResults.join('\n');
 
       // STEP 3: Generate comprehensive CSV with all data
-      console.log('[Process All] Generating final CSV with all applicant data...');
+      console.log(
+        '[Process All] Generating final CSV with all applicant data...'
+      );
       const csvData = generateComprehensiveCSV(
         allApps,
         titoInviteMapLocal,
@@ -275,7 +278,9 @@ export default function FinalizeButton({
       // Download CSV
       const blob = new Blob([csvData], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
-      const download = `applicants_finalized_${new Date().toISOString().split('T')[0]}.csv`;
+      const download = `applicants_finalized_${
+        new Date().toISOString().split('T')[0]
+      }.csv`;
       const a = document.createElement('a');
       a.href = url;
       a.download = download;
@@ -283,8 +288,7 @@ export default function FinalizeButton({
       URL.revokeObjectURL(url);
 
       // Increment batch number if no errors
-      const hadErrors =
-        titoFailures.length > 0 || mailchimpFailures.length > 0;
+      const hadErrors = titoFailures.length > 0 || mailchimpFailures.length > 0;
       if (!hadErrors) {
         try {
           await updateMailchimp({ batchNumber: 1, lastUpdate: new Date() });
@@ -427,7 +431,6 @@ export default function FinalizeButton({
     return [headers.join(','), ...rows].join('\n');
   };
 
-
   const toggleRelease = (releaseId: string) => {
     setSelectedReleases((prev) =>
       prev.includes(releaseId)
@@ -452,9 +455,7 @@ export default function FinalizeButton({
       {showTitoModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-bold mb-4">
-              Finalize All Applicants
-            </h2>
+            <h2 className="text-lg font-bold mb-4">Finalize All Applicants</h2>
 
             {loadingTitoData ? (
               <div className="text-center py-8">
@@ -630,11 +631,13 @@ export default function FinalizeButton({
                   Tito Failures ({processingResults.titoFailures.length}):
                 </p>
                 <div className="text-xs space-y-1 max-h-40 overflow-y-auto">
-                  {processingResults.titoFailures.slice(0, 20).map((failure, idx) => (
-                    <div key={idx} className="text-red-700">
-                      {failure}
-                    </div>
-                  ))}
+                  {processingResults.titoFailures
+                    .slice(0, 20)
+                    .map((failure, idx) => (
+                      <div key={idx} className="text-red-700">
+                        {failure}
+                      </div>
+                    ))}
                   {processingResults.titoFailures.length > 20 && (
                     <div className="text-red-700 font-semibold">
                       ...and {processingResults.titoFailures.length - 20} more
