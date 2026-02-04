@@ -6,10 +6,13 @@ import { ApplicationCondensed } from '@/app/_types/application';
 import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
-} from './getFilteredApplications';
+} from '../getFilteredApplications';
 import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
-import { getTitoRsvpList, getUnredeemedTitoInvites } from './getTitoInvites';
-import { getHubSession, createHubInvite } from './createHubInvite';
+import {
+  getTitoRsvpList,
+  getUnredeemedTitoInvites,
+} from '../tito/getTitoInvites';
+import { getHubSession, createHubInvite } from '../hub/createHubInvite';
 
 // Mailchimp axios client
 function getMailchimpClient(apiKeyIndex: number) {
