@@ -46,7 +46,7 @@ export interface ApplicationCondensed {
   firstName: string;
   lastName: string;
   email: string;
-  status: string;
+  status: Status;
 }
 
 export interface ApplicationUpdatePayload {

@@ -20,10 +20,11 @@ export default function AdminHeader({
     setIsProcessing(true);
     await processRsvpReminders();
     setIsProcessing(false);
+    refreshMailchimp();
     setIsPopupOpen(false);
   }
 
-  const { mailchimp } = useMailchimp();
+  const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
   const mc = mailchimp ?? {
     batchNumber: 'N/A',
     apiCallsMade: 0,
