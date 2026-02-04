@@ -1,7 +1,7 @@
 'use client';
 
 import { useMailchimp } from '../_hooks/useMailchimp';
-import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
+import { processRsvpReminders } from '../_utils/processRsvpReminders';
 import { useState } from 'react';
 
 interface AdminHeaderProps {
@@ -14,27 +14,13 @@ export default function AdminHeader({
   onLogout,
 }: AdminHeaderProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  async function processRsvpReminders() {
+  async function handleProcessRsvpReminders() {
     setIsProcessing(true);
-    try {
-      const res = await prepareMailchimpInvites('rsvp_reminder');
-      if (!res.ok) {
-        alert(`Error processing RSVP reminders: ${res.error}`);
-      }
-
-      const processedCount = res.ids?.length ?? 0;
-      if (processedCount > 0) {
-        alert(`Successfully processed ${processedCount} RSVP reminders!`);
-      } else {
-        alert('No RSVP reminders to process.');
-      }
-    } catch (err: any) {
-      console.error('Error processing RSVP reminders:', err);
-      alert(`Error processing RSVP reminders: ${err.message}`);
-    } finally {
-      setIsProcessing(false);
-    }
+    await processRsvpReminders();
+    setIsProcessing(false);
+    setIsPopupOpen(false);
   }
 
   const { mailchimp } = useMailchimp();
@@ -60,11 +46,11 @@ export default function AdminHeader({
       </div>
 
       <button
-        onClick={processRsvpReminders}
+        onClick={setIsPopupOpen.bind(null, true)}
         className="special-button px-2 py-1 text-xs"
         disabled={isProcessing}
       >
-        {isProcessing ? 'Processing...' : 'send rsvp reminders'}
+        process rsvp reminders
       </button>
 
       <div>
@@ -77,6 +63,33 @@ export default function AdminHeader({
         <p className="mt-1 text-xs">Last update: {mc.lastUpdate.toString()}</p>
         <p className="mt-1 text-xs">Last reset: {mc.lastReset.toString()}</p>
       </div>
+
+      {/* Popup menu */}
+      {isPopupOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="border-2 border-black bg-white shadow-xl max-w-lg w-full p-6 relative">
+            <h2 className="text-lg font-bold mb-4">process rsvp reminders</h2>
+
+            {/* Buttons */}
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={handleProcessRsvpReminders}
+                className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
+                disabled={isProcessing}
+              >
+                {isProcessing ? 'Processing...' : 'CONFIRM (yes)'}
+              </button>
+              <button
+                onClick={() => setIsPopupOpen(false)}
+                className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
+                disabled={isProcessing}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
