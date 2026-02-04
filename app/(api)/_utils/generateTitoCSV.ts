@@ -2,7 +2,7 @@
 
 import { Application } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
-import { getApplicationsByStatuses } from './getApplicationsByType';
+import { getApplicationsByStatuses } from './getApplicationsForMailchimp';
 
 export async function generateTitoCSV(statuses: Status | Status[]) {
   const applicants = await getApplicationsByStatuses(statuses);

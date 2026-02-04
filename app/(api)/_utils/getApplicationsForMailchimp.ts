@@ -36,7 +36,7 @@ export async function getApplicationsByStatuses(
   return applicants;
 }
 
-export async function getApplicationsForRsvpReminder() {
+export async function getApplicationsForRsvpReminder(): Promise<Application[]> {
   try {
     const unredeemedHubEmails = await getUnredeemedHubEmails();
     console.log('Unredeemed Hub emails:', unredeemedHubEmails);
@@ -45,6 +45,7 @@ export async function getApplicationsForRsvpReminder() {
     console.log('Unredeemed Tito emails:', unredeemedTitoMap);
 
     // Merge unredeemed invites from both Hub and Tito (deduplicate by email)
+    // This is a UNION operation (either unredeemed in Hub OR Tito)
     const uniqueEmails = Array.from(
       new Set([...unredeemedHubEmails, ...Array.from(unredeemedTitoMap.keys())])
     );

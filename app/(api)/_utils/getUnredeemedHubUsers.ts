@@ -1,6 +1,6 @@
 'use server';
 
-import { getApplicationsByStatuses } from './getApplicationsByType';
+import { getApplicationsByStatuses } from './getApplicationsForMailchimp';
 import { getManyUsers } from '../_actions/users/getUser';
 
 export async function getUnredeemedHubEmails() {
@@ -14,10 +14,13 @@ export async function getUnredeemedHubEmails() {
   );
 
   const res = await getManyUsers({ email: { $in: applicantEmails } });
+
+  if (!res || res.ok === false) {
+    throw new Error(res?.error ?? 'Failed to fetch Hub users from database.');
+  }
+
   const redeemedEmails = new Set(
-    (Array.isArray(res?.body) ? res.body : []).map((u: any) =>
-      u.email.toLowerCase()
-    )
+    (res.body ?? []).map((u: any) => u.email.toLowerCase())
   );
 
   // Cross-check applicants that have unredeemed hub invites

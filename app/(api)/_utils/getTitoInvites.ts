@@ -13,7 +13,11 @@ export async function getTitoRsvpList() {
         },
       }
     );
-    return res.data.rsvp_lists[0]; //ONLY checks first rsvp list
+    const rsvpLists = res?.data?.rsvp_lists;
+    if (!Array.isArray(rsvpLists) || rsvpLists.length === 0) {
+      throw new Error('No RSVP lists returned from Tito API');
+    }
+    return rsvpLists[0]; // ONLY checks first rsvp list
   } catch (err: any) {
     throw new Error(`Failed to fetch Tito RSVP list: ${err.message}`);
   }

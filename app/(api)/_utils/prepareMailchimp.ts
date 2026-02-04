@@ -2,20 +2,14 @@
 
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
+import { Application } from '@/app/_types/application';
 import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
-} from './getApplicationsByType';
+} from './getApplicationsForMailchimp';
 import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
 import { getTitoRsvpList, getUnredeemedTitoInvites } from './getTitoInvites';
 import { getHubSession, createHubInvite } from './createHubInvite';
-
-import { Application } from '@/app/_types/application';
-
-export type MailchimpSubscriber = Pick<
-  Application,
-  'firstName' | 'lastName' | 'email' | 'status'
-> & { _id: string };
 
 // Mailchimp axios client
 function getMailchimpClient(apiKeyIndex: number) {
@@ -103,7 +97,7 @@ export async function prepareMailchimpInvites(
   const errorDetails: string[] = [];
   const MAX_CONCURRENT_REQUESTS = 10;
 
-  let dbApplicants: MailchimpSubscriber[] = [];
+  let dbApplicants: Application[] = [];
 
   try {
     if (targetStatus === 'rsvp_reminder') {
@@ -123,6 +117,7 @@ export async function prepareMailchimpInvites(
     let titoInvitesMap = new Map<string, string>();
     let hubSession: AxiosInstance | null = null;
 
+    // Note: rsvp_reminder does not require hub/tito info
     if (isAccepted) {
       // Get tito and hub for accepted and waitlist_accepted applicants
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
