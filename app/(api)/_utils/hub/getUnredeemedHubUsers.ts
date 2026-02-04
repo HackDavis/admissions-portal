@@ -1,7 +1,7 @@
 'use server';
 
-import { getApplicationsByStatuses } from './getFilteredApplications';
-import { getManyUsers } from '../_actions/users/getUser';
+import { getApplicationsByStatuses } from '../getFilteredApplications';
+import { getManyUsers } from '@actions/users/getUser';
 
 export async function getUnredeemedHubEmails() {
   // Get all accepted and waitlist_accepted applicants

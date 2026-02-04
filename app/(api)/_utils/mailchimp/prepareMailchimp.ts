@@ -2,14 +2,17 @@
 
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
-import { Application } from '@/app/_types/application';
+import { ApplicationCondensed } from '@/app/_types/application';
 import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
-} from './getFilteredApplications';
+} from '../getFilteredApplications';
 import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
-import { getTitoRsvpList, getUnredeemedTitoInvites } from './getTitoInvites';
-import { getHubSession, createHubInvite } from './createHubInvite';
+import {
+  getTitoRsvpList,
+  getUnredeemedTitoInvites,
+} from '../tito/getTitoInvites';
+import { getHubSession, createHubInvite } from '../hub/createHubInvite';
 
 // Mailchimp axios client
 function getMailchimpClient(apiKeyIndex: number) {
@@ -96,8 +99,9 @@ export async function prepareMailchimpInvites(
   const successfulIds: string[] = [];
   const errorDetails: string[] = [];
   const MAX_CONCURRENT_REQUESTS = 10;
+  const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
 
-  let dbApplicants: Application[] = [];
+  let dbApplicants: ApplicationCondensed[] = [];
 
   try {
     if (targetStatus === 'rsvp_reminder') {
@@ -122,7 +126,7 @@ export async function prepareMailchimpInvites(
       // Get tito and hub for accepted and waitlist_accepted applicants
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
-      const rsvpList = await getTitoRsvpList();
+      const rsvpList = await getTitoRsvpList(RSVP_LIST_INDEX);
       [titoInvitesMap, hubSession] = await Promise.all([
         getUnredeemedTitoInvites(rsvpList.slug),
         getHubSession(),

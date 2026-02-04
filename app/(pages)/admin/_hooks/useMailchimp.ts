@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getMailchimp } from '@actions/mailchimp/getMailchimp';
 import { Mailchimp } from '@/app/_types/mailchimp';
 
@@ -8,16 +8,18 @@ export function useMailchimp() {
   const [mailchimp, setMailchimp] = useState<Mailchimp | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const getMailchimpWrapper = async () => {
-      const res = await getMailchimp();
-      if (res.ok) {
-        setMailchimp(res.body);
-      }
-      setLoading(false);
-    };
-    getMailchimpWrapper();
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    const res = await getMailchimp();
+    if (res.ok) {
+      setMailchimp(res.body);
+    }
+    setLoading(false);
   }, []);
 
-  return { mailchimp, loading };
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { mailchimp, loading, refresh };
 }
