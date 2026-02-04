@@ -26,31 +26,37 @@ export async function getUnredeemedTitoInvites(slug: string) {
   const inviteMap = new Map<string, string>();
 
   while (hasMore) {
-    const res = await axios.get(
-      `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists/${slug}/release_invitations`,
-      {
-        params: {
-          'page[size]': pageSize,
-          'page[number]': page,
-        },
-        headers: {
-          Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}`,
-        },
-      }
-    );
+    try {
+      const res = await axios.get(
+        `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists/${slug}/release_invitations`,
+        {
+          params: {
+            'page[size]': pageSize,
+            'page[number]': page,
+          },
+          headers: {
+            Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}`,
+          },
+        }
+      );
 
-    const invites = res.data.release_invitations ?? [];
+      const invites = res.data.release_invitations ?? [];
 
-    for (const invite of invites) {
-      if (!invite.redeemed) {
-        inviteMap.set(invite.email.toLowerCase(), invite.unique_url);
-      } else {
-        console.warn('Invite already redeemed for', invite.email);
+      for (const invite of invites) {
+        if (!invite.redeemed) {
+          inviteMap.set(invite.email.toLowerCase(), invite.unique_url);
+        } else {
+          console.warn('Invite already redeemed for', invite.email);
+        }
       }
+
+      hasMore = invites.length === pageSize;
+      page++;
+    } catch (err: any) {
+      throw new Error(
+        `Error fetching Tito invites for slug "${slug}" on page ${page}: ${err.message}`
+      );
     }
-
-    hasMore = invites.length === pageSize;
-    page++;
   }
 
   return inviteMap;
