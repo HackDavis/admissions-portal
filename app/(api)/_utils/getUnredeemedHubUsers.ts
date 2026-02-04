@@ -1,6 +1,6 @@
 'use server';
 
-import { getApplicationsByStatuses } from './getApplicationsForMailchimp';
+import { getApplicationsByStatuses } from './getFilteredApplications';
 import { getManyUsers } from '../_actions/users/getUser';
 
 export async function getUnredeemedHubEmails() {
