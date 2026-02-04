@@ -17,19 +17,24 @@ export default function AdminHeader({
 
   async function processRsvpReminders() {
     setIsProcessing(true);
-    const res = await prepareMailchimpInvites('rsvp_reminder');
-    if (!res.ok) {
-      console.error('Error processing RSVP reminders:', res.error);
-    }
+    try {
+      const res = await prepareMailchimpInvites('rsvp_reminder');
+      if (!res.ok) {
+        alert(`Error processing RSVP reminders: ${res.error}`);
+      }
 
-    const processedCount = res.ids?.length ?? 0;
-    if (processedCount > 0) {
-      alert(`Successfully processed ${processedCount} RSVP reminders!`);
-    } else {
-      alert('No RSVP reminders to process.');
+      const processedCount = res.ids?.length ?? 0;
+      if (processedCount > 0) {
+        alert(`Successfully processed ${processedCount} RSVP reminders!`);
+      } else {
+        alert('No RSVP reminders to process.');
+      }
+    } catch (err: any) {
+      console.error('Error processing RSVP reminders:', err);
+      alert(`Error processing RSVP reminders: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
     }
-
-    setIsProcessing(false);
   }
 
   const { mailchimp } = useMailchimp();
@@ -59,7 +64,7 @@ export default function AdminHeader({
         className="special-button px-2 py-1 text-xs"
         disabled={isProcessing}
       >
-        {isProcessing ? 'Checking...' : 'send rsvp reminders'}
+        {isProcessing ? 'Processing...' : 'send rsvp reminders'}
       </button>
 
       <div>

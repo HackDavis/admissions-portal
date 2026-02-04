@@ -10,6 +10,13 @@ import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
 import { getTitoRsvpList, getUnredeemedTitoInvites } from './getTitoInvites';
 import { getHubSession, createHubInvite } from './createHubInvite';
 
+import { Application } from '@/app/_types/application';
+
+export type MailchimpSubscriber = Pick<
+  Application,
+  'firstName' | 'lastName' | 'email' | 'status'
+> & { _id: string };
+
 // Mailchimp axios client
 function getMailchimpClient(apiKeyIndex: number) {
   const serverPrefix = process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`];
@@ -96,7 +103,7 @@ export async function prepareMailchimpInvites(
   const errorDetails: string[] = [];
   const MAX_CONCURRENT_REQUESTS = 10;
 
-  let dbApplicants = [];
+  let dbApplicants: MailchimpSubscriber[] = [];
 
   try {
     if (targetStatus === 'rsvp_reminder') {

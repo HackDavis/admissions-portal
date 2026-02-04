@@ -4,10 +4,19 @@ import axios from 'axios';
 
 // Fetch from Tito
 export async function getTitoRsvpList() {
-  const res = await axios.get(`${process.env.TITO_EVENT_BASE_URL}/rsvp_lists`, {
-    headers: { Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}` },
-  });
-  return res.data.rsvp_lists[0]; //ONLY checks first rsvp list
+  try {
+    const res = await axios.get(
+      `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists`,
+      {
+        headers: {
+          Authorization: `Token token=${process.env.TITO_AUTH_TOKEN}`,
+        },
+      }
+    );
+    return res.data.rsvp_lists[0]; //ONLY checks first rsvp list
+  } catch (err: any) {
+    throw new Error(`Failed to fetch Tito RSVP list: ${err.message}`);
+  }
 }
 
 export async function getUnredeemedTitoInvites(slug: string) {

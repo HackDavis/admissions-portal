@@ -3,7 +3,7 @@
 import { getAdminApplications } from '@actions/applications/getApplication';
 import { Application } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
-import { getUnredeemedHubEmails } from './createHubInvite';
+import { getUnredeemedHubEmails } from './getUnredeemedHubUsers';
 import { getUnredeemedTitoInvites, getTitoRsvpList } from './getTitoInvites';
 
 export async function getApplicationsByStatuses(
