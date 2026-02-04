@@ -40,6 +40,15 @@ export interface Application {
   processedAt?: Date | string;
 }
 
+// Used for Mailchimp and Tito CSV exports
+export interface ApplicationCondensed {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  status: string;
+}
+
 export interface ApplicationUpdatePayload {
   status: Status;
   batchNumber?: number;

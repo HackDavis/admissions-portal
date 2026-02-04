@@ -1,14 +1,14 @@
 'use server';
 
 import { getAdminApplications } from '@actions/applications/getApplication';
-import { Application } from '@/app/_types/application';
+import { ApplicationCondensed } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
 import { getUnredeemedHubEmails } from './getUnredeemedHubUsers';
 import { getUnredeemedTitoInvites, getTitoRsvpList } from './getTitoInvites';
 
 export async function getApplicationsByStatuses(
   statuses: Status | Status[]
-): Promise<Application[]> {
+): Promise<ApplicationCondensed[]> {
   const query = {
     status: Array.isArray(statuses) ? { $in: statuses } : statuses,
   };
@@ -36,7 +36,9 @@ export async function getApplicationsByStatuses(
   return applicants;
 }
 
-export async function getApplicationsForRsvpReminder(): Promise<Application[]> {
+export async function getApplicationsForRsvpReminder(): Promise<
+  ApplicationCondensed[]
+> {
   const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
 
   try {

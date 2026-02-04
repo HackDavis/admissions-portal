@@ -1,6 +1,6 @@
 'use server';
 
-import { Application } from '@/app/_types/application';
+import { ApplicationCondensed } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
 import { getApplicationsByStatuses } from './getFilteredApplications';
 
@@ -10,7 +10,7 @@ export async function generateTitoCSV(statuses: Status | Status[]) {
 }
 
 // Csv generation
-async function generateCSV(applicants: Application[]) {
+async function generateCSV(applicants: ApplicationCondensed[]) {
   // Tito import format: Email, First Name, Last Name
   const headers = [
     'First Name',

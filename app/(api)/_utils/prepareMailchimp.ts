@@ -2,7 +2,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 import crypto from 'crypto';
-import { Application } from '@/app/_types/application';
+import { ApplicationCondensed } from '@/app/_types/application';
 import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
@@ -98,7 +98,7 @@ export async function prepareMailchimpInvites(
   const MAX_CONCURRENT_REQUESTS = 10;
   const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
 
-  let dbApplicants: Application[] = [];
+  let dbApplicants: ApplicationCondensed[] = [];
 
   try {
     if (targetStatus === 'rsvp_reminder') {
