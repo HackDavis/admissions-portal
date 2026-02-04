@@ -18,10 +18,16 @@ export default function AdminHeader({
 
   async function handleProcessRsvpReminders() {
     setIsProcessing(true);
-    await processRsvpReminders();
-    setIsProcessing(false);
-    await refreshMailchimp();
-    setIsPopupOpen(false);
+    try {
+      await processRsvpReminders();
+      await refreshMailchimp();
+    } catch (err: any) {
+      console.error('Error while processing RSVP reminders:', err);
+      alert('Error processing RSVP reminders:' + err.message);
+    } finally {
+      setIsProcessing(false);
+      setIsPopupOpen(false);
+    }
   }
 
   const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
