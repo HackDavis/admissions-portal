@@ -9,6 +9,7 @@ export function useMailchimp() {
   const [loading, setLoading] = useState<boolean>(true);
 
   const refresh = useCallback(async () => {
+    setLoading(true);
     const res = await getMailchimp();
     if (res.ok) {
       setMailchimp(res.body);

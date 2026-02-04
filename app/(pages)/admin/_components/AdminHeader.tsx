@@ -20,7 +20,7 @@ export default function AdminHeader({
     setIsProcessing(true);
     await processRsvpReminders();
     setIsProcessing(false);
-    refreshMailchimp();
+    await refreshMailchimp();
     setIsPopupOpen(false);
   }
 
