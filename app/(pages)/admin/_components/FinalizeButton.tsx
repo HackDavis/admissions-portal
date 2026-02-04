@@ -42,7 +42,7 @@ export default function FinalizeButton({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const { mailchimp } = useMailchimp();
+  const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
 
   const currentBatch = mailchimp?.batchNumber ?? -1;
 
@@ -163,6 +163,7 @@ export default function FinalizeButton({
           console.error('Failed to increment Mailchimp batch number: ', err);
         }
       }
+      await refreshMailchimp();
 
       alert(results.join('\n'));
     } catch (err: any) {
