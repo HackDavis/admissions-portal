@@ -6,7 +6,7 @@ import { Application } from '@/app/_types/application';
 import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
-} from './getApplicationsForMailchimp';
+} from './getFilteredApplications';
 import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
 import { getTitoRsvpList, getUnredeemedTitoInvites } from './getTitoInvites';
 import { getHubSession, createHubInvite } from './createHubInvite';
