@@ -2,7 +2,7 @@
 
 import { ApplicationCondensed } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
-import { getApplicationsByStatuses } from './getFilteredApplications';
+import { getApplicationsByStatuses } from '../getFilteredApplications';
 
 export async function generateTitoCSV(statuses: Status | Status[]) {
   const applicants = await getApplicationsByStatuses(statuses);

@@ -3,8 +3,11 @@
 import { getAdminApplications } from '@actions/applications/getApplication';
 import { ApplicationCondensed } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
-import { getUnredeemedHubEmails } from './getUnredeemedHubUsers';
-import { getUnredeemedTitoInvites, getTitoRsvpList } from './getTitoInvites';
+import { getUnredeemedHubEmails } from './hub/getUnredeemedHubUsers';
+import {
+  getUnredeemedTitoInvites,
+  getTitoRsvpList,
+} from './tito/getTitoInvites';
 
 export async function getApplicationsByStatuses(
   statuses: Status | Status[]

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMailchimp } from '../_hooks/useMailchimp';
-import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
+import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
 import { useState } from 'react';
 
 interface AdminHeaderProps {
