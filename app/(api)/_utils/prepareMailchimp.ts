@@ -96,6 +96,7 @@ export async function prepareMailchimpInvites(
   const successfulIds: string[] = [];
   const errorDetails: string[] = [];
   const MAX_CONCURRENT_REQUESTS = 10;
+  const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
 
   let dbApplicants: Application[] = [];
 
@@ -122,7 +123,7 @@ export async function prepareMailchimpInvites(
       // Get tito and hub for accepted and waitlist_accepted applicants
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
-      const rsvpList = await getTitoRsvpList();
+      const rsvpList = await getTitoRsvpList(RSVP_LIST_INDEX);
       [titoInvitesMap, hubSession] = await Promise.all([
         getUnredeemedTitoInvites(rsvpList.slug),
         getHubSession(),

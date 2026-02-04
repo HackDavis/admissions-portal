@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 // Fetch from Tito
-export async function getTitoRsvpList() {
+export async function getTitoRsvpList(rsvpListIndex: number) {
   try {
     const res = await axios.get(
       `${process.env.TITO_EVENT_BASE_URL}/rsvp_lists`,
@@ -17,7 +17,7 @@ export async function getTitoRsvpList() {
     if (!Array.isArray(rsvpLists) || rsvpLists.length === 0) {
       throw new Error('No RSVP lists returned from Tito API');
     }
-    return rsvpLists[0]; // ONLY checks first rsvp list
+    return rsvpLists[rsvpListIndex];
   } catch (err: any) {
     throw new Error(`Failed to fetch Tito RSVP list: ${err.message}`);
   }

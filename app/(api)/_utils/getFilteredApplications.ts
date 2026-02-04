@@ -37,10 +37,12 @@ export async function getApplicationsByStatuses(
 }
 
 export async function getApplicationsForRsvpReminder(): Promise<Application[]> {
+  const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
+
   try {
     const unredeemedHubEmails = await getUnredeemedHubEmails();
     console.log('Unredeemed Hub emails:', unredeemedHubEmails);
-    const rsvpList = await getTitoRsvpList();
+    const rsvpList = await getTitoRsvpList(RSVP_LIST_INDEX);
     const unredeemedTitoMap = await getUnredeemedTitoInvites(rsvpList.slug);
     console.log('Unredeemed Tito emails:', unredeemedTitoMap);
 
