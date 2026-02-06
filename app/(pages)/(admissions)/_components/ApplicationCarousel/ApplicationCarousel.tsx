@@ -125,7 +125,7 @@ export default function ApplicationCarousel() {
         // send confirmation email
         const sendEmail = await sendConfirmationEmail({
           firstName: formData.firstName,
-          email: formData.email,
+          email: formData.email.trim().toLowerCase(),
         });
         if (!sendEmail) {
           // if confirmation email sending fails, alert the user to contact hello@ (but still proceed with application submission)
