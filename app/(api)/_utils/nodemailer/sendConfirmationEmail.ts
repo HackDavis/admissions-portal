@@ -15,7 +15,7 @@ export async function sendConfirmationEmail(formData: {
       subject: 'Thank you for filling out HackDavis 2026: Hacker Application',
       text: `Hi ${formData.firstName || 'Applicant'},
 
-Thank you for applying to Hackdavis 2026!
+Thank you for applying to HackDavis 2026!
 Please note that your participation is not yet confirmed. We'll be in touch soon with more details, updates, and important information as the event approaches.
 
 Warmly,
