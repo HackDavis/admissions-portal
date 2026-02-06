@@ -14,9 +14,11 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
   const { checkEmail, loading, error } = useCheckEmail();
   const [submitted, setSubmitted] = useState(false);
 
+  // Email input has no spaces, has @, ends in .edu
+  const eduRegex = /^[^\s@]+@[^\s@]+\.edu$/;
+
   const showEduError =
-    formData.email.length > 0 &&
-    (!formData.email.includes('@') || !formData.email.endsWith('.edu'));
+    formData.email.length > 0 && !eduRegex.test(formData.email);
 
   const isValidEdu =
     formData.email.endsWith('.edu') && formData.email.includes('@');
