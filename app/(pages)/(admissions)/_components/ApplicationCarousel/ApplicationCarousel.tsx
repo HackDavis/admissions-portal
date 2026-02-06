@@ -123,16 +123,13 @@ export default function ApplicationCarousel() {
       const ok = await submit(payload);
       if (ok) {
          // send confirmation email
-        const success = await sendConfirmationEmail({
+        const sendEmail = await sendConfirmationEmail({
           firstName: formData.firstName,
           email: formData.email,
         });
-        if (!success) {
-          // if confirmation email sending fails, alert the user to contact hello@ (but still proceed with application submission)
-          console.error('Failed to send confirmation email:', success);
-          alert(
-            'Your application has been received, but we failed to send a confirmation email. Please contact us at hello@hackdavis.io to confirm your application submission!'
-          );
+        if (!sendEmail) {
+          // if confirmation email sending fails, still proceed with application submission
+          console.error('Failed to send confirmation email:', sendEmail);
         }
         api?.scrollNext(); // move to confirmation page
       } else {
