@@ -44,9 +44,7 @@ jobs:
           printf "${{ secrets.HUB_ADMIN_PASSWORD }}" | vercel env add HUB_ADMIN_PASSWORD production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MONGODB_DB }}" | vercel env add MONGODB_DB production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MONGODB_COLLECTION }}" | vercel env add MONGODB_COLLECTION production --force --token=${{ secrets.VERCEL_TOKEN }}
-          printf "${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}" | vercel env add NEXT_PUBLIC_EMAILJS_SERVICE_ID production --force --token=${{ secrets.VERCEL_TOKEN }}
-          printf "${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID }}" | vercel env add NEXT_PUBLIC_EMAILJS_TEMPLATE_ID production --force --token=${{ secrets.VERCEL_TOKEN }}
-          printf "${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}" | vercel env add NEXT_PUBLIC_EMAILJS_PUBLIC_KEY production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.SENDER_PWD }}" | vercel env add SENDER_PWD production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_API_KEY_1 }}" | vercel env add MAILCHIMP_API_KEY_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_SERVER_PREFIX_1 }}" | vercel env add MAILCHIMP_SERVER_PREFIX_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_AUDIENCE_ID_1 }}" | vercel env add MAILCHIMP_AUDIENCE_ID_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
@@ -59,6 +57,8 @@ jobs:
           printf "${{ vars.HUB_ADMIN_EMAIL }}" | vercel env add HUB_ADMIN_EMAIL production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.TITO_DASHBOARD_URL }}" | vercel env add TITO_DASHBOARD_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.TITO_HACKER_TICKET_NAME }}" | vercel env add TITO_HACKER_TICKET_NAME production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.TITO_TICKET_EXPIRY }}" | vercel env add TITO_TICKET_EXPIRY production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ vars.HUB_ADMIN_EMAIL }}" | vercel env add SENDER_EMAIL production --force --token=${{ secrets.VERCEL_TOKEN }}
           
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -81,9 +81,7 @@ jobs:
           HUB_ADMIN_PASSWORD: ${{ secrets.HUB_ADMIN_PASSWORD }}
           MONGODB_DB: ${{ secrets.MONGODB_DB }}
           MONGODB_COLLECTION: ${{ secrets.MONGODB_COLLECTION }}
-          NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
-          NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID }}
-          NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
+          SENDER_PWD: ${{ secrets.SENDER_PWD }}
           MAILCHIMP_API_KEY_1: ${{ secrets.MAILCHIMP_API_KEY_1 }}
           MAILCHIMP_SERVER_PREFIX_1: ${{ secrets.MAILCHIMP_SERVER_PREFIX_1 }}
           MAILCHIMP_AUDIENCE_ID_1: ${{ secrets.MAILCHIMP_AUDIENCE_ID_1 }}
@@ -98,6 +96,8 @@ jobs:
           HUB_ADMIN_EMAIL: ${{ vars.HUB_ADMIN_EMAIL }}
           TITO_DASHBOARD_URL: ${{ vars.TITO_DASHBOARD_URL }}
           TITO_HACKER_TICKET_NAME: ${{ vars.TITO_HACKER_TICKET_NAME }}
+          TITO_TICKET_EXPIRY: ${{ vars.TITO_TICKET_EXPIRY }}
+          SENDER_EMAIL: ${{ vars.HUB_ADMIN_EMAIL }}
 
       - name: Deploy Project to Vercel
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
