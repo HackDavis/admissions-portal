@@ -1,5 +1,3 @@
-'use server';
-
 import nodemailer from 'nodemailer';
 
 const SENDER_EMAIL = process.env.SENDER_EMAIL;
