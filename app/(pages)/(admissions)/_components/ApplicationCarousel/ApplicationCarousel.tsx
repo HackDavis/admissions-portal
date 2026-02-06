@@ -128,8 +128,11 @@ export default function ApplicationCarousel() {
           email: formData.email,
         });
         if (!sendEmail) {
-          // if confirmation email sending fails, still proceed with application submission
+          // if confirmation email sending fails, alert the user to contact hello@ (but still proceed with application submission)
           console.error('Failed to send confirmation email:', sendEmail);
+          alert(
+            'Your application has been received, but we failed to send a confirmation email. Please contact us at hello@hackdavis.io to confirm your application submission!'
+          );
         }
         api?.scrollNext(); // move to confirmation page
       } else {
