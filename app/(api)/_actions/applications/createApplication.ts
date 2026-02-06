@@ -3,7 +3,7 @@
 import { CreateApplication } from '@datalib/applications/createApplication';
 import { revalidatePath } from 'next/cache';
 
-export async function createApplication(body: any) {
+export async function createApplication(body: object) {
   const res = await CreateApplication(body);
   revalidatePath('/admin', 'layout');
   return res;

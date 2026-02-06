@@ -9,7 +9,7 @@ import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
-import { sendConfirmationEmail } from '@app/(api)/_utils/nodemailer/sendConfirmationEmail'
+import { sendConfirmationEmail } from '@app/(api)/_utils/nodemailer/sendConfirmationEmail';
 
 import Email from './slides/Email';
 import Contact from './slides/Contact';
@@ -122,7 +122,7 @@ export default function ApplicationCarousel() {
       //submit application
       const ok = await submit(payload);
       if (ok) {
-         // send confirmation email
+        // send confirmation email
         const sendEmail = await sendConfirmationEmail({
           firstName: formData.firstName,
           email: formData.email,
