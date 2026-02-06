@@ -20,8 +20,7 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
   const showEduError =
     formData.email.length > 0 && !eduRegex.test(formData.email);
 
-  const isValidEdu =
-    formData.email.endsWith('.edu') && formData.email.includes('@');
+  const isValidEdu = eduRegex.test(formData.email);
 
   const handleNext = async () => {
     setSubmitted(true);
