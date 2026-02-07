@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Application } from '@/app/_types/application';
 import { Status } from '@/app/_types/applicationFilters';
-import { generateTitoCSV } from '@utils/tito/generateTitoCSV';
+// import { generateTitoCSV } from '@utils/tito/generateTitoCSV';
 import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
 import { useMailchimp } from '../_hooks/useMailchimp';
 import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
