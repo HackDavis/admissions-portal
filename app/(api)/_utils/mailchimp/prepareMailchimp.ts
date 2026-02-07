@@ -16,8 +16,39 @@ import { getHubSession, createHubInvite } from '../hub/createHubInvite';
 
 // Mailchimp axios client
 function getMailchimpClient(apiKeyIndex: number) {
+  console.log('[Mailchimp] Getting client for API key index:', apiKeyIndex);
+
   const serverPrefix = process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`];
   const apiKey = process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`];
+
+  console.log('[Mailchimp] Server prefix:', serverPrefix);
+  console.log('[Mailchimp] API key configured:', !!apiKey);
+  console.log('[Mailchimp] Checking environment variables:');
+  console.log(
+    `[Mailchimp] MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}:`,
+    process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`]
+  );
+  console.log(
+    `[Mailchimp] MAILCHIMP_API_KEY_${apiKeyIndex}:`,
+    !!process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`]
+  );
+  console.log(
+    `[Mailchimp] MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}:`,
+    process.env[`MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`]
+  );
+
+  if (!serverPrefix || !apiKey) {
+    console.error(
+      `[Mailchimp] Missing environment variables for index ${apiKeyIndex}`
+    );
+    console.error(
+      `[Mailchimp] Available env vars:`,
+      Object.keys(process.env).filter((k) => k.startsWith('MAILCHIMP_'))
+    );
+    throw new Error(
+      `Missing Mailchimp configuration for API key index ${apiKeyIndex}. Please set MAILCHIMP_SERVER_PREFIX_${apiKeyIndex} and MAILCHIMP_API_KEY_${apiKeyIndex}`
+    );
+  }
 
   return axios.create({
     baseURL: `https://${serverPrefix}.api.mailchimp.com/3.0`,
