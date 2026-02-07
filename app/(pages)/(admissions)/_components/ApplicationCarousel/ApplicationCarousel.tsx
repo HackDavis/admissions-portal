@@ -9,7 +9,7 @@ import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
-import { sendConfirmationEmail } from '../../_utils/sendConfirmation';
+import { sendConfirmationEmail } from '@utils/nodemailer/sendConfirmationEmail';
 
 import Email from './slides/Email';
 import Contact from './slides/Contact';
@@ -123,13 +123,13 @@ export default function ApplicationCarousel() {
       const ok = await submit(payload);
       if (ok) {
         // send confirmation email
-        const success = await sendConfirmationEmail({
+        const sendEmail = await sendConfirmationEmail({
           firstName: formData.firstName,
-          email: formData.email,
+          email: formData.email.trim().toLowerCase(),
         });
-        if (!success) {
+        if (!sendEmail) {
           // if confirmation email sending fails, alert the user to contact hello@ (but still proceed with application submission)
-          console.error('Failed to send confirmation email:', success);
+          console.error('Failed to send confirmation email:', sendEmail);
           alert(
             'Your application has been received, but we failed to send a confirmation email. Please contact us at hello@hackdavis.io to confirm your application submission!'
           );

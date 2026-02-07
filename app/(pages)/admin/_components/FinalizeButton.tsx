@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Application } from '@/app/_types/application';
 import { Status } from '@/app/_types/applicationFilters';
-import { prepareMailchimpInvites } from '@utils/prepareMailchimp';
+import { generateTitoCSV } from '@utils/tito/generateTitoCSV';
+import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
 import { useMailchimp } from '../_hooks/useMailchimp';
 import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 import getRsvpLists from '@utils/tito/getRsvpLists';
@@ -72,7 +73,7 @@ export default function FinalizeButton({
   const [selectedReleases, setSelectedReleases] = useState<string[]>([]);
   const [loadingTitoData, setLoadingTitoData] = useState(false);
 
-  const { mailchimp } = useMailchimp();
+  const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
 
   const currentBatch = mailchimp?.batchNumber ?? -1;
 
@@ -296,6 +297,7 @@ export default function FinalizeButton({
           console.error('Failed to increment Mailchimp batch number: ', err);
         }
       }
+      await refreshMailchimp();
 
       // Store results and show results modal
       const totalErrors = titoFailures.length + mailchimpFailures.length;

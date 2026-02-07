@@ -1,7 +1,8 @@
 'use client';
 
 import { useMailchimp } from '../_hooks/useMailchimp';
-// import Link from 'next/link';
+import { processRsvpReminders } from '../_utils/processRsvpReminders';
+import { useState } from 'react';
 
 interface AdminHeaderProps {
   totalCount: number;
@@ -12,7 +13,24 @@ export default function AdminHeader({
   totalCount,
   onLogout,
 }: AdminHeaderProps) {
-  const { mailchimp } = useMailchimp();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  async function handleProcessRsvpReminders() {
+    setIsProcessing(true);
+    try {
+      await processRsvpReminders();
+      await refreshMailchimp();
+    } catch (err: any) {
+      console.error('Error while processing RSVP reminders:', err);
+      alert('Error processing RSVP reminders:' + err.message);
+    } finally {
+      setIsProcessing(false);
+      setIsPopupOpen(false);
+    }
+  }
+
+  const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
   const mc = mailchimp ?? {
     batchNumber: 'N/A',
     apiCallsMade: 0,
@@ -34,12 +52,14 @@ export default function AdminHeader({
         </p>
       </div>
 
-      {/* <Link
-        href="/admin/applicants"
-        className="inline-flex items-center border-2 border-black px-3 py-1 text-xs font-medium uppercase"
+      <button
+        onClick={setIsPopupOpen.bind(null, true)}
+        className="special-button px-2 py-1 text-xs"
+        disabled={isProcessing}
       >
-        view all applicants
-      </Link> */}
+        process rsvp reminders
+      </button>
+
       <div>
         <p className="mt-1 text-xs font-semibold">Mailchimp API status</p>
         <p className="mt-1 text-xs">Batch: {mc.batchNumber}</p>
@@ -50,6 +70,33 @@ export default function AdminHeader({
         <p className="mt-1 text-xs">Last update: {mc.lastUpdate.toString()}</p>
         <p className="mt-1 text-xs">Last reset: {mc.lastReset.toString()}</p>
       </div>
+
+      {/* Popup menu */}
+      {isPopupOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="border-2 border-black bg-white shadow-xl max-w-lg w-full p-6 relative">
+            <h2 className="text-lg font-bold mb-4">process rsvp reminders</h2>
+
+            {/* Buttons */}
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={handleProcessRsvpReminders}
+                className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
+                disabled={isProcessing}
+              >
+                {isProcessing ? 'Processing...' : 'CONFIRM (yes)'}
+              </button>
+              <button
+                onClick={() => setIsPopupOpen(false)}
+                className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
+                disabled={isProcessing}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

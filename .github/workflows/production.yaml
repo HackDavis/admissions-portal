@@ -1,17 +1,15 @@
-name: Staging Deployment
+name: Production Deployment
 
 on:
-  push:
-    branches:
-      - 'main'
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
-  deploy_staging:
-    name: Deploy Staging
+  deploy_production:
+    name: Deploy Production
     runs-on: ubuntu-latest
     environment:
-      name: staging
+      name: production
       url: ${{ vars.ENV_URL }}
 
     steps:
@@ -23,7 +21,7 @@ jobs:
         with:
           node-version: '21.7.3'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm install
 
@@ -37,7 +35,7 @@ jobs:
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
-      
+
       - name: Sync Environment Variables
         run: |
           printf "${{ secrets.MONGODB_URI }}" | vercel env add MONGODB_URI production --force --token=${{ secrets.VERCEL_TOKEN }}
