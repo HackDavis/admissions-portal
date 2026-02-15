@@ -33,7 +33,7 @@ interface Response {
 }
 
 /** Exported so tests can mock it to avoid real waits. */
-export function delay(ms: number): Promise<void> {
+export async function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 

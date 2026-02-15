@@ -7,7 +7,7 @@ import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
 } from '../getFilteredApplications';
-import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
+import { reserveMailchimpAPIKeyIndices } from './mailchimpApiStatus';
 import {
   getTitoRsvpList,
   getUnredeemedTitoInvites,
@@ -187,12 +187,20 @@ export async function prepareMailchimpInvites(
       { mailchimpClient: AxiosInstance; audienceId: string }
     >();
 
-    // Pre-fetch api key indices for all applicants
-    const applicantsWithKeys = [];
-    for (const app of dbApplicants) {
-      const apiKeyIndex = await reserveMailchimpAPIKeyIndex();
-      applicantsWithKeys.push({ app, apiKeyIndex });
-    }
+    // Reserve all api key indices in bulk (1 read + 1-2 writes instead of N × 2+)
+    const reserveStart = Date.now();
+    const apiKeyIndices = await reserveMailchimpAPIKeyIndices(
+      dbApplicants.length
+    );
+    console.log(
+      `[prepareMailchimp] Bulk API key reservation for ${
+        dbApplicants.length
+      } applicants: ${Date.now() - reserveStart}ms`
+    );
+    const applicantsWithKeys = dbApplicants.map((app, i) => ({
+      app,
+      apiKeyIndex: apiKeyIndices[i],
+    }));
 
     // Process mailchimp for each applicant
     const results: (string | null)[] = [];
@@ -205,6 +213,11 @@ export async function prepareMailchimpInvites(
       i += MAX_CONCURRENT_REQUESTS
     ) {
       const chunk = applicantsWithKeys.slice(i, i + MAX_CONCURRENT_REQUESTS);
+      const batchNum = Math.floor(i / MAX_CONCURRENT_REQUESTS) + 1;
+      const batchStart = Date.now();
+      console.log(
+        `[prepareMailchimp] Batch ${batchNum}: starting ${chunk.length} applicants`
+      );
 
       const chunkResults = await Promise.all(
         chunk.map(async ({ app, apiKeyIndex }) => {
@@ -228,13 +241,19 @@ export async function prepareMailchimpInvites(
 
             let titoUrl = '';
             let hubUrl = '';
+            const appStart = Date.now();
             console.log(`\nProcessing: ${app.email}`);
 
             if (isAccepted && hubSession) {
               titoUrl = titoInvitesMap.get(app.email.toLowerCase()) || '';
-              if (!titoUrl)
-                throw new Error(`Tito URL missing for ${app.email}`);
+              if (!titoUrl) {
+                const reason = `Skipped: no Tito invite URL for ${app.email}`;
+                console.warn(`[prepareMailchimp] ${reason}`);
+                errorDetails.push(`[${app.email}]: ${reason}`);
+                return null;
+              }
 
+              const hubStart = Date.now();
               hubUrl = await createHubInvite(
                 hubSession,
                 app.firstName,
@@ -243,9 +262,15 @@ export async function prepareMailchimpInvites(
               );
               if (!hubUrl)
                 throw new Error(`Hub URL generation failed for ${app.email}`);
+              console.log(
+                `[prepareMailchimp] Hub invite for ${app.email}: ${
+                  Date.now() - hubStart
+                }ms`
+              );
             }
 
             // Accounts for both accepted and other statuses
+            const mcStart = Date.now();
             await addToMailchimp(
               mailchimpClient,
               audienceId,
@@ -255,6 +280,11 @@ export async function prepareMailchimpInvites(
               titoUrl,
               hubUrl,
               tag
+            );
+            console.log(
+              `[prepareMailchimp] Mailchimp for ${app.email}: ${
+                Date.now() - mcStart
+              }ms (total: ${Date.now() - appStart}ms)`
             );
             return app._id;
           } catch (err: any) {
@@ -268,6 +298,11 @@ export async function prepareMailchimpInvites(
         })
       );
       results.push(...chunkResults);
+      console.log(
+        `[prepareMailchimp] Batch ${batchNum}: completed in ${
+          Date.now() - batchStart
+        }ms`
+      );
     }
 
     const finalIds = results.filter((id): id is string => id !== null);

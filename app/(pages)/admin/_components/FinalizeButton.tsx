@@ -156,7 +156,12 @@ export default function FinalizeButton({
       // Helper: process one Mailchimp batch and collect results
       const processMailchimpBatch = async (
         label: string,
-        status: string,
+        status:
+          | 'tentatively_accepted'
+          | 'tentatively_waitlisted'
+          | 'tentatively_waitlist_accepted'
+          | 'tentatively_waitlist_rejected'
+          | 'rsvp_reminder',
         titoInviteMapRecord: Record<string, string>
       ): Promise<boolean> => {
         const res = await prepareMailchimpInvites(status, {
@@ -172,8 +177,30 @@ export default function FinalizeButton({
           const successfulApps = apps.filter((app) =>
             res.ids.includes(app._id)
           );
+
+          // Defense-in-depth: for accepted statuses, cross-check each app
+          // against the Tito invite map before updating DB status.
+          // This is a no-op for non-accepted paths (they pass {} for the map).
+          const hasTitoMap = Object.keys(titoInviteMapRecord).length > 0;
+          const verifiedApps = hasTitoMap
+            ? successfulApps.filter((app) => {
+                const email = app.email.toLowerCase();
+                if (titoInviteMapRecord[email]) return true;
+                // Block: app slipped through without a Tito URL
+                console.warn(
+                  `[FinalizeButton] Blocked status update for ${app.email}: no Tito invite URL found`
+                );
+                mailchimpSuccessIds.delete(app._id);
+                mailchimpErrorMap.set(
+                  email,
+                  'Blocked by safety check: no Tito invite URL'
+                );
+                return false;
+              })
+            : successfulApps;
+
           await Promise.all(
-            successfulApps.map((app) =>
+            verifiedApps.map((app) =>
               onFinalizeStatus(
                 app._id,
                 FINAL_STATUS_MAP[app.status],

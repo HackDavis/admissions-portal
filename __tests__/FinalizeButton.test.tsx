@@ -309,6 +309,84 @@ test('non-accepted Mailchimp fires in parallel with Tito (before it resolves)', 
   );
 });
 
+test('defense-in-depth blocks status update for unverified applicant', async () => {
+  // Two accepted applicants, but Tito only succeeded for one
+  const twoAcceptedApps: Application[] = [
+    {
+      _id: '1',
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      email: 'ada@example.com',
+      status: 'tentatively_accepted',
+      wasWaitlisted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    } as Application,
+    {
+      _id: '3',
+      firstName: 'Alan',
+      lastName: 'Turing',
+      email: 'alan@example.com',
+      status: 'tentatively_accepted',
+      wasWaitlisted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    } as Application,
+  ];
+
+  // Tito only succeeded for Ada, not Alan
+  mockedBulkCreateInvitations.mockResolvedValue({
+    ok: true,
+    inviteMap: new Map([['ada@example.com', 'tito-url-ada']]),
+    errors: [],
+  });
+
+  // Mailchimp erroneously returns BOTH IDs as successful
+  mockedPrepareMailchimpInvites.mockImplementation(async (status: string) => {
+    if (status === 'tentatively_accepted') {
+      return { ok: true, ids: ['1', '3'], error: null };
+    }
+    return { ok: true, ids: [], error: null };
+  });
+
+  const onFinalizeStatus = jest.fn();
+  const user = userEvent.setup();
+  render(
+    <FinalizeButton
+      apps={twoAcceptedApps}
+      onFinalizeStatus={onFinalizeStatus}
+    />
+  );
+
+  await user.click(screen.getByRole('button', { name: /finalize/i }));
+  await waitFor(() => expect(mockedGetRsvpLists).toHaveBeenCalled());
+
+  const releaseCheckbox = await screen.findByRole('checkbox');
+  await user.click(releaseCheckbox);
+
+  await user.click(screen.getByRole('button', { name: /process all/i }));
+
+  await waitFor(() => expect(mockedPrepareMailchimpInvites).toHaveBeenCalled());
+
+  // Ada (verified in Tito map) should get status update
+  await waitFor(() =>
+    expect(onFinalizeStatus).toHaveBeenCalledWith(
+      '1',
+      'accepted',
+      'tentative',
+      expect.any(Object)
+    )
+  );
+
+  // Alan (NOT in Tito map) should be blocked by defense-in-depth
+  expect(onFinalizeStatus).not.toHaveBeenCalledWith(
+    '3',
+    'accepted',
+    'tentative',
+    expect.any(Object)
+  );
+});
+
 test('accepted batches receive Tito map while non-accepted batches receive empty map', async () => {
   const appsWithWaitlistAccepted: Application[] = [
     ...baseApps,

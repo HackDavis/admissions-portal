@@ -80,7 +80,6 @@ export default async function bulkCreateInvitations(
         console.error(`[Bulk Tito] ✗ Exception: ${errorMsg}`);
       }
     }
-
   }
 
   const successCount = inviteMap.size;
