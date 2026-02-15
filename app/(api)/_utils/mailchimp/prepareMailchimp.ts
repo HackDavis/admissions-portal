@@ -113,20 +113,12 @@ export async function prepareMailchimpInvites(
     | 'tentatively_waitlisted'
     | 'tentatively_waitlist_accepted'
     | 'tentatively_waitlist_rejected'
-    | 'rsvp_reminder'
-) {
-  const requiredEnvs = [
-    'TITO_AUTH_TOKEN',
-    'TITO_EVENT_BASE_URL',
-    'HACKDAVIS_HUB_BASE_URL',
-    'HUB_ADMIN_EMAIL',
-    'HUB_ADMIN_PASSWORD',
-  ];
-  for (const env of requiredEnvs) {
-    if (!process.env[env])
-      throw new Error(`Missing Environment Variable: ${env}`);
+    | 'rsvp_reminder',
+  options?: {
+    titoInviteMap?: Record<string, string>;
+    rsvpListSlug?: string;
   }
-
+) {
   const successfulIds: string[] = [];
   const errorDetails: string[] = [];
   const MAX_CONCURRENT_REQUESTS = 10;
@@ -149,6 +141,22 @@ export async function prepareMailchimpInvites(
       targetStatus === 'tentatively_accepted' ||
       targetStatus === 'tentatively_waitlist_accepted';
 
+    const requiredEnvs = [
+      'HACKDAVIS_HUB_BASE_URL',
+      'HUB_ADMIN_EMAIL',
+      'HUB_ADMIN_PASSWORD',
+    ];
+    if (
+      targetStatus === 'rsvp_reminder' ||
+      (isAccepted && !options?.titoInviteMap)
+    ) {
+      requiredEnvs.push('TITO_AUTH_TOKEN', 'TITO_EVENT_BASE_URL');
+    }
+    for (const env of requiredEnvs) {
+      if (!process.env[env])
+        throw new Error(`Missing Environment Variable: ${env}`);
+    }
+
     let titoInvitesMap = new Map<string, string>();
     let hubSession: AxiosInstance | null = null;
 
@@ -157,11 +165,21 @@ export async function prepareMailchimpInvites(
       // Get tito and hub for accepted and waitlist_accepted applicants
       console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
 
-      const rsvpList = await getTitoRsvpList(RSVP_LIST_INDEX);
-      [titoInvitesMap, hubSession] = await Promise.all([
-        getUnredeemedTitoInvites(rsvpList.slug),
-        getHubSession(),
-      ]);
+      if (options?.titoInviteMap) {
+        for (const [email, url] of Object.entries(options.titoInviteMap)) {
+          titoInvitesMap.set(email.toLowerCase(), url);
+        }
+        hubSession = await getHubSession();
+      } else {
+        const rsvpList = options?.rsvpListSlug
+          ? { slug: options.rsvpListSlug }
+          : await getTitoRsvpList(RSVP_LIST_INDEX);
+
+        [titoInvitesMap, hubSession] = await Promise.all([
+          getUnredeemedTitoInvites(rsvpList.slug),
+          getHubSession(),
+        ]);
+      }
     }
 
     const clientCache = new Map<

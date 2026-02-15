@@ -172,6 +172,8 @@ export default function FinalizeButton({
       // STEP 2: Process Mailchimp for all applicants
       console.log(`[Process All] Processing Mailchimp for all applicants...`);
 
+      const titoInviteMapRecord = Object.fromEntries(titoInviteMapLocal);
+
       const batches = [
         { label: 'Acceptances', types: ['tentatively_accepted'] as const },
         { label: 'Waitlists', types: ['tentatively_waitlisted'] as const },
@@ -190,7 +192,10 @@ export default function FinalizeButton({
       const mailchimpErrorMap = new Map<string, string>(); // email -> error message
 
       for (const batch of batches) {
-        const res = await prepareMailchimpInvites(batch.types[0]);
+        const res = await prepareMailchimpInvites(batch.types[0], {
+          titoInviteMap: titoInviteMapRecord,
+          rsvpListSlug: selectedRsvpList,
+        });
         const processedCount = res.ids?.length ?? 0;
 
         // Track successful Mailchimp sends
