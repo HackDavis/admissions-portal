@@ -5,7 +5,9 @@ import { RsvpList, TitoResponse } from '@/app/_types/tito';
 const TITO_AUTH_TOKEN = process.env.TITO_AUTH_TOKEN;
 const TITO_EVENT_BASE_URL = process.env.TITO_EVENT_BASE_URL;
 
-export default async function getRsvpLists(): Promise<TitoResponse<RsvpList[]>> {
+export default async function getRsvpLists(): Promise<
+  TitoResponse<RsvpList[]>
+> {
   try {
     if (!TITO_AUTH_TOKEN || !TITO_EVENT_BASE_URL) {
       const error = 'Missing Tito API configuration in environment variables';
