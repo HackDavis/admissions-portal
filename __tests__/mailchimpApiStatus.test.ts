@@ -1,7 +1,5 @@
 /** @jest-environment node */
-import {
-  reserveMailchimpAPIKeyIndices,
-} from '@utils/mailchimp/mailchimpApiStatus';
+import { reserveMailchimpAPIKeyIndices } from '@utils/mailchimp/mailchimpApiStatus';
 
 jest.mock('@actions/mailchimp/getMailchimp', () => ({
   getMailchimp: jest.fn(),
@@ -50,7 +48,12 @@ test('rotates key mid-batch when limit is reached', async () => {
   // 497 calls made, max 500 => 2 more on key 1, then rotate to key 2
   mockedGetMailchimp.mockResolvedValue({
     ok: true,
-    body: { apiKeyIndex: 1, apiCallsMade: 497, maxApiCalls: 500, maxApiKeys: 2 },
+    body: {
+      apiKeyIndex: 1,
+      apiCallsMade: 497,
+      maxApiCalls: 500,
+      maxApiKeys: 2,
+    },
   });
 
   const result = await reserveMailchimpAPIKeyIndices(5);
@@ -74,7 +77,12 @@ test('throws when all keys are exhausted', async () => {
   // Already on key 2 (the max), and at the limit
   mockedGetMailchimp.mockResolvedValue({
     ok: true,
-    body: { apiKeyIndex: 2, apiCallsMade: 499, maxApiCalls: 500, maxApiKeys: 2 },
+    body: {
+      apiKeyIndex: 2,
+      apiCallsMade: 499,
+      maxApiCalls: 500,
+      maxApiKeys: 2,
+    },
   });
 
   await expect(reserveMailchimpAPIKeyIndices(3)).rejects.toThrow(
@@ -100,7 +108,12 @@ test('throws when rotated key env vars are missing', async () => {
 
   mockedGetMailchimp.mockResolvedValue({
     ok: true,
-    body: { apiKeyIndex: 1, apiCallsMade: 499, maxApiCalls: 500, maxApiKeys: 2 },
+    body: {
+      apiKeyIndex: 1,
+      apiCallsMade: 499,
+      maxApiCalls: 500,
+      maxApiKeys: 2,
+    },
   });
 
   await expect(reserveMailchimpAPIKeyIndices(2)).rejects.toThrow(
@@ -111,7 +124,12 @@ test('throws when rotated key env vars are missing', async () => {
 test('handles rotation at exact boundary (apiCallsMade === maxApiCalls - 1)', async () => {
   mockedGetMailchimp.mockResolvedValue({
     ok: true,
-    body: { apiKeyIndex: 1, apiCallsMade: 499, maxApiCalls: 500, maxApiKeys: 2 },
+    body: {
+      apiKeyIndex: 1,
+      apiCallsMade: 499,
+      maxApiCalls: 500,
+      maxApiKeys: 2,
+    },
   });
 
   const result = await reserveMailchimpAPIKeyIndices(3);

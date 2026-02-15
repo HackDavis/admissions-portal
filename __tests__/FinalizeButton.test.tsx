@@ -289,9 +289,7 @@ test('non-accepted Mailchimp fires in parallel with Tito (before it resolves)', 
   await user.click(screen.getByRole('button', { name: /process all/i }));
 
   // Non-accepted Mailchimp should fire while Tito is still pending
-  await waitFor(() =>
-    expect(callOrder).toContain('tentatively_waitlisted')
-  );
+  await waitFor(() => expect(callOrder).toContain('tentatively_waitlisted'));
 
   // Accepted Mailchimp should NOT have fired yet (Tito still pending)
   expect(callOrder).not.toContain('tentatively_accepted');
@@ -304,9 +302,7 @@ test('non-accepted Mailchimp fires in parallel with Tito (before it resolves)', 
   });
 
   // After Tito resolves, accepted Mailchimp should fire
-  await waitFor(() =>
-    expect(callOrder).toContain('tentatively_accepted')
-  );
+  await waitFor(() => expect(callOrder).toContain('tentatively_accepted'));
 });
 
 test('defense-in-depth blocks status update for unverified applicant', async () => {
