@@ -6,6 +6,7 @@ import AdminHeader from './_components/AdminHeader';
 import ApplicationsGrid from './_components/ApplicationsGrid';
 import FiltersBar from './_components/FiltersBar';
 import ProgressBar from './_components/ProgressBar';
+import StatsView from './_components/StatsView';
 import useApplications from './_hooks/useApplications';
 
 export default function AdminPage() {
@@ -20,9 +21,11 @@ export default function AdminPage() {
     processedStatus,
     setProcessedStatus,
     setTentativeStatus,
+    setUnseenStatus,
     setUcd,
     tentativeStatus,
     totalCount,
+    unseenStatus,
     ucd,
     updateApplicantStatus,
   } = useApplications();
@@ -51,12 +54,17 @@ export default function AdminPage() {
       <ApplicationsGrid
         appsByPhase={appsByPhase}
         loading={loading}
+        unseenStatus={unseenStatus}
         tentativeStatus={tentativeStatus}
         processedStatus={processedStatus}
+        onUnseenStatusChange={setUnseenStatus}
         onTentativeStatusChange={setTentativeStatus}
         onProcessedStatusChange={setProcessedStatus}
         onUpdateStatus={updateApplicantStatus}
       />
+      <div className="mt-8">
+        <StatsView />
+      </div>
     </div>
   );
 }

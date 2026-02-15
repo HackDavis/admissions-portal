@@ -18,3 +18,5 @@ export const PROCESSED_STATUSES: Status[] = [
   'waitlist_accepted',
   'waitlist_rejected',
 ];
+
+export const UNSEEN_STATUSES: Status[] = ['pending', 'waitlisted'];

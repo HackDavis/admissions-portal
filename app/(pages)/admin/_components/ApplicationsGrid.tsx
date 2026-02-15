@@ -6,6 +6,7 @@ import {
   PHASES,
   PROCESSED_STATUSES,
   TENTATIVE_STATUSES,
+  UNSEEN_STATUSES,
 } from '../_utils/constants';
 import FinalizeButton from './FinalizeButton';
 import PhaseColumn from './PhaseColumn';
@@ -13,8 +14,10 @@ import PhaseColumn from './PhaseColumn';
 interface ApplicationsGridProps {
   appsByPhase: Record<Phase, Application[]>;
   loading: Record<Phase, boolean>;
+  unseenStatus: StatusFilter;
   tentativeStatus: StatusFilter;
   processedStatus: StatusFilter;
+  onUnseenStatusChange: (value: StatusFilter) => void;
   onTentativeStatusChange: (value: StatusFilter) => void;
   onProcessedStatusChange: (value: StatusFilter) => void;
   onUpdateStatus: (
@@ -32,11 +35,13 @@ interface ApplicationsGridProps {
 export default function ApplicationsGrid({
   appsByPhase,
   loading,
+  onUnseenStatusChange,
   onProcessedStatusChange,
   onTentativeStatusChange,
   onUpdateStatus,
   processedStatus,
   tentativeStatus,
+  unseenStatus,
 }: ApplicationsGridProps) {
   return (
     <section className="space-y-3">
@@ -110,6 +115,9 @@ export default function ApplicationsGrid({
               label={phase.label}
               apps={apps}
               isLoading={isLoading}
+              statusFilter={unseenStatus}
+              statusOptions={UNSEEN_STATUSES}
+              onStatusChange={onUnseenStatusChange}
               renderActions={(app) =>
                 app.status === 'waitlisted' ? (
                   <>
