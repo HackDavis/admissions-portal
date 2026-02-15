@@ -1,20 +1,7 @@
 'use server';
 
 import createRsvpInvitation from './createRsvpInvitation';
-import { Application } from '@/app/_types/application';
-
-interface BulkInvitationResult {
-  ok: boolean;
-  inviteMap: Map<string, string>; // email -> unique_url
-  errors: string[];
-}
-
-interface BulkInvitationParams {
-  applicants: Application[];
-  rsvpListSlug: string;
-  releaseIds: string; // comma-separated release IDs
-  discountCode?: string;
-}
+import { BulkInvitationParams, BulkInvitationResult } from '@/app/_types/tito';
 
 /**
  * Creates Tito RSVP invitations for multiple applicants in bulk.

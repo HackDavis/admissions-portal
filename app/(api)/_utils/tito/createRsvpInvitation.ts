@@ -1,36 +1,16 @@
 'use server';
 
+import {
+  InvitationData,
+  ReleaseInvitation,
+  TitoResponse,
+} from '@/app/_types/tito';
+
 const TITO_AUTH_TOKEN = process.env.TITO_AUTH_TOKEN;
 const TITO_EVENT_BASE_URL = process.env.TITO_EVENT_BASE_URL;
 
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 1000;
-
-interface InvitationData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  rsvpListSlug: string;
-  releaseIds: string;
-  discountCode?: string;
-}
-
-interface ReleaseInvitation {
-  id: string;
-  slug: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  url?: string;
-  unique_url?: string;
-  created_at: string;
-}
-
-interface Response {
-  ok: boolean;
-  body: ReleaseInvitation | null;
-  error: string | null;
-}
 
 /** Exported so tests can mock it to avoid real waits. */
 export async function delay(ms: number): Promise<void> {
@@ -39,7 +19,7 @@ export async function delay(ms: number): Promise<void> {
 
 export default async function createRsvpInvitation(
   data: InvitationData
-): Promise<Response> {
+): Promise<TitoResponse<ReleaseInvitation>> {
   try {
     if (!TITO_AUTH_TOKEN || !TITO_EVENT_BASE_URL) {
       const error = 'Missing Tito API configuration in environment variables';

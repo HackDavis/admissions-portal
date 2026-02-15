@@ -1,22 +1,11 @@
 'use server';
 
+import { Release, TitoResponse } from '@/app/_types/tito';
+
 const TITO_AUTH_TOKEN = process.env.TITO_AUTH_TOKEN;
 const TITO_EVENT_BASE_URL = process.env.TITO_EVENT_BASE_URL;
 
-interface Release {
-  id: string;
-  slug: string;
-  title: string;
-  quantity?: number;
-}
-
-interface Response {
-  ok: boolean;
-  body: Release[] | null;
-  error: string | null;
-}
-
-export default async function getReleases(): Promise<Response> {
+export default async function getReleases(): Promise<TitoResponse<Release[]>> {
   try {
     if (!TITO_AUTH_TOKEN || !TITO_EVENT_BASE_URL) {
       const error = 'Missing Tito API configuration in environment variables';

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Application } from '@/app/_types/application';
 import { Status } from '@/app/_types/applicationFilters';
+import { RsvpList, Release } from '@/app/_types/tito';
 // import { generateTitoCSV } from '@utils/tito/generateTitoCSV';
 import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
 import { useMailchimp } from '../_hooks/useMailchimp';
@@ -23,19 +24,6 @@ interface FinalizeButtonProps {
       batchNumber?: number;
     }
   ) => void;
-}
-
-interface RsvpList {
-  id: string;
-  slug: string;
-  title: string;
-}
-
-interface Release {
-  id: string;
-  slug: string;
-  title: string;
-  quantity?: number;
 }
 
 const FINAL_STATUS_MAP: Record<string, Status> = {
