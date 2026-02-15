@@ -61,3 +61,60 @@ test('handles rejected invitation promise', async () => {
   expect(result.inviteMap.size).toBe(1);
   expect(result.errors[0]).toMatch(/boom/);
 });
+
+test('limits concurrency to 20', async () => {
+  let activeConcurrent = 0;
+  let maxConcurrent = 0;
+
+  const manyApplicants = Array.from({ length: 25 }, (_, i) => ({
+    _id: String(i),
+    firstName: `First${i}`,
+    lastName: `Last${i}`,
+    email: `user${i}@example.com`,
+    status: 'tentatively_accepted',
+  }));
+
+  mockedCreate.mockImplementation(() => {
+    activeConcurrent++;
+    maxConcurrent = Math.max(maxConcurrent, activeConcurrent);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        activeConcurrent--;
+        resolve({ ok: true, body: { unique_url: `url-${activeConcurrent}` } });
+      }, 10);
+    });
+  });
+
+  await bulkCreateInvitations({
+    applicants: manyApplicants as any,
+    rsvpListSlug: 'rsvp-1',
+    releaseIds: '1',
+  });
+
+  expect(maxConcurrent).toBe(20);
+});
+
+test('does not add artificial delay between batches', async () => {
+  const manyApplicants = Array.from({ length: 25 }, (_, i) => ({
+    _id: String(i),
+    firstName: `First${i}`,
+    lastName: `Last${i}`,
+    email: `user${i}@example.com`,
+    status: 'tentatively_accepted',
+  }));
+
+  mockedCreate.mockImplementation(() =>
+    Promise.resolve({ ok: true, body: { unique_url: 'url' } })
+  );
+
+  const start = Date.now();
+  await bulkCreateInvitations({
+    applicants: manyApplicants as any,
+    rsvpListSlug: 'rsvp-1',
+    releaseIds: '1',
+  });
+  const elapsed = Date.now() - start;
+
+  // Without artificial delays, 25 instant-resolving mocks should complete well under 100ms
+  expect(elapsed).toBeLessThan(100);
+});

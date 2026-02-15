@@ -149,50 +149,17 @@ export default function FinalizeButton({
         } non-accepted (no Tito tickets)`
       );
 
-      // STEP 1: Create Tito invitations (accepted only)
-      let titoInviteMapLocal = new Map<string, string>();
-      if (acceptedApps.length > 0) {
-        console.log(
-          `[Process All] Creating ${acceptedApps.length} Tito invitations...`
-        );
-        const releaseIds = selectedReleases.join(',');
-        const titoResult = await bulkCreateInvitations({
-          applicants: acceptedApps,
-          rsvpListSlug: selectedRsvpList,
-          releaseIds,
-        });
-
-        titoInviteMapLocal = titoResult.inviteMap;
-        titoFailures.push(...titoResult.errors);
-        console.log(
-          `[Process All] Tito: ${titoInviteMapLocal.size} succeeded, ${titoFailures.length} failed`
-        );
-      }
-
-      // STEP 2: Process Mailchimp for all applicants
-      console.log(`[Process All] Processing Mailchimp for all applicants...`);
-
-      const titoInviteMapRecord = Object.fromEntries(titoInviteMapLocal);
-
-      const batches = [
-        { label: 'Acceptances', types: ['tentatively_accepted'] as const },
-        { label: 'Waitlists', types: ['tentatively_waitlisted'] as const },
-        {
-          label: 'Waitlist Acceptances',
-          types: ['tentatively_waitlist_accepted'] as const,
-        },
-        {
-          label: 'Waitlist Rejections',
-          types: ['tentatively_waitlist_rejected'] as const,
-        },
-      ] as const;
-
       const mailchimpResults: string[] = [];
       const mailchimpSuccessIds = new Set<string>();
       const mailchimpErrorMap = new Map<string, string>(); // email -> error message
 
-      for (const batch of batches) {
-        const res = await prepareMailchimpInvites(batch.types[0], {
+      // Helper: process one Mailchimp batch and collect results
+      const processMailchimpBatch = async (
+        label: string,
+        status: string,
+        titoInviteMapRecord: Record<string, string>
+      ): Promise<boolean> => {
+        const res = await prepareMailchimpInvites(status, {
           titoInviteMap: titoInviteMapRecord,
           rsvpListSlug: selectedRsvpList,
         });
@@ -200,7 +167,7 @@ export default function FinalizeButton({
 
         // Track successful Mailchimp sends
         if (processedCount > 0) {
-          res.ids.forEach((id) => mailchimpSuccessIds.add(id));
+          res.ids.forEach((id: string) => mailchimpSuccessIds.add(id));
 
           const successfulApps = apps.filter((app) =>
             res.ids.includes(app._id)
@@ -226,9 +193,7 @@ export default function FinalizeButton({
 
         // Track Mailchimp failures with specific error messages
         if (res.error) {
-          // Parse error string to extract individual email failures
-          // Error format: "X FAILED:\n[email]: reason\n[email]: reason"
-          const errorLines = res.error.split('\n').slice(1); // Skip first line (count)
+          const errorLines = res.error.split('\n').slice(1);
 
           errorLines.forEach((line: string) => {
             const match = line.match(/\[([^\]]+)\]:\s*(.+)/);
@@ -239,33 +204,91 @@ export default function FinalizeButton({
             }
           });
 
-          // Also catch any apps in this batch that weren't successful but no specific error
-          const batchStatus = batch.types[0];
           const failedApps = apps.filter(
             (app) =>
-              app.status === batchStatus &&
+              app.status === status &&
               !res.ids.includes(app._id) &&
               !mailchimpErrorMap.has(app.email.toLowerCase())
           );
           failedApps.forEach((app) => {
             mailchimpErrorMap.set(
               app.email.toLowerCase(),
-              `Failed during ${batch.label} processing`
+              `Failed during ${label} processing`
             );
           });
         }
 
         const statusPrefix = res.ok && !res.error ? '[SUCCESS]' : '[FAILED]';
-        let batchMessage = `${statusPrefix} ${batch.label}: ${processedCount} processed`;
+        let batchMessage = `${statusPrefix} ${label}: ${processedCount} processed`;
 
         if (res.error) {
           batchMessage += `\n${res.error}`;
-          mailchimpFailures.push(`${batch.label}: ${res.error}`);
+          mailchimpFailures.push(`${label}: ${res.error}`);
         }
         mailchimpResults.push(batchMessage);
 
-        if (!res.ok) break;
-      }
+        return res.ok;
+      };
+
+      // Run accepted path and non-accepted path in parallel
+      let titoInviteMapLocal = new Map<string, string>();
+
+      const acceptedPath = async () => {
+        // Create Tito invitations first (accepted only)
+        if (acceptedApps.length > 0) {
+          console.log(
+            `[Process All] Creating ${acceptedApps.length} Tito invitations...`
+          );
+          const releaseIds = selectedReleases.join(',');
+          const titoResult = await bulkCreateInvitations({
+            applicants: acceptedApps,
+            rsvpListSlug: selectedRsvpList,
+            releaseIds,
+          });
+
+          titoInviteMapLocal = titoResult.inviteMap;
+          titoFailures.push(...titoResult.errors);
+          console.log(
+            `[Process All] Tito: ${titoInviteMapLocal.size} succeeded, ${titoFailures.length} failed`
+          );
+        }
+
+        // Then process Mailchimp for accepted statuses (need Tito map)
+        const titoInviteMapRecord = Object.fromEntries(titoInviteMapLocal);
+        const okAccepted = await processMailchimpBatch(
+          'Acceptances',
+          'tentatively_accepted',
+          titoInviteMapRecord
+        );
+        if (!okAccepted) return;
+
+        await processMailchimpBatch(
+          'Waitlist Acceptances',
+          'tentatively_waitlist_accepted',
+          titoInviteMapRecord
+        );
+      };
+
+      const nonAcceptedPath = async () => {
+        // Non-accepted statuses don't need Tito map
+        console.log(
+          `[Process All] Processing Mailchimp for non-accepted applicants...`
+        );
+        const okWaitlisted = await processMailchimpBatch(
+          'Waitlists',
+          'tentatively_waitlisted',
+          {}
+        );
+        if (!okWaitlisted) return;
+
+        await processMailchimpBatch(
+          'Waitlist Rejections',
+          'tentatively_waitlist_rejected',
+          {}
+        );
+      };
+
+      await Promise.all([acceptedPath(), nonAcceptedPath()]);
 
       processedResults = mailchimpResults.join('\n');
 

@@ -149,11 +149,18 @@ test('processes all applicants and passes Tito map to Mailchimp', async () => {
 
   await user.click(screen.getByRole('button', { name: /process all/i }));
 
-  await waitFor(() => expect(mockedPrepareMailchimpInvites).toHaveBeenCalled());
+  await waitFor(() =>
+    expect(mockedPrepareMailchimpInvites).toHaveBeenCalledWith(
+      'tentatively_accepted',
+      expect.anything()
+    )
+  );
 
-  const firstCall = mockedPrepareMailchimpInvites.mock.calls[0];
-  expect(firstCall[0]).toBe('tentatively_accepted');
-  expect(firstCall[1]).toEqual(
+  const acceptedCall = mockedPrepareMailchimpInvites.mock.calls.find(
+    (c: any[]) => c[0] === 'tentatively_accepted'
+  );
+  expect(acceptedCall).toBeDefined();
+  expect(acceptedCall![1]).toEqual(
     expect.objectContaining({
       rsvpListSlug: 'rsvp-1',
       titoInviteMap: { 'ada@example.com': 'tito-url-ada' },
@@ -251,4 +258,130 @@ test('continues Mailchimp processing when Tito creation has failures', async () 
   await user.click(screen.getByRole('button', { name: /process all/i }));
 
   await waitFor(() => expect(mockedPrepareMailchimpInvites).toHaveBeenCalled());
+});
+
+test('non-accepted Mailchimp fires in parallel with Tito (before it resolves)', async () => {
+  let resolveTito: (value: any) => void;
+  const titoPromise = new Promise((resolve) => {
+    resolveTito = resolve;
+  });
+
+  mockedBulkCreateInvitations.mockReturnValue(titoPromise);
+
+  const callOrder: string[] = [];
+  mockedPrepareMailchimpInvites.mockImplementation(async (status: string) => {
+    callOrder.push(status);
+    return { ok: true, ids: [], error: null };
+  });
+
+  const onFinalizeStatus = jest.fn();
+  const user = userEvent.setup();
+  render(
+    <FinalizeButton apps={baseApps} onFinalizeStatus={onFinalizeStatus} />
+  );
+
+  await user.click(screen.getByRole('button', { name: /finalize/i }));
+  await waitFor(() => expect(mockedGetRsvpLists).toHaveBeenCalled());
+
+  const releaseCheckbox = await screen.findByRole('checkbox');
+  await user.click(releaseCheckbox);
+
+  await user.click(screen.getByRole('button', { name: /process all/i }));
+
+  // Non-accepted Mailchimp should fire while Tito is still pending
+  await waitFor(() =>
+    expect(callOrder).toContain('tentatively_waitlisted')
+  );
+
+  // Accepted Mailchimp should NOT have fired yet (Tito still pending)
+  expect(callOrder).not.toContain('tentatively_accepted');
+
+  // Now resolve Tito
+  resolveTito!({
+    ok: true,
+    inviteMap: new Map([['ada@example.com', 'tito-url-ada']]),
+    errors: [],
+  });
+
+  // After Tito resolves, accepted Mailchimp should fire
+  await waitFor(() =>
+    expect(callOrder).toContain('tentatively_accepted')
+  );
+});
+
+test('accepted batches receive Tito map while non-accepted batches receive empty map', async () => {
+  const appsWithWaitlistAccepted: Application[] = [
+    ...baseApps,
+    {
+      _id: '3',
+      firstName: 'Alan',
+      lastName: 'Turing',
+      email: 'alan@example.com',
+      status: 'tentatively_waitlist_accepted',
+      wasWaitlisted: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    } as Application,
+  ];
+
+  mockedBulkCreateInvitations.mockResolvedValue({
+    ok: true,
+    inviteMap: new Map([
+      ['ada@example.com', 'tito-url-ada'],
+      ['alan@example.com', 'tito-url-alan'],
+    ]),
+    errors: [],
+  });
+
+  const inviteMaps: Record<string, Record<string, string>> = {};
+  mockedPrepareMailchimpInvites.mockImplementation(
+    async (status: string, opts: { titoInviteMap: Record<string, string> }) => {
+      inviteMaps[status] = opts.titoInviteMap;
+      if (status === 'tentatively_accepted') {
+        return { ok: true, ids: ['1'], error: null };
+      }
+      if (status === 'tentatively_waitlisted') {
+        return { ok: true, ids: ['2'], error: null };
+      }
+      if (status === 'tentatively_waitlist_accepted') {
+        return { ok: true, ids: ['3'], error: null };
+      }
+      return { ok: true, ids: [], error: null };
+    }
+  );
+
+  const onFinalizeStatus = jest.fn();
+  const user = userEvent.setup();
+  render(
+    <FinalizeButton
+      apps={appsWithWaitlistAccepted}
+      onFinalizeStatus={onFinalizeStatus}
+    />
+  );
+
+  await user.click(screen.getByRole('button', { name: /finalize/i }));
+  await waitFor(() => expect(mockedGetRsvpLists).toHaveBeenCalled());
+
+  const releaseCheckbox = await screen.findByRole('checkbox');
+  await user.click(releaseCheckbox);
+
+  await user.click(screen.getByRole('button', { name: /process all/i }));
+
+  await waitFor(() =>
+    expect(mockedPrepareMailchimpInvites).toHaveBeenCalledTimes(4)
+  );
+
+  // Accepted batches should receive the full Tito map
+  expect(inviteMaps['tentatively_accepted']).toEqual({
+    'ada@example.com': 'tito-url-ada',
+    'alan@example.com': 'tito-url-alan',
+  });
+  expect(inviteMaps['tentatively_waitlist_accepted']).toEqual({
+    'ada@example.com': 'tito-url-ada',
+    'alan@example.com': 'tito-url-alan',
+  });
+
+  // Non-accepted batches should receive empty map
+  expect(inviteMaps['tentatively_waitlisted']).toEqual({});
+  expect(inviteMaps['tentatively_waitlist_rejected']).toEqual({});
 });

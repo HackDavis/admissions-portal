@@ -26,7 +26,7 @@ export default async function bulkCreateInvitations(
   const { applicants, rsvpListSlug, releaseIds, discountCode } = params;
   const inviteMap = new Map<string, string>();
   const errors: string[] = [];
-  const CONCURRENCY = 10;
+  const CONCURRENCY = 20;
 
   console.log(
     `[Bulk Tito] Creating ${applicants.length} invitations for RSVP list: ${rsvpListSlug}`
@@ -81,8 +81,6 @@ export default async function bulkCreateInvitations(
       }
     }
 
-    // Small delay between batches to reduce rate-limit risk
-    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   const successCount = inviteMap.size;
