@@ -16,26 +16,8 @@ import { getHubSession, createHubInvite } from '../hub/createHubInvite';
 
 // Mailchimp axios client
 function getMailchimpClient(apiKeyIndex: number) {
-  console.log('[Mailchimp] Getting client for API key index:', apiKeyIndex);
-
   const serverPrefix = process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`];
   const apiKey = process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`];
-
-  console.log('[Mailchimp] Server prefix:', serverPrefix);
-  console.log('[Mailchimp] API key configured:', !!apiKey);
-  console.log('[Mailchimp] Checking environment variables:');
-  console.log(
-    `[Mailchimp] MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}:`,
-    process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`]
-  );
-  console.log(
-    `[Mailchimp] MAILCHIMP_API_KEY_${apiKeyIndex}:`,
-    !!process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`]
-  );
-  console.log(
-    `[Mailchimp] MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}:`,
-    process.env[`MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`]
-  );
 
   if (!serverPrefix || !apiKey) {
     console.error(
@@ -141,6 +123,7 @@ export async function prepareMailchimpInvites(
       targetStatus === 'tentatively_accepted' ||
       targetStatus === 'tentatively_waitlist_accepted';
 
+    // Double check all required env vars are present
     const requiredEnvs = [
       'HACKDAVIS_HUB_BASE_URL',
       'HUB_ADMIN_EMAIL',
@@ -213,10 +196,10 @@ export async function prepareMailchimpInvites(
       i += MAX_CONCURRENT_REQUESTS
     ) {
       const chunk = applicantsWithKeys.slice(i, i + MAX_CONCURRENT_REQUESTS);
-      const batchNum = Math.floor(i / MAX_CONCURRENT_REQUESTS) + 1;
-      const batchStart = Date.now();
+      const chunkNum = Math.floor(i / MAX_CONCURRENT_REQUESTS) + 1;
+      const chunkStart = Date.now();
       console.log(
-        `[prepareMailchimp] Batch ${batchNum}: starting ${chunk.length} applicants`
+        `[prepareMailchimp] Batch ${chunkNum}: starting ${chunk.length} applicants`
       );
 
       const chunkResults = await Promise.all(
@@ -299,8 +282,8 @@ export async function prepareMailchimpInvites(
       );
       results.push(...chunkResults);
       console.log(
-        `[prepareMailchimp] Batch ${batchNum}: completed in ${
-          Date.now() - batchStart
+        `[prepareMailchimp] Batch ${chunkNum}: completed in ${
+          Date.now() - chunkStart
         }ms`
       );
     }

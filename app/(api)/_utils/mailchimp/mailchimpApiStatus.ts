@@ -7,15 +7,7 @@ export async function reserveMailchimpAPIKeyIndex() {
     throw new Error(res.error || 'Failed to fetch Mailchimp API status');
   }
 
-  console.log('[Mailchimp Status] Current state from database:', {
-    apiKeyIndex: res.body.apiKeyIndex,
-    apiCallsMade: res.body.apiCallsMade,
-    maxApiCalls: res.body.maxApiCalls,
-    maxApiKeys: res.body.maxApiKeys,
-  });
-
   let currApiKeyIndex = res.body.apiKeyIndex;
-  console.log('[Mailchimp Status] Using API key index:', currApiKeyIndex);
   if (currApiKeyIndex > res.body.maxApiKeys) {
     // 1-based index for api keys
     throw new Error(
