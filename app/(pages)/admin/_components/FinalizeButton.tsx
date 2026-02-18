@@ -12,6 +12,8 @@ import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 import getRsvpLists from '@utils/tito/getRsvpLists';
 import getReleases from '@utils/tito/getReleases';
 import bulkCreateInvitations from '@utils/tito/bulkCreateInvitations';
+import { TitoConfigModal } from './TitoConfigModal';
+import { FinalizeResultsModal } from './FinalizeResultsModal';
 
 interface FinalizeButtonProps {
   apps: Application[];
@@ -395,232 +397,29 @@ export default function FinalizeButton({
       </button>
 
       {/* Tito Configuration & Processing Modal */}
-      {showTitoModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-bold mb-4">Finalize All Applicants</h2>
-
-            {loadingTitoData ? (
-              <div className="text-center py-8">
-                <p className="text-sm">Loading Tito data...</p>
-              </div>
-            ) : (
-              <>
-                {/* RSVP List Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold mb-2">
-                    Select RSVP List:
-                  </label>
-                  {rsvpLists.length === 0 ? (
-                    <p className="text-xs text-gray-600">
-                      No RSVP lists found. Create one in Tito first.
-                    </p>
-                  ) : (
-                    <select
-                      value={selectedRsvpList}
-                      onChange={(e) => setSelectedRsvpList(e.target.value)}
-                      className="w-full border-2 border-black px-3 py-2 text-xs"
-                      disabled={isProcessing}
-                    >
-                      <option value="">-- Select RSVP List --</option>
-                      {rsvpLists.map((list) => (
-                        <option key={list.slug} value={list.slug}>
-                          {list.title} ({list.slug})
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-
-                {/* Release Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold mb-2">
-                    Select Release(s):
-                  </label>
-                  {releases.length === 0 ? (
-                    <p className="text-xs text-gray-600">
-                      No releases found. Create releases in Tito first.
-                    </p>
-                  ) : (
-                    <div className="border-2 border-black p-3 max-h-60 overflow-y-auto">
-                      {releases.map((release) => (
-                        <label
-                          key={release.id}
-                          className="flex items-center space-x-2 mb-2 cursor-pointer hover:bg-gray-100 p-2"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedReleases.includes(release.id)}
-                            onChange={() => toggleRelease(release.id)}
-                            className="w-4 h-4"
-                            disabled={isProcessing}
-                          />
-                          <span className="text-xs">
-                            {release.title}
-                            {release.quantity && ` (Qty: ${release.quantity})`}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                  {selectedReleases.length > 0 && (
-                    <p className="text-xs text-gray-600 mt-2">
-                      {selectedReleases.length} release(s) selected
-                    </p>
-                  )}
-                </div>
-
-                {/* Info */}
-                {!isProcessing && (
-                  <div className="mb-4 p-3 border-2 border-black bg-gray-50">
-                    <p className="text-xs font-semibold mb-1">
-                      This single button will:
-                    </p>
-                    <ol className="text-xs space-y-1 list-decimal list-inside">
-                      <li>Create Tito invitations for accepted applicants</li>
-                      <li>Create Hub invitations for accepted applicants</li>
-                      <li>Send Mailchimp emails to all applicants</li>
-                      <li>Update application statuses in database</li>
-                      <li>Download CSV with all data and any errors</li>
-                    </ol>
-                  </div>
-                )}
-
-                {/* Processing Status - Warning */}
-                {isProcessing && (
-                  <div className="mb-4 p-3 border-2 border-yellow-600 bg-yellow-50">
-                    <p className="text-xs font-bold text-yellow-800 mb-2">
-                      IMPORTANT: DO NOT EXIT THIS PAGE UNTIL COMPLETE!
-                    </p>
-                    <p className="text-xs text-yellow-800">
-                      The process will take several minutes. Wait for success or
-                      error message.
-                    </p>
-                  </div>
-                )}
-
-                {/* Buttons */}
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={() => setShowTitoModal(false)}
-                    className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
-                    disabled={isProcessing}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleProcessAll}
-                    className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase bg-black text-white hover:bg-gray-800"
-                    disabled={
-                      isProcessing ||
-                      !selectedRsvpList ||
-                      selectedReleases.length === 0
-                    }
-                  >
-                    {isProcessing ? 'PROCESSING...' : 'PROCESS ALL'}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <TitoConfigModal
+        isOpen={showTitoModal}
+        isProcessing={isProcessing}
+        loadingTitoData={loadingTitoData}
+        rsvpLists={rsvpLists}
+        releases={releases}
+        selectedRsvpList={selectedRsvpList}
+        selectedReleases={selectedReleases}
+        onSelectRsvpList={setSelectedRsvpList}
+        onToggleRelease={toggleRelease}
+        onCancel={() => setShowTitoModal(false)}
+        onConfirm={handleProcessAll}
+      />
 
       {/* Results Modal */}
-      {showResultsModal && processingResults && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-bold mb-4">
-              {processingResults.totalErrors === 0
-                ? 'Process Complete - Success!'
-                : 'Process Complete - With Errors'}
-            </h2>
-
-            {/* Summary Section */}
-            <div
-              className={`mb-4 p-4 border-2 ${
-                processingResults.totalErrors === 0
-                  ? 'border-green-600 bg-green-50'
-                  : 'border-yellow-600 bg-yellow-50'
-              }`}
-            >
-              <p className="text-sm font-semibold mb-2">Summary:</p>
-              <ul className="text-xs space-y-1">
-                <li>
-                  Tito Invitations: {processingResults.titoSucceeded}/
-                  {processingResults.titoTotal} succeeded
-                </li>
-                <li>CSV Downloaded: {processingResults.csvFilename}</li>
-                {processingResults.totalErrors > 0 && (
-                  <li className="font-bold text-red-600">
-                    Total Errors: {processingResults.totalErrors}
-                  </li>
-                )}
-              </ul>
-            </div>
-
-            {/* Mailchimp Results */}
-            <div className="mb-4 p-4 border-2 border-black bg-gray-50">
-              <p className="text-sm font-semibold mb-2">Mailchimp Results:</p>
-              <pre className="text-xs whitespace-pre-wrap">
-                {processingResults.mailchimpResults}
-              </pre>
-            </div>
-
-            {/* Tito Failures */}
-            {processingResults.titoFailures.length > 0 && (
-              <div className="mb-4 p-4 border-2 border-red-600 bg-red-50">
-                <p className="text-sm font-bold text-red-600 mb-2">
-                  Tito Failures ({processingResults.titoFailures.length}):
-                </p>
-                <div className="text-xs space-y-1 max-h-40 overflow-y-auto">
-                  {processingResults.titoFailures
-                    .slice(0, 20)
-                    .map((failure, idx) => (
-                      <div key={idx} className="text-red-700">
-                        {failure}
-                      </div>
-                    ))}
-                  {processingResults.titoFailures.length > 20 && (
-                    <div className="text-red-700 font-semibold">
-                      ...and {processingResults.titoFailures.length - 20} more
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Mailchimp Failures */}
-            {processingResults.mailchimpFailures.length > 0 && (
-              <div className="mb-4 p-4 border-2 border-red-600 bg-red-50">
-                <p className="text-sm font-bold text-red-600 mb-2">
-                  Mailchimp Failures:
-                </p>
-                <div className="text-xs space-y-1">
-                  {processingResults.mailchimpFailures.map((failure, idx) => (
-                    <div key={idx} className="text-red-700">
-                      {failure}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Close Button */}
-            <div className="flex justify-end">
-              <button
-                onClick={() => {
-                  setShowResultsModal(false);
-                  setProcessingResults(null);
-                }}
-                className="special-button border-2 border-black px-4 py-2 text-xs font-medium uppercase bg-black text-white hover:bg-gray-800"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <FinalizeResultsModal
+        isOpen={showResultsModal}
+        results={processingResults}
+        onClose={() => {
+          setShowResultsModal(false);
+          setProcessingResults(null);
+        }}
+      />
     </div>
   );
 }
