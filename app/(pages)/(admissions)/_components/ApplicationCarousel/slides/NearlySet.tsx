@@ -3,18 +3,18 @@
 import React from 'react';
 import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 
-const YEAR_OPTIONS = ['1', '2', '3', '4', '5+'] as const;
+const YEAR_OPTIONS = ['1', '2', '3', '4', '5+', 'N/A'] as const;
 
 const SHIRT_OPTIONS = ['S', 'M', 'L', 'XL', 'XXL'];
 
 const DIETARY_OPTIONS = [
   'Vegetarian',
   'Vegan',
-  'Kosher',
+  'Celiac Disease',
   'Allergies',
+  'Kosher',
   'Halal',
   'None',
-  'Other',
 ];
 
 interface NearlySetProps {

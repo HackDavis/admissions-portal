@@ -7,9 +7,8 @@ import {
   Status,
   StatusFilter,
   UcdStudentFilter,
+  PHASES,
 } from '@/app/_types/applicationFilters';
-
-import { PHASES } from '../_utils/constants';
 import { getAdminApplications } from '@actions/applications/getApplication';
 import { updateApplication } from '@actions/applications/updateApplication';
 
@@ -17,6 +16,7 @@ import { ApplicationUpdatePayload } from '@/app/_types/application';
 
 export default function useApplications() {
   const [ucd, setUcd] = useState<UcdStudentFilter>('all');
+  const [unseenStatus, setUnseenStatus] = useState<StatusFilter>('all');
   const [tentativeStatus, setTentativeStatus] = useState<StatusFilter>('all');
   const [processedStatus, setProcessedStatus] = useState<StatusFilter>('all');
 
@@ -36,6 +36,9 @@ export default function useApplications() {
 
   const getStatusForPhase = useCallback(
     (phase: Phase) => {
+      if (phase === 'unseen') {
+        return unseenStatus === 'all' ? null : unseenStatus;
+      }
       if (phase === 'tentative') {
         return tentativeStatus === 'all' ? null : tentativeStatus;
       }
@@ -44,7 +47,7 @@ export default function useApplications() {
       }
       return null;
     },
-    [processedStatus, tentativeStatus]
+    [processedStatus, tentativeStatus, unseenStatus]
   );
 
   const loadPhase = useCallback(
@@ -83,7 +86,7 @@ export default function useApplications() {
 
   useEffect(() => {
     loadPhase('unseen');
-  }, [loadPhase, ucd]);
+  }, [loadPhase, ucd, unseenStatus]);
 
   useEffect(() => {
     loadPhase('tentative');
@@ -153,9 +156,11 @@ export default function useApplications() {
     processedStatus,
     setProcessedStatus,
     setTentativeStatus,
+    setUnseenStatus,
     setUcd,
     tentativeStatus,
     totalCount,
+    unseenStatus,
     ucd,
     updateApplicantStatus,
   };

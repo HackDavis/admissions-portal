@@ -13,7 +13,7 @@ interface PhaseColumnProps {
   apps: Application[];
   isLoading: boolean;
   statusFilter?: StatusFilter;
-  statusOptions?: Status[];
+  statusOptions?: readonly Status[];
   onStatusChange?: (value: StatusFilter) => void;
   footer?: React.ReactNode;
   renderActions?: (app: Application) => React.ReactNode;

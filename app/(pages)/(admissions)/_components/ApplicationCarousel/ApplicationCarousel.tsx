@@ -86,7 +86,7 @@ export default function ApplicationCarousel() {
     attendedHackDavis: null,
     firstHackathon: null,
     //ABitMore.tsx
-    linkedin: '',
+    linkedin: 'https://www.linkedin.com/in/',
     githubOrPortfolio: '',
     resume: '',
     //FinalStretch.tsx
