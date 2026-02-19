@@ -19,7 +19,7 @@ export default function ABitMore({
   const resumeRequired = formData.connectWithSponsors === true;
 
   const isLinkedInValid = (url: string) =>
-    /^https?:\/\/(www\.)?linkedin\.com\/.+$/.test(url.trim());
+    /^https?:\/\/(www\.)?linkedin\.com\/in\/.+$/.test(url.trim());
 
   const isValidUrl = (url: string) => {
     try {
@@ -69,7 +69,7 @@ export default function ABitMore({
               onChange={(e) =>
                 setFormData({ ...formData, linkedin: e.target.value })
               }
-              placeholder="Ex: https://www.linkedin.com/in/your-username"
+              placeholder="https://www.linkedin.com/in/your-username"
               className="mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />
 
@@ -146,7 +146,7 @@ export default function ABitMore({
               onChange={(e) =>
                 setFormData({ ...formData, resume: e.target.value })
               }
-              placeholder="Ex: https://drive.google.com/file/d/your-shared-link"
+              placeholder="https://drive.google.com/file/d/your-shared-link"
               className="mt-3 h-28 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />
 
@@ -171,7 +171,6 @@ export default function ABitMore({
           <button
             type="button"
             onClick={handleNext}
-            disabled={!isValid}
             className={`flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
               isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
             }`}
