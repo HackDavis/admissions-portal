@@ -9,24 +9,15 @@ import {
   DuplicateError,
 } from '@utils/response/Errors';
 import { ApplicationUpdatePayload } from '@/app/_types/application';
+import {
+  ALL_STATUSES,
+  PROCESSED_STATUSES,
+  TENTATIVE_STATUSES,
+} from '@/app/_types/applicationFilters';
 
-const TENTATIVE_STATUSES = [
-  'tentatively_accepted',
-  'tentatively_waitlisted',
-  'tentatively_waitlist_accepted',
-  'tentatively_waitlist_rejected',
-];
-const PROCESSED_STATUSES = [
-  'accepted',
-  'waitlist_accepted',
-  'waitlist_rejected',
-];
-const ALL_STATUSES = [
-  'pending',
-  'waitlisted',
-  ...TENTATIVE_STATUSES,
-  ...PROCESSED_STATUSES,
-];
+const isStatusInGroup = (status: string, group: readonly string[]): boolean => {
+  return group.includes(status);
+};
 
 export const UpdateApplication = async (
   id: string,
@@ -45,11 +36,14 @@ export const UpdateApplication = async (
     }
 
     const now = new Date();
-    if (TENTATIVE_STATUSES.includes(updateData.status)) {
-      updateData.reviewedAt = now;
-    }
-    if (PROCESSED_STATUSES.includes(updateData.status)) {
-      updateData.processedAt = now;
+    if (updateData.status) {
+      if (isStatusInGroup(updateData.status, TENTATIVE_STATUSES)) {
+        updateData.reviewedAt = now;
+      }
+
+      if (isStatusInGroup(updateData.status, PROCESSED_STATUSES)) {
+        updateData.processedAt = now;
+      }
     }
 
     const parsedBody = await parseAndReplace(updateData);
