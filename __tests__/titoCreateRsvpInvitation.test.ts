@@ -152,24 +152,22 @@ describe('createRsvpInvitation', () => {
     process.env.TITO_AUTH_TOKEN = 'token';
     process.env.TITO_EVENT_BASE_URL = 'https://tito.test';
 
-    // Return 429 for every call (4 total: initial + 3 retries)
+    // Return 429 for every call (6 total: initial + 5 retries)
     (global as any).fetch = jest.fn().mockResolvedValue(make429());
 
     const createRsvpInvitation = await loadModule();
 
     const promise = createRsvpInvitation(invitationData);
 
-    // Advance enough time for all 3 retries
-    for (let i = 0; i < 3; i++) {
-      await jest.advanceTimersByTimeAsync(5000);
-    }
+    // Advance enough time for all 5 retries with exponential backoff + jitter.
+    await jest.advanceTimersByTimeAsync(45000);
 
     const res = await promise;
 
     expect(res.ok).toBe(false);
-    expect(res.error).toMatch(/rate limit exceeded after 3 retries/i);
-    // 1 initial + 3 retries = 4 total calls
-    expect((global as any).fetch).toHaveBeenCalledTimes(4);
+    expect(res.error).toMatch(/rate limit exceeded after 5 retries/i);
+    // 1 initial + 5 retries = 6 total calls
+    expect((global as any).fetch).toHaveBeenCalledTimes(6);
 
     jest.useRealTimers();
   });

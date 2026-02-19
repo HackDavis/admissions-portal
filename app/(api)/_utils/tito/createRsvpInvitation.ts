@@ -4,7 +4,7 @@ import {
   InvitationData,
   ReleaseInvitation,
   TitoResponse,
-} from '@/app/_types/tito';
+} from '@typeDefs/tito';
 
 const TITO_AUTH_TOKEN = process.env.TITO_AUTH_TOKEN;
 const TITO_EVENT_BASE_URL = process.env.TITO_EVENT_BASE_URL;

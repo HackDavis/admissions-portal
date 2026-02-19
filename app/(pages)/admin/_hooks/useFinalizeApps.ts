@@ -6,7 +6,7 @@ import {
   Status,
   WAITLIST_STATUSES,
   FINAL_STATUS_MAP,
-} from '@/app/_types/applicationFilters';
+} from '@typeDefs/applicationFilters';
 import { RsvpList, Release } from '@/app/_types/tito';
 import { generateComprehensiveCSV } from '../_utils/generateComprehensiveCSV';
 import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
@@ -30,6 +30,7 @@ type OnFinalizeStatusFn = (
 export interface FinalizeResults {
   titoSucceeded: number;
   titoTotal: number;
+  autoFixedCount: number;
   mailchimpResults: string;
   csvFilename: string;
   totalErrors: number;
@@ -127,6 +128,7 @@ export function useFinalizeApps(
       const mailchimpResults: string[] = [];
       const mailchimpSuccessIds = new Set<string>();
       const mailchimpErrorMap = new Map<string, string>(); // email -> error message
+      const hubInviteMapLocal = new Map<string, string>();
 
       // Helper: process one Mailchimp batch and collect results
       const processMailchimpBatch = async (
@@ -138,18 +140,25 @@ export function useFinalizeApps(
           | 'tentatively_waitlist_rejected'
           | 'rsvp_reminder',
         titoInviteMapRecord: Record<string, string>
-      ) => {
+      ): Promise<boolean> => {
         const res = await prepareMailchimpInvites(status, {
           titoInviteMap: titoInviteMapRecord,
           rsvpListSlug: selectedRsvpList,
         });
+        const processedIds: string[] = res.ids ?? [];
+        const processedCount = processedIds.length;
 
-        // Track successful Mailchimp sends
-        if (res.ids?.length > 0) {
-          res.ids.forEach((id: string) => mailchimpSuccessIds.add(id));
+        Object.entries(res.hubInviteMap ?? {}).forEach(([email, hubUrl]) => {
+          if (typeof hubUrl === 'string' && hubUrl) {
+            hubInviteMapLocal.set(email.toLowerCase(), hubUrl);
+          }
+        });
+
+        if (processedCount > 0) {
+          processedIds.forEach((id: string) => mailchimpSuccessIds.add(id));
 
           const successfulApps = apps.filter((app) =>
-            res.ids.includes(app._id)
+            processedIds.includes(app._id)
           );
 
           // Defense-in-depth: for accepted statuses, cross-check each app
@@ -208,7 +217,7 @@ export function useFinalizeApps(
           const failedApps = apps.filter(
             (app) =>
               app.status === status &&
-              !res.ids.includes(app._id) &&
+              !processedIds.includes(app._id) &&
               !mailchimpErrorMap.has(app.email.toLowerCase())
           );
           failedApps.forEach((app) => {
@@ -220,7 +229,7 @@ export function useFinalizeApps(
         }
 
         const statusPrefix = res.ok && !res.error ? '[SUCCESS]' : '[FAILED]';
-        let batchMessage = `${statusPrefix} ${label}: ${res.ids?.length} processed`;
+        let batchMessage = `${statusPrefix} ${label}: ${processedCount} processed`;
 
         if (res.error) {
           batchMessage += `\n${res.error}`;
@@ -233,6 +242,8 @@ export function useFinalizeApps(
 
       // Run accepted path and non-accepted path in parallel
       let titoInviteMapLocal = new Map<string, string>();
+      let titoAutoFixNotesMapLocal = new Map<string, string>();
+      let autoFixedCount = 0;
 
       const acceptedPath = async () => {
         // Create Tito invitations first (accepted only)
@@ -248,10 +259,13 @@ export function useFinalizeApps(
           });
 
           titoInviteMapLocal = titoResult.inviteMap;
-          titoFailures.push(...titoResult.errors);
-          console.log(
-            `[Process All] Tito: ${titoInviteMapLocal.size} succeeded, ${titoFailures.length} failed`
+          titoAutoFixNotesMapLocal = new Map(
+            Object.entries(titoResult.autoFixedNotesMap ?? {}).map(
+              ([email, note]) => [email.toLowerCase(), note]
+            )
           );
+          autoFixedCount = titoResult.autoFixedCount;
+          titoFailures.push(...titoResult.errors);
         }
 
         // Then process Mailchimp for accepted statuses (need Tito map)
@@ -300,12 +314,13 @@ export function useFinalizeApps(
       const csvData = generateComprehensiveCSV(
         allApps,
         titoInviteMapLocal,
+        hubInviteMapLocal,
+        titoAutoFixNotesMapLocal,
         titoFailures,
         mailchimpSuccessIds,
         mailchimpErrorMap
       );
 
-      // Download CSV
       const blob = new Blob([csvData], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const download = `applicants_finalized_${
@@ -317,7 +332,6 @@ export function useFinalizeApps(
       a.click();
       URL.revokeObjectURL(url);
 
-      // Increment batch number if no errors
       const hadErrors = titoFailures.length > 0 || mailchimpFailures.length > 0;
       if (!hadErrors) {
         try {
@@ -328,11 +342,11 @@ export function useFinalizeApps(
       }
       await refreshMailchimp();
 
-      // Store results and show results modal
       const totalErrors = titoFailures.length + mailchimpFailures.length;
       setProcessingResults({
         titoSucceeded: titoInviteMapLocal.size,
         titoTotal: acceptedApps.length,
+        autoFixedCount,
         mailchimpResults: processedResults,
         csvFilename: download,
         totalErrors,
@@ -346,6 +360,7 @@ export function useFinalizeApps(
       setProcessingResults({
         titoSucceeded: 0,
         titoTotal: 0,
+        autoFixedCount: 0,
         mailchimpResults: '',
         csvFilename: '',
         totalErrors: 1,

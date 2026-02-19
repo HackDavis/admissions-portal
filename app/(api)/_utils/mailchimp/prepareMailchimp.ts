@@ -103,6 +103,7 @@ export async function prepareMailchimpInvites(
 ) {
   const successfulIds: string[] = [];
   const errorDetails: string[] = [];
+  const hubInviteMap: Record<string, string> = {};
   const MAX_CONCURRENT_REQUESTS = 10;
   const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
 
@@ -114,6 +115,19 @@ export async function prepareMailchimpInvites(
     } else {
       dbApplicants = await getApplicationsByStatuses(targetStatus);
     }
+
+    const seenEmails = new Set<string>();
+    dbApplicants = dbApplicants.filter((app) => {
+      const normalizedEmail = app.email.toLowerCase().trim();
+      if (seenEmails.has(normalizedEmail)) {
+        errorDetails.push(
+          `[${app.email}]: Skipped duplicate applicant email in processing batch`
+        );
+        return false;
+      }
+      seenEmails.add(normalizedEmail);
+      return true;
+    });
 
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
 
@@ -245,6 +259,7 @@ export async function prepareMailchimpInvites(
               );
               if (!hubUrl)
                 throw new Error(`Hub URL generation failed for ${app.email}`);
+              hubInviteMap[app.email.toLowerCase()] = hubUrl;
               console.log(
                 `[prepareMailchimp] Hub invite for ${app.email}: ${
                   Date.now() - hubStart
@@ -300,12 +315,13 @@ export async function prepareMailchimpInvites(
     return {
       ok: true,
       ids: successfulIds,
+      hubInviteMap,
       error:
         failedCount === 0
           ? null
           : `${failedCount} FAILED:\n${errorDetails.join('\n')}`,
     };
   } catch (err: any) {
-    return { ok: false, ids: successfulIds, error: err.message };
+    return { ok: false, ids: successfulIds, hubInviteMap, error: err.message };
   }
 }

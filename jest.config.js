@@ -10,7 +10,16 @@ const config = {
         },
       },
     ],
-    '^.+\\.(mjs|js|jsx)$': 'babel-jest',
+    '^.+\\.(mjs|js|jsx)$': [
+      'babel-jest',
+      {
+        presets: [
+          ['@babel/preset-env'],
+          ['@babel/preset-react'],
+          ['@babel/preset-typescript'],
+        ],
+      },
+    ],
   },
   testMatch: ['**/?(*.)+(spec|test).(ts|tsx)'],
   clearMocks: true,
@@ -25,6 +34,7 @@ const config = {
     '^@apidata/(.*)$': '<rootDir>/app/(api)/_data/$1',
     '^@datalib/(.*)$': '<rootDir>/app/(api)/_datalib/$1',
     '^@typeDefs/(.*)$': '<rootDir>/app/_types/$1',
+    '^@app/_types/(.*)$': '<rootDir>/app/_types/$1',
     '^@/auth$': '<rootDir>/auth.ts',
     '^@public/(.*)$': '<rootDir>/public/$1',
     '\\.(css|scss|sass)$': 'identity-obj-proxy',

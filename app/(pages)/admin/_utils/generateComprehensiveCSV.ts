@@ -4,6 +4,8 @@ import { Application } from '@/app/_types/application';
 export const generateComprehensiveCSV = (
   applicants: Application[],
   titoInviteMap: Map<string, string>,
+  hubInviteMap: Map<string, string>,
+  autoFixedNotesMap: Map<string, string>,
   titoFailures: string[],
   mailchimpSuccessIds: Set<string>,
   mailchimpErrorMap: Map<string, string>
@@ -15,6 +17,7 @@ export const generateComprehensiveCSV = (
     'Status',
     'Acceptance Type',
     'Tito Invite URL',
+    'HackDavis Hub Invite URL',
     'Success',
     'Notes',
   ];
@@ -41,6 +44,8 @@ export const generateComprehensiveCSV = (
     }
 
     const titoUrl = titoInviteMap.get(email) || '';
+    const hubUrl = hubInviteMap.get(email) || '';
+    const autoFixedNote = autoFixedNotesMap.get(email) || '';
     const hadTitoFailure = titoFailures.some((f) => f.includes(email));
     const mailchimpSuccess = mailchimpSuccessIds.has(app._id);
     const mailchimpError = mailchimpErrorMap.get(email);
@@ -71,13 +76,13 @@ export const generateComprehensiveCSV = (
         notes = errorMessages.join('; ');
       } else {
         success = 'TRUE';
-        notes = '';
+        notes = autoFixedNote;
       }
     } else {
       // Non-accepted applicants only need Mailchimp
       if (mailchimpSuccess) {
         success = 'TRUE';
-        notes = '';
+        notes = autoFixedNote;
       } else {
         success = 'FALSE';
         notes = mailchimpError || 'Mailchimp email failed to send';
@@ -91,6 +96,7 @@ export const generateComprehensiveCSV = (
       app.status,
       acceptanceType,
       titoUrl,
+      hubUrl,
       success,
       notes,
     ]

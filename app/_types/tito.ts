@@ -47,10 +47,40 @@ export interface BulkInvitationResult {
   ok: boolean;
   inviteMap: Map<string, string>;
   errors: string[];
+  autoFixedCount: number;
+  autoFixedNotesMap: Record<string, string>;
 }
 
 export interface TitoResponse<T> {
   ok: boolean;
   body: T | null;
+  error: string | null;
+}
+
+export interface DeleteRsvpInvitationByEmailParams {
+  rsvpListSlug: string;
+  email: string;
+}
+
+export interface DeleteRsvpInvitationByEmailResult {
+  ok: boolean;
+  deletedInvitationSlug: string | null;
+  error: string | null;
+}
+
+export interface TitoReleaseInvitation {
+  slug: string;
+  email: string;
+  url?: string;
+  unique_url?: string;
+}
+export interface GetRsvpInvitationByEmailParams {
+  rsvpListSlug: string;
+  email: string;
+}
+
+export interface GetRsvpInvitationByEmailResult {
+  ok: boolean;
+  invitation: TitoReleaseInvitation | null;
   error: string | null;
 }

@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "run-script-os",
-    "test:nix": "echo 'module.exports = { presets: [[\"@babel/preset-env\"], [\"@babel/preset-react\"], [\"@babel/preset-typescript\"]] };' > babel.config.js && npx jest --detectOpenHandles && rm babel.config.js",
-    "test:windows": "echo module.exports = { presets: [['@babel/preset-env'], ['@babel/preset-react'], ['@babel/preset-typescript']] }; > babel.config.js && npx jest --detectOpenHandles && rm babel.config.js"
+    "test:nix": "npx jest --detectOpenHandles",
+    "test:windows": "npx jest --detectOpenHandles"
   },
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.80",

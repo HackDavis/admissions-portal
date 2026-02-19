@@ -3,6 +3,7 @@ interface FinalizeResultsModalProps {
   results: {
     titoSucceeded: number;
     titoTotal: number;
+    autoFixedCount: number;
     mailchimpResults: string;
     csvFilename: string;
     totalErrors: number;
@@ -41,6 +42,7 @@ export function FinalizeResultsModal({
               Tito Invitations: {results.titoSucceeded}/{results.titoTotal}{' '}
               succeeded
             </li>
+            <li>Auto-Fixed Errors: {results.autoFixedCount}</li>
             <li>CSV Downloaded: {results.csvFilename}</li>
             {results.totalErrors > 0 && (
               <li className="font-bold text-red-600">
