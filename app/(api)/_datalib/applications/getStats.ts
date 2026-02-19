@@ -29,6 +29,7 @@ type AdminStatsRecord = {
   status?: string;
 };
 
+// TODO: Make a more robust STEM classification system
 const STEM_KEYWORDS = [
   'engineering',
   'computer',
@@ -162,6 +163,7 @@ function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
       firstTimeHackers.unknown += 1;
     }
 
+    // NOTE: This logic allows applicants who chose multiple gender identities to be counted in each relevant bucket
     const genderBuckets = normalizeGenderBuckets(record.gender);
     genderBuckets.forEach((bucket) => {
       gender[bucket] += 1;
@@ -247,18 +249,12 @@ async function fetchScopeRecords(scope: ScopeKey) {
 
 export const GetApplicationStats = async () => {
   try {
-    const allRecords = await fetchScopeRecords('all');
-
-    const processedRecords = allRecords.filter(
-      (record) =>
-        record.status &&
-        (PROCESSED_STATUSES as readonly string[]).includes(record.status)
-    );
-
-    const hypotheticRecords = allRecords.filter(
-      (record) =>
-        record.status &&
-        (HYPOTHETIC_STATUSES as readonly string[]).includes(record.status)
+    const [allRecords, processedRecords, hypotheticRecords] = await Promise.all(
+      [
+        fetchScopeRecords('all'),
+        fetchScopeRecords('processed'),
+        fetchScopeRecords('hypothetic'),
+      ]
     );
 
     const response: AdminStats = {

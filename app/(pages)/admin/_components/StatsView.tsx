@@ -172,6 +172,7 @@ export default function StatsView() {
         <div className="flex flex-col gap-2 sm:flex-row">
           <select
             value={scope}
+            aria-label="Filter statistics by scope"
             onChange={(e) => setScope(e.target.value as Scope)}
             className="border border-black bg-white px-3 py-1 text-xs"
           >

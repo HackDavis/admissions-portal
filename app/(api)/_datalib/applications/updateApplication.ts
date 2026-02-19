@@ -15,6 +15,10 @@ import {
   TENTATIVE_STATUSES,
 } from '@/app/_types/applicationFilters';
 
+const isStatusInGroup = (status: string, group: readonly string[]): boolean => {
+  return group.includes(status);
+};
+
 export const UpdateApplication = async (
   id: string,
   body: ApplicationUpdatePayload
@@ -32,11 +36,14 @@ export const UpdateApplication = async (
     }
 
     const now = new Date();
-    if ((TENTATIVE_STATUSES as readonly string[]).includes(updateData.status)) {
-      updateData.reviewedAt = now;
-    }
-    if ((PROCESSED_STATUSES as readonly string[]).includes(updateData.status)) {
-      updateData.processedAt = now;
+    if (updateData.status) {
+      if (isStatusInGroup(updateData.status, TENTATIVE_STATUSES)) {
+        updateData.reviewedAt = now;
+      }
+
+      if (isStatusInGroup(updateData.status, PROCESSED_STATUSES)) {
+        updateData.processedAt = now;
+      }
     }
 
     const parsedBody = await parseAndReplace(updateData);
