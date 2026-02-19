@@ -11,9 +11,11 @@ const mockedGetAdminApplications = getAdminApplications as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  process.env.TITO_HACKER_TICKET_NAME = 'test ticket';
+  process.env.TITO_TICKET_EXPIRY = '2026-12-31T23:59:59Z';
 });
 
-test('generates CSV with Tito URLs when map is provided', async () => {
+test('generates Tito import CSV for accepted applicants', async () => {
   mockedGetAdminApplications.mockResolvedValue({
     ok: true,
     body: [
@@ -28,14 +30,17 @@ test('generates CSV with Tito URLs when map is provided', async () => {
     error: null,
   });
 
-  const map = new Map([['ada@example.com', 'tito-url']]);
-  const csv = await generateTitoCSV('accepted', map);
+  const csv = await generateTitoCSV('accepted');
 
-  expect(csv).toMatch('Tito Invite URL');
-  expect(csv).toMatch('tito-url');
+  expect(csv).toMatch(
+    'First Name,Last Name,Email,Expiry Time,Redirect?,Discount Code,test ticket'
+  );
+  expect(csv).toMatch(
+    '"Ada","Lovelace","ada@example.com","2026-12-31T23:59:59Z","Y","","Y"'
+  );
 });
 
-test('generates import CSV when map is not provided', async () => {
+test('generates import CSV for accepted applicants', async () => {
   mockedGetAdminApplications.mockResolvedValue({
     ok: true,
     body: [
@@ -54,6 +59,7 @@ test('generates import CSV when map is not provided', async () => {
 
   expect(csv).toMatch('Expiry Time');
   expect(csv).toMatch('test ticket');
+  expect(csv).toMatch('"Y"');
 });
 
 test('throws when applicant fetch fails', async () => {
