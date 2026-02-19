@@ -78,17 +78,26 @@ export default function StatsView() {
   const genderData: ChartRow[] = useMemo(() => {
     if (!selectedScopeStats) return [];
 
-    const men = selectedScopeStats.gender.men;
-    const women = selectedScopeStats.gender.women;
-    const other = Math.max(selectedScopeStats.totalApplicants - men - women, 0);
+    const {
+      men,
+      women,
+      transgender,
+      nonBinary,
+      preferNotToAnswer,
+      other: otherGender,
+      unknown,
+    } = selectedScopeStats.gender;
+
+    const otherOrUnknown =
+      transgender + nonBinary + preferNotToAnswer + otherGender + unknown;
 
     const rows: ChartRow[] = [
       { name: 'Women', value: women },
       { name: 'Men', value: men },
     ];
 
-    if (other > 0) {
-      rows.push({ name: 'Other/Unknown', value: other });
+    if (otherOrUnknown > 0) {
+      rows.push({ name: 'Other/Unknown', value: otherOrUnknown });
     }
 
     return rows;

@@ -24,7 +24,7 @@ export default function useStats() {
 
       setStats(res.body as AdminStats);
     } catch (e: any) {
-      setError(e?.message ?? 'Failed to load stats');
+      setError(e instanceof Error ? e.message : 'Failed to load stats');
       setStats(null);
     } finally {
       setLoading(false);

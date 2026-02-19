@@ -87,26 +87,30 @@ function createDefaultGenderCounts(): GenderCounts {
   };
 }
 
-function normalizeGenderBucket(genderValues?: string[]): keyof GenderCounts {
+function normalizeGenderBuckets(
+  genderValues?: string[]
+): Array<keyof GenderCounts> {
   if (!Array.isArray(genderValues) || genderValues.length === 0) {
-    return 'unknown';
+    return ['unknown'];
   }
 
   const normalized = genderValues.map((value) => value.toLowerCase().trim());
+  const buckets: Array<keyof GenderCounts> = [];
 
-  if (normalized.includes('woman')) return 'women';
-  if (normalized.includes('man')) return 'men';
-  if (normalized.includes('transgender')) return 'transgender';
+  if (normalized.includes('woman')) buckets.push('women');
+  if (normalized.includes('man')) buckets.push('men');
+  if (normalized.includes('transgender')) buckets.push('transgender');
   if (
     normalized.includes('non-binary or non-conforming') ||
     normalized.includes('non-binary')
   ) {
-    return 'nonBinary';
+    buckets.push('nonBinary');
   }
-  if (normalized.includes('prefer not to answer')) return 'preferNotToAnswer';
-  if (normalized.includes('other')) return 'other';
+  if (normalized.includes('prefer not to answer'))
+    buckets.push('preferNotToAnswer');
+  if (normalized.includes('other')) buckets.push('other');
 
-  return 'unknown';
+  return buckets.length > 0 ? buckets : ['unknown'];
 }
 
 function normalizeMajorValue(major?: string) {
@@ -158,8 +162,10 @@ function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
       firstTimeHackers.unknown += 1;
     }
 
-    const genderBucket = normalizeGenderBucket(record.gender);
-    gender[genderBucket] += 1;
+    const genderBuckets = normalizeGenderBuckets(record.gender);
+    genderBuckets.forEach((bucket) => {
+      gender[bucket] += 1;
+    });
 
     const major = normalizeMajorValue(record.major);
     majorAccumulator.set(major, (majorAccumulator.get(major) ?? 0) + 1);
@@ -241,12 +247,18 @@ async function fetchScopeRecords(scope: ScopeKey) {
 
 export const GetApplicationStats = async () => {
   try {
-    const [allRecords, processedRecords, hypotheticRecords] = await Promise.all(
-      [
-        fetchScopeRecords('all'),
-        fetchScopeRecords('processed'),
-        fetchScopeRecords('hypothetic'),
-      ]
+    const allRecords = await fetchScopeRecords('all');
+
+    const processedRecords = allRecords.filter(
+      (record) =>
+        record.status &&
+        (PROCESSED_STATUSES as readonly string[]).includes(record.status)
+    );
+
+    const hypotheticRecords = allRecords.filter(
+      (record) =>
+        record.status &&
+        (HYPOTHETIC_STATUSES as readonly string[]).includes(record.status)
     );
 
     const response: AdminStats = {
