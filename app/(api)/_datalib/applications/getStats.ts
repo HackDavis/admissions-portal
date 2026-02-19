@@ -1,23 +1,23 @@
 import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
 import { HttpError } from '@utils/response/Errors';
-
-const PROCESSED_STATUSES = [
-  'accepted',
-  'waitlist_accepted',
-  'waitlist_rejected',
-] as const;
-
-const TENTATIVE_STATUSES = [
-  'tentatively_accepted',
-  'tentatively_waitlisted',
-  'tentatively_waitlist_accepted',
-  'tentatively_waitlist_rejected',
-] as const;
-
-const HYPOTHETIC_STATUSES = [
-  ...PROCESSED_STATUSES,
-  ...TENTATIVE_STATUSES,
-] as const;
+import {
+  PROCESSED_STATUSES,
+  HYPOTHETIC_STATUSES,
+  ACCEPTED_STATUSES,
+  REJECTED_STATUSES,
+  UNDECIDED_STATUSES,
+} from '@/app/_types/applicationFilters';
+import {
+  AdminStats,
+  AcceptanceRatio,
+  FirstTimeHackerCounts,
+  GenderCounts,
+  MajorCount,
+  ScopeStats,
+  StemCounts,
+  YearDistribution,
+  PendingWaitlistedCounts,
+} from '@/app/_types/stats';
 
 type ScopeKey = 'all' | 'processed' | 'hypothetic';
 
@@ -27,74 +27,6 @@ type AdminStatsRecord = {
   gender?: string[];
   major?: string;
   status?: string;
-};
-
-export type YearDistribution = {
-  first: number;
-  second: number;
-  third: number;
-  fourth: number;
-  fivePlus: number;
-  unknown: number;
-};
-
-export type FirstTimeHackerCounts = {
-  firstTime: number;
-  nonFirstTime: number;
-  unknown: number;
-};
-
-export type GenderCounts = {
-  women: number;
-  men: number;
-  transgender: number;
-  nonBinary: number;
-  preferNotToAnswer: number;
-  other: number;
-  unknown: number;
-};
-
-export type StemCounts = {
-  stem: number;
-  nonStem: number;
-  unknown: number;
-};
-
-export type AcceptanceRatio = {
-  accepted: number;
-  rejected: number;
-  undecided: number;
-  total: number;
-};
-
-export type PendingWaitlistedCounts = {
-  pending: number;
-  waitlisted: number;
-};
-
-export type MajorCount = {
-  major: string;
-  count: number;
-};
-
-export type ScopeStats = {
-  totalApplicants: number;
-  yearDistribution: YearDistribution;
-  firstTimeHackers: FirstTimeHackerCounts;
-  gender: GenderCounts;
-  majorCounts: MajorCount[];
-  stemVsNonStem: StemCounts;
-};
-
-export type AdminStats = {
-  all: ScopeStats;
-  processed: ScopeStats;
-  hypothetic: ScopeStats;
-  allQueueCounts: PendingWaitlistedCounts;
-  acceptanceRatio: {
-    processed: AcceptanceRatio;
-    hypothetic: AcceptanceRatio;
-  };
 };
 
 const STEM_KEYWORDS = [
@@ -119,20 +51,6 @@ const STEM_KEYWORDS = [
   'technology',
   'science',
 ] as const;
-
-const ACCEPTED_STATUSES = new Set([
-  'accepted',
-  'waitlist_accepted',
-  'tentatively_accepted',
-  'tentatively_waitlist_accepted',
-]);
-
-const REJECTED_STATUSES = new Set([
-  'waitlist_rejected',
-  'tentatively_waitlist_rejected',
-]);
-
-const UNDECIDED_STATUSES = new Set(['tentatively_waitlisted']);
 
 function getScopeQuery(scope: ScopeKey) {
   if (scope === 'processed') {

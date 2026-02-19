@@ -7,9 +7,8 @@ import {
   Status,
   StatusFilter,
   UcdStudentFilter,
+  PHASES,
 } from '@/app/_types/applicationFilters';
-
-import { PHASES } from '../_utils/constants';
 import { getAdminApplications } from '@actions/applications/getApplication';
 import { updateApplication } from '@actions/applications/updateApplication';
 

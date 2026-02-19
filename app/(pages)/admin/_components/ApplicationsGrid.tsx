@@ -7,7 +7,7 @@ import {
   PROCESSED_STATUSES,
   TENTATIVE_STATUSES,
   UNSEEN_STATUSES,
-} from '../_utils/constants';
+} from '@/app/_types/applicationFilters'
 import FinalizeButton from './FinalizeButton';
 import PhaseColumn from './PhaseColumn';
 
