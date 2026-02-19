@@ -2,26 +2,7 @@ import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
 import parseAndReplace from '@utils/request/parseAndReplace';
 import { HttpError, NotFoundError } from '@utils/response/Errors';
 import { ObjectId } from 'mongodb';
-import { Phase } from '@app/_types/applicationFilters';
-
-const TENTATIVE_STATUSES = [
-  'tentatively_accepted',
-  'tentatively_waitlisted',
-  'tentatively_waitlist_accepted',
-  'tentatively_waitlist_rejected',
-] as const;
-
-const PROCESSED_STATUSES = [
-  'accepted',
-  'waitlist_accepted',
-  'waitlist_rejected',
-] as const;
-
-const PHASE_TO_STATUSES: Record<Phase, readonly string[]> = {
-  unseen: ['pending', 'waitlisted'],
-  tentative: TENTATIVE_STATUSES,
-  processed: PROCESSED_STATUSES,
-};
+import { Phase, PHASE_TO_STATUSES } from '@app/_types/applicationFilters';
 
 export const GetApplication = async (id: string) => {
   try {
