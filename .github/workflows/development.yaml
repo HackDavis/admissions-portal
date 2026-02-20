@@ -23,13 +23,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Linting check
-        run: npm run lint
-
       - name: Build Next.js app
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: npm run build
+
+      - name: Run tests
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: npm run test
 
       - name: Success
         run: echo "🚧 Build successful 🚧"

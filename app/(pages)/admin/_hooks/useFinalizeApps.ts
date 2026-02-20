@@ -323,9 +323,7 @@ export function useFinalizeApps(
 
       const blob = new Blob([csvData], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
-      const download = `applicants_finalized_${
-        new Date().toISOString().split('T')[0]
-      }.csv`;
+      const download = `applicants_finalized_${new Date().toISOString()}.csv`;
       const a = document.createElement('a');
       a.href = url;
       a.download = download;
