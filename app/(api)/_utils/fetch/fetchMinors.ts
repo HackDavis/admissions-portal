@@ -1,6 +1,3 @@
-import { fetchMajors } from './fetchMajors';
+import minors from '../data/ucdMinors.json';
 
-export const fetchMinors = async (): Promise<string[]> => {
-  const majors = await fetchMajors();
-  return [...majors, 'Other'];
-};
+export const fetchMinors = async (): Promise<string[]> => minors;
