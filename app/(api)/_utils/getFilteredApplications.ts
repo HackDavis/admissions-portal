@@ -29,10 +29,6 @@ export async function getApplicationsByStatuses(
     `Found ${applicants.length} applicants for statuses: ${statuses}`
   );
 
-  if (applicants.length === 0) {
-    console.log(`No ${statuses} applicants found`);
-  }
-
   return applicants;
 }
 
@@ -42,7 +38,13 @@ export async function getApplicationsForRsvpReminder(
   try {
     const unredeemedHubEmails = await getUnredeemedHubEmails();
     console.log('Unredeemed Hub emails:', unredeemedHubEmails);
-    const unredeemedTitoMap = await getUnredeemedRsvpInvitations(rsvpListSlug);
+    const titoResponse = await getUnredeemedRsvpInvitations(rsvpListSlug);
+    if (!titoResponse.ok || !titoResponse.body) {
+      throw new Error(
+        titoResponse.error || 'Failed to fetch unredeemed Tito invites'
+      );
+    }
+    const unredeemedTitoMap = titoResponse.body;
     console.log('Unredeemed Tito emails:', unredeemedTitoMap);
 
     // Merge unredeemed invites from both Hub and Tito (deduplicate by email)
@@ -53,7 +55,6 @@ export async function getApplicationsForRsvpReminder(
     console.log('Unique unredeemed (hub or tito) emails:', uniqueEmails);
 
     if (uniqueEmails.length === 0) {
-      console.log('No unredeemed applicants found.');
       return [];
     }
 

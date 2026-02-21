@@ -19,29 +19,29 @@ export function TitoRsvpModal({
 }: TitoRsvpModalProps) {
   const [rsvpLists, setRsvpLists] = useState<RsvpList[]>([]);
   const [selectedRsvpSlug, setSelectedRsvpSlug] = useState<string>('');
-const [isLoading, setIsLoading] = useState(false);
-const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-  if (isOpen) {
-    setIsLoading(true);
-    setError(null);
+    if (isOpen) {
+      setIsLoading(true);
+      setError(null);
 
-    getRsvpLists()
-      .then((res) => {
-        if (res.ok && res.body) {
-          setRsvpLists(res.body);
-        } else {
-          setError('Failed to load RSVP lists. Please try again.');
-        }
-      })
-      .catch(() => setError('A network error occurred.'))
-      .finally(() => setIsLoading(false));
-  } else {
-    setSelectedRsvpSlug('');
-    setError(null);
-  }
-}, [isOpen]);
+      getRsvpLists()
+        .then((res) => {
+          if (res.ok && res.body) {
+            setRsvpLists(res.body);
+          } else {
+            setError('Failed to load RSVP lists. Please try again.');
+          }
+        })
+        .catch(() => setError('A network error occurred.'))
+        .finally(() => setIsLoading(false));
+    } else {
+      setSelectedRsvpSlug('');
+      setError(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -50,28 +50,36 @@ const [error, setError] = useState<string | null>(null);
       <div className="border-2 border-black bg-white shadow-xl max-w-lg w-full p-6 relative">
         <h2 className="text-lg font-bold mb-4">process rsvp reminders</h2>
 
-        {/* Dropdown RSVP lists */}
-        <div className="mb-6">
-          <label className="block text-xs font-bold mb-2">
-            Select RSVP List
-          </label>
-          <select
-            value={selectedRsvpSlug}
-            onChange={(e) => setSelectedRsvpSlug(e.target.value)}
-            className="w-full border-2 border-black p-2 text-sm bg-white cursor-pointer focus:outline-none"
-          >
-            <option value="">-- Choose a list --</option>
-            {rsvpLists.map((list) => (
-              <option key={list.slug} value={list.slug}>
-                {list.title}
-              </option>
-            ))}
-          </select>
-          <p className="mt-2 text-[11px] text-gray-500 italic">
-            Only unredeemed tickets from this list AND unredeemed hub invites
-            will be processed.
-          </p>
-        </div>
+        {isLoading ? (
+          <p className="text-xs mb-4">Loading RSVP lists...</p>
+        ) : error ? (
+          <p className="text-red-500 text-xs mb-4">{error}</p>
+        ) : (
+          <>
+            {/* Dropdown RSVP lists */}
+            <div className="mb-6">
+              <label className="block text-xs font-bold mb-2">
+                Select RSVP List
+              </label>
+              <select
+                value={selectedRsvpSlug}
+                onChange={(e) => setSelectedRsvpSlug(e.target.value)}
+                className="w-full border-2 border-black p-2 text-sm bg-white cursor-pointer focus:outline-none"
+              >
+                <option value="">-- Choose a list --</option>
+                {rsvpLists.map((list) => (
+                  <option key={list.slug} value={list.slug}>
+                    {list.title}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-2 text-[11px] text-gray-500 italic">
+                Only unredeemed tickets from this list AND unredeemed hub
+                invites will be processed.
+              </p>
+            </div>
+          </>
+        )}
 
         {/* Buttons */}
         <div className="flex justify-end space-x-2">

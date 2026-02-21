@@ -60,8 +60,6 @@ async function addToMailchimp(
     tags: [tag], // NOTE: This adds to existing tags, and does not replace them
   };
 
-  console.log('Sending to Mailchimp:', payload);
-
   try {
     const res = await mailchimpClient.put(
       `/lists/${audienceId}/members/${subscriberHash}`,
@@ -164,10 +162,18 @@ export async function prepareMailchimpInvites(
         hubSession = await getHubSession();
       } else {
         // Handle rsvp_reminder
-        [titoInvitesMap, hubSession] = await Promise.all([
+        const [titoResponse, session] = await Promise.all([
           getUnredeemedRsvpInvitations(rsvpSlug),
           getHubSession(),
         ]);
+
+        if (!titoResponse.ok || !titoResponse.body) {
+          throw new Error(
+            `Failed to fetch Tito invites: ${titoResponse.error}`
+          );
+        }
+        titoInvitesMap = titoResponse.body;
+        hubSession = session;
       }
     }
 
