@@ -38,6 +38,7 @@ describe('getUnredeemedRsvpInvitations', () => {
       ok: false,
       status: 500,
       text: async () => 'Internal Server Error',
+      headers: new Headers(),
     });
 
     const getUnredeemedRsvpInvitations = await loadModule();
