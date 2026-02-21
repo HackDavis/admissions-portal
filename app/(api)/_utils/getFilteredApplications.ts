@@ -4,10 +4,7 @@ import { getAdminApplications } from '@actions/applications/getApplication';
 import { ApplicationCondensed } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
 import { getUnredeemedHubEmails } from './hub/getUnredeemedHubUsers';
-import {
-  getUnredeemedTitoInvites,
-  getTitoRsvpList,
-} from './tito/getTitoInvites';
+import { getUnredeemedRsvpInvitations } from './tito/getUnredeemedRsvpInvitations';
 
 export async function getApplicationsByStatuses(
   statuses: Status | Status[]
@@ -32,23 +29,22 @@ export async function getApplicationsByStatuses(
     `Found ${applicants.length} applicants for statuses: ${statuses}`
   );
 
-  if (applicants.length === 0) {
-    console.log(`No ${statuses} applicants found`);
-  }
-
   return applicants;
 }
 
-export async function getApplicationsForRsvpReminder(): Promise<
-  ApplicationCondensed[]
-> {
-  const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
-
+export async function getApplicationsForRsvpReminder(
+  rsvpListSlug: string
+): Promise<ApplicationCondensed[]> {
   try {
     const unredeemedHubEmails = await getUnredeemedHubEmails();
     console.log('Unredeemed Hub emails:', unredeemedHubEmails);
-    const rsvpList = await getTitoRsvpList(RSVP_LIST_INDEX);
-    const unredeemedTitoMap = await getUnredeemedTitoInvites(rsvpList.slug);
+    const titoResponse = await getUnredeemedRsvpInvitations(rsvpListSlug);
+    if (!titoResponse.ok || !titoResponse.body) {
+      throw new Error(
+        titoResponse.error || 'Failed to fetch unredeemed Tito invites'
+      );
+    }
+    const unredeemedTitoMap = titoResponse.body;
     console.log('Unredeemed Tito emails:', unredeemedTitoMap);
 
     // Merge unredeemed invites from both Hub and Tito (deduplicate by email)
@@ -59,7 +55,6 @@ export async function getApplicationsForRsvpReminder(): Promise<
     console.log('Unique unredeemed (hub or tito) emails:', uniqueEmails);
 
     if (uniqueEmails.length === 0) {
-      console.log('No unredeemed applicants found.');
       return [];
     }
 

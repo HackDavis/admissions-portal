@@ -73,6 +73,7 @@ export interface TitoReleaseInvitation {
   email: string;
   url?: string;
   unique_url?: string;
+  redeemed: boolean;
 }
 export interface GetRsvpInvitationByEmailParams {
   rsvpListSlug: string;

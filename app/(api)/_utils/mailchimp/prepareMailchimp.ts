@@ -8,10 +8,7 @@ import {
   getApplicationsForRsvpReminder,
 } from '../getFilteredApplications';
 import { reserveMailchimpAPIKeyIndices } from './mailchimpApiStatus';
-import {
-  getTitoRsvpList,
-  getUnredeemedTitoInvites,
-} from '../tito/getTitoInvites';
+import { getUnredeemedRsvpInvitations } from '../tito/getUnredeemedRsvpInvitations';
 import { getHubSession, createHubInvite } from '../hub/createHubInvite';
 
 // Mailchimp axios client
@@ -63,8 +60,6 @@ async function addToMailchimp(
     tags: [tag], // NOTE: This adds to existing tags, and does not replace them
   };
 
-  console.log('Sending to Mailchimp:', payload);
-
   try {
     const res = await mailchimpClient.put(
       `/lists/${audienceId}/members/${subscriberHash}`,
@@ -97,13 +92,31 @@ export async function prepareMailchimpInvites(
   const errorDetails: string[] = [];
   const hubInviteMap: Record<string, string> = {};
   const MAX_CONCURRENT_REQUESTS = 10;
-  const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
 
   let dbApplicants: ApplicationCondensed[] = [];
 
   try {
+    const isAccepted =
+      targetStatus === 'tentatively_accepted' ||
+      targetStatus === 'tentatively_waitlist_accepted';
+    const rsvpSlug = options?.rsvpListSlug as string;
+
+    // RSVP Reminders REQUIRE the slug
+    if (targetStatus === 'rsvp_reminder' && !rsvpSlug) {
+      throw new Error(
+        'An RSVP List Slug is required for rsvp_reminder status.'
+      );
+    }
+
+    // Accepted statuses REQUIRE either a pre-provided map OR a slug to fetch one
+    if (isAccepted && !options?.titoInviteMap && !rsvpSlug) {
+      throw new Error(
+        'Either a Tito invite map or an RSVP List Slug is required for accepted statuses.'
+      );
+    }
+
     if (targetStatus === 'rsvp_reminder') {
-      dbApplicants = await getApplicationsForRsvpReminder();
+      dbApplicants = await getApplicationsForRsvpReminder(rsvpSlug);
     } else {
       dbApplicants = await getApplicationsByStatuses(targetStatus);
     }
@@ -121,13 +134,17 @@ export async function prepareMailchimpInvites(
       return true;
     });
 
-    if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
+    if (dbApplicants.length === 0)
+      return {
+        ok: true,
+        ids: [],
+        applicants: [],
+        hubInviteMap: {},
+        error: null,
+      };
 
     const statusTemplate = targetStatus.replace(/^tentatively_/, '');
     const tag = `${statusTemplate}_template`; // name of tag in mailchimp
-    const isAccepted =
-      targetStatus === 'tentatively_accepted' ||
-      targetStatus === 'tentatively_waitlist_accepted';
 
     // Double check all required env vars are present
     const requiredEnvs = [
@@ -158,15 +175,19 @@ export async function prepareMailchimpInvites(
         }
         hubSession = await getHubSession();
       } else {
-        // Handle rsvp_reminder
-        const rsvpList = options?.rsvpListSlug
-          ? { slug: options.rsvpListSlug }
-          : await getTitoRsvpList(RSVP_LIST_INDEX);
-
-        [titoInvitesMap, hubSession] = await Promise.all([
-          getUnredeemedTitoInvites(rsvpList.slug),
+        // handles accepted applicants when no pre-provided titoInviteMap is available
+        const [titoResponse, session] = await Promise.all([
+          getUnredeemedRsvpInvitations(rsvpSlug),
           getHubSession(),
         ]);
+
+        if (!titoResponse.ok || !titoResponse.body) {
+          throw new Error(
+            `Failed to fetch Tito invites: ${titoResponse.error}`
+          );
+        }
+        titoInvitesMap = titoResponse.body;
+        hubSession = session;
       }
     }
 
@@ -277,6 +298,7 @@ export async function prepareMailchimpInvites(
     return {
       ok: true,
       ids: successfulIds,
+      applicants: dbApplicants,
       hubInviteMap,
       error:
         failedCount === 0
@@ -284,6 +306,12 @@ export async function prepareMailchimpInvites(
           : `${failedCount} FAILED:\n${errorDetails.join('\n')}`,
     };
   } catch (err: any) {
-    return { ok: false, ids: successfulIds, hubInviteMap, error: err.message };
+    return {
+      ok: false,
+      ids: successfulIds,
+      applicants: dbApplicants,
+      hubInviteMap,
+      error: err.message,
+    };
   }
 }
