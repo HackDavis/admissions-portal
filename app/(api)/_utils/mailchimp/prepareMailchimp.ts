@@ -134,7 +134,14 @@ export async function prepareMailchimpInvites(
       return true;
     });
 
-    if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
+    if (dbApplicants.length === 0)
+      return {
+        ok: true,
+        ids: [],
+        applicants: [],
+        hubInviteMap: {},
+        error: null,
+      };
 
     const statusTemplate = targetStatus.replace(/^tentatively_/, '');
     const tag = `${statusTemplate}_template`; // name of tag in mailchimp
