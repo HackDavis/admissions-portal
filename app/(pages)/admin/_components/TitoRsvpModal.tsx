@@ -85,8 +85,8 @@ export function TitoRsvpModal({ isOpen, onClose }: TitoRsvpModalProps) {
                 ))}
               </select>
               <p className="mt-2 text-[11px] text-red-500 italic">
-                Unredeemed tickets from this list AND unredeemed hub
-                invites will be processed.
+                Unredeemed tickets from this list AND unredeemed hub invites
+                will be processed.
               </p>
             </div>
           </>
