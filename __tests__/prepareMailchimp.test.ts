@@ -24,10 +24,7 @@ jest.mock('axios', () => ({
   create: jest.fn(),
 }));
 
-import {
-  reserveMailchimpAPIKeyIndex,
-  reserveMailchimpAPIKeyIndices,
-} from '@utils/mailchimp/mailchimpApiStatus';
+import { reserveMailchimpAPIKeyIndices } from '@utils/mailchimp/mailchimpApiStatus';
 import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
@@ -36,7 +33,6 @@ import { getUnredeemedRsvpInvitations } from '@utils/tito/getUnredeemedRsvpInvit
 import { getHubSession, createHubInvite } from '@utils/hub/createHubInvite';
 import axios from 'axios';
 
-const mockedReserveKey = reserveMailchimpAPIKeyIndex as jest.Mock;
 const mockedReserveKeys = reserveMailchimpAPIKeyIndices as jest.Mock;
 const mockedGetByStatuses = getApplicationsByStatuses as jest.Mock;
 const mockedGetForReminder = getApplicationsForRsvpReminder as jest.Mock;
@@ -67,7 +63,6 @@ beforeEach(() => {
   process.env.TITO_AUTH_TOKEN = 'token';
   process.env.TITO_EVENT_BASE_URL = 'https://tito.test';
 
-  mockedReserveKey.mockResolvedValue(1);
   mockedReserveKeys.mockResolvedValue([1]);
   mockedGetByStatuses.mockResolvedValue(baseApplicants);
   mockedGetForReminder.mockResolvedValue([]);
