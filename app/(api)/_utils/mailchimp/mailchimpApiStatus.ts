@@ -1,3 +1,5 @@
+'use server';
+
 import { getMailchimp } from '@actions/mailchimp/getMailchimp';
 import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 
@@ -71,4 +73,37 @@ export async function reserveMailchimpAPIKeyIndices(
   }
 
   return assignments;
+}
+
+export async function incrementMailchimpApiKeyIndex() {
+  const res = await getMailchimp();
+  if (!res.ok) {
+    throw new Error(res.error || 'Failed to fetch Mailchimp API status');
+  }
+
+  const { apiKeyIndex, maxApiKeys } = res.body;
+  const nextKey = apiKeyIndex + 1;
+  if (nextKey > maxApiKeys) {
+    throw new Error(
+      'All Mailchimp API keys exhausted, please contact tech lead.'
+    );
+  }
+
+  // Confirm environment variables for new api key index
+  const requiredEnvs = [
+    `MAILCHIMP_API_KEY_${nextKey}`,
+    `MAILCHIMP_SERVER_PREFIX_${nextKey}`,
+    `MAILCHIMP_AUDIENCE_ID_${nextKey}`,
+  ];
+  for (const env of requiredEnvs) {
+    if (!process.env[env])
+      throw new Error(`Missing Environment Variable: ${env}`);
+  }
+
+  await updateMailchimp({
+    apiKeyIndex: 1,
+    apiCallsMade: 0,
+    lastReset: new Date(),
+    lastUpdate: new Date(),
+  });
 }

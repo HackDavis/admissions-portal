@@ -1,3 +1,5 @@
+'use client';
+
 import { RsvpList, Release } from '@/app/_types/tito';
 
 interface TitoConfigModalProps {
