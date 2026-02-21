@@ -7,7 +7,7 @@ import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
 } from '../getFilteredApplications';
-import { reserveMailchimpAPIKeyIndex } from './mailchimpApiStatus';
+import { reserveMailchimpAPIKeyIndices } from './mailchimpApiStatus';
 import {
   getTitoRsvpList,
   getUnredeemedTitoInvites,
@@ -18,6 +18,12 @@ import { getHubSession, createHubInvite } from '../hub/createHubInvite';
 function getMailchimpClient(apiKeyIndex: number) {
   const serverPrefix = process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`];
   const apiKey = process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`];
+
+  if (!serverPrefix || !apiKey) {
+    throw new Error(
+      `Missing Mailchimp configuration for API key index ${apiKeyIndex}. Please set MAILCHIMP_SERVER_PREFIX_${apiKeyIndex} and MAILCHIMP_API_KEY_${apiKeyIndex}`
+    );
+  }
 
   return axios.create({
     baseURL: `https://${serverPrefix}.api.mailchimp.com/3.0`,
@@ -54,10 +60,9 @@ async function addToMailchimp(
       MMERGE7: titoUrl,
       MMERGE8: hubUrl,
     },
-    tags: [tag], //TODO: clear pre-existing tags
+    tags: [tag], // NOTE: This adds to existing tags, and does not replace them
   };
 
-  // Log what we are sending for testing
   console.log('Sending to Mailchimp:', payload);
 
   try {
@@ -82,22 +87,15 @@ export async function prepareMailchimpInvites(
     | 'tentatively_waitlisted'
     | 'tentatively_waitlist_accepted'
     | 'tentatively_waitlist_rejected'
-    | 'rsvp_reminder'
-) {
-  const requiredEnvs = [
-    'TITO_AUTH_TOKEN',
-    'TITO_EVENT_BASE_URL',
-    'HACKDAVIS_HUB_BASE_URL',
-    'HUB_ADMIN_EMAIL',
-    'HUB_ADMIN_PASSWORD',
-  ];
-  for (const env of requiredEnvs) {
-    if (!process.env[env])
-      throw new Error(`Missing Environment Variable: ${env}`);
+    | 'rsvp_reminder',
+  options?: {
+    titoInviteMap?: Record<string, string>;
+    rsvpListSlug?: string;
   }
-
+) {
   const successfulIds: string[] = [];
   const errorDetails: string[] = [];
+  const hubInviteMap: Record<string, string> = {};
   const MAX_CONCURRENT_REQUESTS = 10;
   const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
 
@@ -110,6 +108,19 @@ export async function prepareMailchimpInvites(
       dbApplicants = await getApplicationsByStatuses(targetStatus);
     }
 
+    const seenEmails = new Set<string>();
+    dbApplicants = dbApplicants.filter((app) => {
+      const normalizedEmail = app.email.toLowerCase().trim();
+      if (seenEmails.has(normalizedEmail)) {
+        errorDetails.push(
+          `[${app.email}]: Skipped duplicate applicant email in processing batch`
+        );
+        return false;
+      }
+      seenEmails.add(normalizedEmail);
+      return true;
+    });
+
     if (dbApplicants.length === 0) return { ok: true, ids: [], error: null };
 
     const statusTemplate = targetStatus.replace(/^tentatively_/, '');
@@ -118,19 +129,45 @@ export async function prepareMailchimpInvites(
       targetStatus === 'tentatively_accepted' ||
       targetStatus === 'tentatively_waitlist_accepted';
 
+    // Double check all required env vars are present
+    const requiredEnvs = [
+      'HACKDAVIS_HUB_BASE_URL',
+      'HUB_ADMIN_EMAIL',
+      'HUB_ADMIN_PASSWORD',
+    ];
+    if (
+      targetStatus === 'rsvp_reminder' ||
+      (isAccepted && !options?.titoInviteMap)
+    ) {
+      requiredEnvs.push('TITO_AUTH_TOKEN', 'TITO_EVENT_BASE_URL');
+    }
+    for (const env of requiredEnvs) {
+      if (!process.env[env])
+        throw new Error(`Missing Environment Variable: ${env}`);
+    }
+
     let titoInvitesMap = new Map<string, string>();
     let hubSession: AxiosInstance | null = null;
 
     // Note: rsvp_reminder does not require hub/tito info
     if (isAccepted) {
       // Get tito and hub for accepted and waitlist_accepted applicants
-      console.log('Processing acceptances via Tito → Hub → Mailchimp\n');
+      if (options?.titoInviteMap) {
+        for (const [email, url] of Object.entries(options.titoInviteMap)) {
+          titoInvitesMap.set(email.toLowerCase(), url);
+        }
+        hubSession = await getHubSession();
+      } else {
+        // Handle rsvp_reminder
+        const rsvpList = options?.rsvpListSlug
+          ? { slug: options.rsvpListSlug }
+          : await getTitoRsvpList(RSVP_LIST_INDEX);
 
-      const rsvpList = await getTitoRsvpList(RSVP_LIST_INDEX);
-      [titoInvitesMap, hubSession] = await Promise.all([
-        getUnredeemedTitoInvites(rsvpList.slug),
-        getHubSession(),
-      ]);
+        [titoInvitesMap, hubSession] = await Promise.all([
+          getUnredeemedTitoInvites(rsvpList.slug),
+          getHubSession(),
+        ]);
+      }
     }
 
     const clientCache = new Map<
@@ -138,12 +175,14 @@ export async function prepareMailchimpInvites(
       { mailchimpClient: AxiosInstance; audienceId: string }
     >();
 
-    // Pre-fetch api key indices for all applicants
-    const applicantsWithKeys = [];
-    for (const app of dbApplicants) {
-      const apiKeyIndex = await reserveMailchimpAPIKeyIndex();
-      applicantsWithKeys.push({ app, apiKeyIndex });
-    }
+    // Reserve all api key indices in bulk (1 read + 1-2 writes instead of N × 2+)
+    const apiKeyIndices = await reserveMailchimpAPIKeyIndices(
+      dbApplicants.length
+    );
+    const applicantsWithKeys = dbApplicants.map((app, i) => ({
+      app,
+      apiKeyIndex: apiKeyIndices[i],
+    }));
 
     // Process mailchimp for each applicant
     const results: (string | null)[] = [];
@@ -183,8 +222,12 @@ export async function prepareMailchimpInvites(
 
             if (isAccepted && hubSession) {
               titoUrl = titoInvitesMap.get(app.email.toLowerCase()) || '';
-              if (!titoUrl)
-                throw new Error(`Tito URL missing for ${app.email}`);
+              if (!titoUrl) {
+                const reason = `Skipped: no Tito invite URL for ${app.email}`;
+                console.warn(`[prepareMailchimp] ${reason}`);
+                errorDetails.push(`[${app.email}]: ${reason}`);
+                return null;
+              }
 
               hubUrl = await createHubInvite(
                 hubSession,
@@ -194,6 +237,7 @@ export async function prepareMailchimpInvites(
               );
               if (!hubUrl)
                 throw new Error(`Hub URL generation failed for ${app.email}`);
+              hubInviteMap[app.email.toLowerCase()] = hubUrl;
             }
 
             // Accounts for both accepted and other statuses
@@ -233,12 +277,13 @@ export async function prepareMailchimpInvites(
     return {
       ok: true,
       ids: successfulIds,
+      hubInviteMap,
       error:
         failedCount === 0
           ? null
           : `${failedCount} FAILED:\n${errorDetails.join('\n')}`,
     };
   } catch (err: any) {
-    return { ok: false, ids: successfulIds, error: err.message };
+    return { ok: false, ids: successfulIds, hubInviteMap, error: err.message };
   }
 }

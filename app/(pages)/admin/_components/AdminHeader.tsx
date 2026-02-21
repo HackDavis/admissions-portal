@@ -15,6 +15,7 @@ export default function AdminHeader({
 }: AdminHeaderProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   async function handleProcessRsvpReminders() {
     setIsProcessing(true);
@@ -41,7 +42,7 @@ export default function AdminHeader({
     lastReset: 'N/A',
   };
   return (
-    <header className="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+    <header className="mb-6 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
       <div>
         <h1 className="text-xl font-semibold">hackdavis admissions admin</h1>
         <button onClick={onLogout} className="special-button px-2 py-1 text-xs">
@@ -61,14 +62,46 @@ export default function AdminHeader({
       </button>
 
       <div>
+        <p className="mt-1 text-xs">-- Batch: {mc.batchNumber} --</p>
         <p className="mt-1 text-xs font-semibold">Mailchimp API status</p>
-        <p className="mt-1 text-xs">Batch: {mc.batchNumber}</p>
         <p className="mt-1 text-xs">
-          Calls: {mc.apiCallsMade}/{mc.maxApiCalls} (key #{mc.apiKeyIndex}/
+          Sent: {mc.apiCallsMade}/{mc.maxApiCalls} (key #{mc.apiKeyIndex}/
           {mc.maxApiKeys})
         </p>
-        <p className="mt-1 text-xs">Last update: {mc.lastUpdate.toString()}</p>
-        <p className="mt-1 text-xs">Last reset: {mc.lastReset.toString()}</p>
+        <button
+          onClick={() => setShowMore(!showMore)}
+          className="mt-1 text-xs underline text-gray-500 hover:text-black"
+        >
+          {showMore ? 'show less' : 'show more...'}
+        </button>
+        {showMore && (
+          <>
+            <p className="mt-1 text-xs">
+              Last update:{' '}
+              {mc.lastUpdate !== 'N/A'
+                ? new Date(mc.lastUpdate).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    timeZone: 'America/Los_Angeles',
+                  }) + ' PST'
+                : 'N/A'}
+            </p>
+            <p className="mt-1 text-xs">
+              Last reset:{' '}
+              {mc.lastReset !== 'N/A'
+                ? new Date(mc.lastReset).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    timeZone: 'America/Los_Angeles',
+                  }) + ' PST'
+                : 'N/A'}
+            </p>
+          </>
+        )}
       </div>
 
       {/* Popup menu */}
