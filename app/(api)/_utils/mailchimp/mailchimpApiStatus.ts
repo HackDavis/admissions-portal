@@ -87,6 +87,17 @@ export async function incrementMailchimpApiKeyIndex() {
     );
   }
 
+  // Confirm environment variables for new api key index
+  const requiredEnvs = [
+    `MAILCHIMP_API_KEY_${nextKey}`,
+    `MAILCHIMP_SERVER_PREFIX_${nextKey}`,
+    `MAILCHIMP_AUDIENCE_ID_${nextKey}`,
+  ];
+  for (const env of requiredEnvs) {
+    if (!process.env[env])
+      throw new Error(`Missing Environment Variable: ${env}`);
+  }
+
   await updateMailchimp({
     apiKeyIndex: 1,
     apiCallsMade: 0,

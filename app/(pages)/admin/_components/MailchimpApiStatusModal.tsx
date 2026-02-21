@@ -33,7 +33,6 @@ export function MailchimpApiStatusModal() {
 
   async function handleIncrementApiKey() {
     setIsProcessing(true);
-    setIsPopupOpen(true);
     try {
       await incrementMailchimpApiKeyIndex();
     } catch (err: any) {
@@ -113,7 +112,7 @@ export function MailchimpApiStatusModal() {
                 {isProcessing ? 'incrementing...' : 'increment'}
               </button>
             </div>
-          </div>{' '}
+          </div>
         </div>
       )}
     </div>
