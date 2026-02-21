@@ -164,7 +164,7 @@ export function useFinalizeApps(
                 if (titoInviteMapRecord[email]) return true;
 
                 console.warn(
-                  `[FinalizeButton] Blocked status update for ${app.email}: no Tito invite URL found`
+                  `[useFinalizeApps] Blocked status update for ${app.email}: no Tito invite URL found`
                 );
                 mailchimpSuccessIds.delete(app._id);
                 mailchimpErrorMap.set(
