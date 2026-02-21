@@ -72,4 +72,38 @@ describe('getUnredeemedRsvpInvitations', () => {
     expect(consoleErrorSpy).toHaveBeenCalled();
     consoleErrorSpy.mockRestore();
   });
+
+  test('aggregates unredeemed invites across multiple pages', async () => {
+    (global as any).fetch = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          release_invitations: Array.from({ length: 500 }).map((_, i) => ({
+            email: `page1-${i}@test.com`,
+            unique_url: `url-${i}`,
+            redeemed: false,
+          })),
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          release_invitations: [
+            {
+              email: 'page2-unredeemed@test.com',
+              unique_url: 'url-page2',
+              redeemed: false,
+            },
+          ],
+        }),
+      });
+    const getUnredeemedRsvpInvitations = await loadModule();
+    const res = await getUnredeemedRsvpInvitations('slug-1');
+    expect(res.ok).toBe(true);
+    expect(res.body?.get('page1-0@test.com')).toBe('url-0');
+    expect(res.body?.get('page2-unredeemed@test.com')).toBe('url-page2');
+    expect(res.body?.size).toBe(501);
+    expect((global as any).fetch).toHaveBeenCalledTimes(2);
+  });
 });
