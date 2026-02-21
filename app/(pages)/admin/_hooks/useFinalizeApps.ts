@@ -56,6 +56,7 @@ export function useFinalizeApps(
   const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
   const currentBatch = mailchimp?.batchNumber ?? -1;
 
+  // Opens up Tito Modal for user to select RSVP list and releases
   const handleFinalize = async () => {
     setShowTitoModal(true);
     setLoadingTitoData(true);
@@ -89,6 +90,7 @@ export function useFinalizeApps(
     }
   };
 
+  // Processes all applicants
   const handleProcessAll = async () => {
     if (!selectedRsvpList) {
       alert('Please select an RSVP list');
@@ -112,18 +114,8 @@ export function useFinalizeApps(
         )
       );
 
-      const allApps = apps; // All tentative applicants
-      console.log(
-        `[Process All] Starting full process for ${allApps.length} applicants`
-      );
-      console.log(
-        `[Process All] ${acceptedApps.length} accepted (will get Tito tickets)`
-      );
-      console.log(
-        `[Process All] ${
-          allApps.length - acceptedApps.length
-        } non-accepted (no Tito tickets)`
-      );
+      // All tentative applicants
+      const allApps = apps;
 
       const mailchimpResults: string[] = [];
       const mailchimpSuccessIds = new Set<string>();
@@ -137,8 +129,7 @@ export function useFinalizeApps(
           | 'tentatively_accepted'
           | 'tentatively_waitlisted'
           | 'tentatively_waitlist_accepted'
-          | 'tentatively_waitlist_rejected'
-          | 'rsvp_reminder',
+          | 'tentatively_waitlist_rejected',
         titoInviteMapRecord: Record<string, string>
       ): Promise<boolean> => {
         const res = await prepareMailchimpInvites(status, {
@@ -164,12 +155,14 @@ export function useFinalizeApps(
           // Defense-in-depth: for accepted statuses, cross-check each app
           // against the Tito invite map before updating DB status.
           // This is a no-op for non-accepted paths (they pass {} for the map).
-          const hasTitoMap = Object.keys(titoInviteMapRecord).length > 0;
-          const verifiedApps = hasTitoMap
+          const isAcceptedStatus =
+            status === 'tentatively_accepted' ||
+            status === 'tentatively_waitlist_accepted'; // Force check for accepted applicants
+          const verifiedApps = isAcceptedStatus
             ? successfulApps.filter((app) => {
-                const email = app.email.toLowerCase();
+                const email = app.email.trim().toLowerCase();
                 if (titoInviteMapRecord[email]) return true;
-                // Block: app slipped through without a Tito URL
+
                 console.warn(
                   `[FinalizeButton] Blocked status update for ${app.email}: no Tito invite URL found`
                 );
@@ -182,6 +175,7 @@ export function useFinalizeApps(
               })
             : successfulApps;
 
+          // Update DB status for verified apps
           await Promise.all(
             verifiedApps.map((app) =>
               onFinalizeStatus(
@@ -248,9 +242,6 @@ export function useFinalizeApps(
       const acceptedPath = async () => {
         // Create Tito invitations first (accepted only)
         if (acceptedApps.length > 0) {
-          console.log(
-            `[Process All] Creating ${acceptedApps.length} Tito invitations...`
-          );
           const releaseIds = selectedReleases.join(',');
           const titoResult = await bulkCreateInvitations({
             applicants: acceptedApps,
@@ -286,9 +277,6 @@ export function useFinalizeApps(
 
       const nonAcceptedPath = async () => {
         // Non-accepted statuses don't need Tito map
-        console.log(
-          `[Process All] Processing Mailchimp for non-accepted applicants...`
-        );
         const okWaitlisted = await processMailchimpBatch(
           'Waitlists',
           'tentatively_waitlisted',
@@ -308,9 +296,6 @@ export function useFinalizeApps(
       processedResults = mailchimpResults.join('\n');
 
       // STEP 3: Generate comprehensive CSV with all data
-      console.log(
-        '[Process All] Generating final CSV with all applicant data...'
-      );
       const csvData = generateComprehensiveCSV(
         allApps,
         titoInviteMapLocal,
@@ -329,16 +314,6 @@ export function useFinalizeApps(
       a.download = download;
       a.click();
       URL.revokeObjectURL(url);
-
-      const hadErrors = titoFailures.length > 0 || mailchimpFailures.length > 0;
-      if (!hadErrors) {
-        try {
-          await updateMailchimp({ batchNumber: 1, lastUpdate: new Date() });
-        } catch (err) {
-          console.error('Failed to increment Mailchimp batch number: ', err);
-        }
-      }
-      await refreshMailchimp();
 
       const totalErrors = titoFailures.length + mailchimpFailures.length;
       setProcessingResults({
@@ -368,6 +343,8 @@ export function useFinalizeApps(
       setShowTitoModal(false);
       setShowResultsModal(true);
     } finally {
+      await updateMailchimp({ batchNumber: 1, lastUpdate: new Date() });
+      await refreshMailchimp();
       setIsProcessing(false);
     }
   };
