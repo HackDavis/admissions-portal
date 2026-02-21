@@ -4,6 +4,7 @@ import { useMailchimp } from '../_hooks/useMailchimp';
 import { processRsvpReminders } from '../_utils/processRsvpReminders';
 import { useState } from 'react';
 import { TitoRsvpModal } from '../_components/TitoRsvpModal';
+import { MailchimpApiStatusModal } from './MailchimpApiStatusModal';
 
 interface AdminHeaderProps {
   totalCount: number;
@@ -16,7 +17,7 @@ export default function AdminHeader({
 }: AdminHeaderProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [showMore, setShowMore] = useState(false);
+  const { refresh: refreshMailchimp } = useMailchimp();
 
   async function handleProcessRsvpReminders(slug: string) {
     setIsProcessing(true);
@@ -31,32 +32,6 @@ export default function AdminHeader({
       setIsPopupOpen(false);
     }
   }
-
-  const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
-  const mc = mailchimp ?? {
-    batchNumber: 'N/A',
-    apiCallsMade: 0,
-    maxApiCalls: 0,
-    apiKeyIndex: 0,
-    maxApiKeys: 0,
-    lastUpdate: 'N/A',
-    lastReset: 'N/A',
-  };
-  const formatDate = (date: string | Date | null | undefined) => {
-    if (!date || date === 'N/A') return 'N/A';
-
-    const d = typeof date === 'string' ? new Date(date) : date;
-
-    return (
-      d.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        timeZone: 'America/Los_Angeles',
-      }) + ' PST'
-    );
-  };
 
   return (
     <header className="mb-6 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -78,30 +53,7 @@ export default function AdminHeader({
         process rsvp reminders
       </button>
 
-      <div>
-        <p className="mt-1 text-xs">-- Batch: {mc.batchNumber} --</p>
-        <p className="mt-1 text-xs font-semibold">Mailchimp API status</p>
-        <p className="mt-1 text-xs">
-          Sent: {mc.apiCallsMade}/{mc.maxApiCalls} (key #{mc.apiKeyIndex}/
-          {mc.maxApiKeys})
-        </p>
-        <button
-          onClick={() => setShowMore(!showMore)}
-          className="mt-1 text-xs underline text-gray-500 hover:text-black"
-        >
-          {showMore ? 'show less' : 'show more...'}
-        </button>
-        {showMore && (
-          <>
-            <p className="mt-1 text-xs">
-              Last update: {formatDate(mc.lastUpdate)}
-            </p>
-            <p className="mt-1 text-xs">
-              Last reset: {formatDate(mc.lastReset)}
-            </p>
-          </>
-        )}
-      </div>
+      <MailchimpApiStatusModal />
 
       <TitoRsvpModal
         isOpen={isPopupOpen}

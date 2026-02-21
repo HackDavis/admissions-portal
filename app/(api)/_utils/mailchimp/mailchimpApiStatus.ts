@@ -72,3 +72,25 @@ export async function reserveMailchimpAPIKeyIndices(
 
   return assignments;
 }
+
+export async function incrementMailchimpApiKeyIndex() {
+  const res = await getMailchimp();
+  if (!res.ok) {
+    throw new Error(res.error || 'Failed to fetch Mailchimp API status');
+  }
+
+  const { apiKeyIndex, maxApiKeys } = res.body;
+  const nextKey = apiKeyIndex + 1;
+  if (nextKey > maxApiKeys) {
+    throw new Error(
+      'All Mailchimp API keys exhausted, please contact tech lead.'
+    );
+  }
+
+  await updateMailchimp({
+    apiKeyIndex: 1,
+    apiCallsMade: 0,
+    lastReset: new Date(),
+    lastUpdate: new Date(),
+  });
+}
