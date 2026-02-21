@@ -1,3 +1,5 @@
+'use server';
+
 import { getMailchimp } from '@actions/mailchimp/getMailchimp';
 import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 
