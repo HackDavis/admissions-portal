@@ -192,7 +192,7 @@ test('processes all applicants and passes Tito map to Mailchimp', async () => {
   );
 });
 
-test('does not increment batch number when Mailchimp failures occur', async () => {
+test('increments batch number when Mailchimp failures occur', async () => {
   mockedPrepareMailchimpInvites.mockImplementation(async (status: string) => {
     if (status === 'tentatively_accepted') {
       return {
@@ -233,7 +233,9 @@ test('does not increment batch number when Mailchimp failures occur', async () =
     expect.any(Object)
   );
 
-  expect(mockedUpdateMailchimp).not.toHaveBeenCalled();
+  expect(mockedUpdateMailchimp).toHaveBeenCalledWith(
+    expect.objectContaining({ batchNumber: 1 })
+  );
 });
 
 test('continues Mailchimp processing when Tito creation has failures', async () => {

@@ -90,7 +90,7 @@ describe('createRsvpInvitation', () => {
     const res = await createRsvpInvitation(invitationData);
 
     expect(res.ok).toBe(false);
-    expect(res.error).toMatch(/Tito API error/i);
+    expect(res.error).toMatch(/Tito API 400/);
   });
 
   test('retries on 429 and succeeds', async () => {
@@ -165,7 +165,7 @@ describe('createRsvpInvitation', () => {
     const res = await promise;
 
     expect(res.ok).toBe(false);
-    expect(res.error).toMatch(/rate limit exceeded after 5 retries/i);
+    expect(res.error).toMatch(/Tito API 429/);
     // 1 initial + 5 retries = 6 total calls
     expect((global as any).fetch).toHaveBeenCalledTimes(6);
 

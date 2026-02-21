@@ -41,11 +41,12 @@ describe('getReleases', () => {
       ok: false,
       status: 500,
       text: async () => 'Server error',
+      headers: new Headers(),
     });
     const getReleases = await loadModule();
 
     const res = await getReleases();
     expect(res.ok).toBe(false);
-    expect(res.error).toMatch(/Tito API error/i);
+    expect(res.error).toMatch(/Tito API 500/);
   });
 });

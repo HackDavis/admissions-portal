@@ -101,7 +101,7 @@ export default async function createRsvpInvitation(
       }
     }
     // All retries exhausted on 429
-    throw new Error('Maximum retries exceeded');
+    throw new Error('Tito API rate limit exceeded after 5 retries');
   } catch (e) {
     const error = e as Error;
     console.error('[Tito API] createRsvpInvitation exception:', error);

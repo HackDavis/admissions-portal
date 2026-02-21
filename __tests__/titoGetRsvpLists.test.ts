@@ -41,11 +41,12 @@ describe('getRsvpLists', () => {
       ok: false,
       status: 400,
       text: async () => 'Bad Request',
+      headers: new Headers(),
     });
     const getRsvpLists = await loadModule();
 
     const res = await getRsvpLists();
     expect(res.ok).toBe(false);
-    expect(res.error).toMatch(/Tito API error/i);
+    expect(res.error).toMatch(/Tito API 400/);
   });
 });
