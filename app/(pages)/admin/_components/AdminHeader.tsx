@@ -3,6 +3,7 @@
 import { useMailchimp } from '../_hooks/useMailchimp';
 import { processRsvpReminders } from '../_utils/processRsvpReminders';
 import { useState } from 'react';
+import { TitoRsvpModal } from '../_components/TitoRsvpModal';
 
 interface AdminHeaderProps {
   totalCount: number;
@@ -17,10 +18,14 @@ export default function AdminHeader({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
 
-  async function handleProcessRsvpReminders() {
+  async function handleProcessRsvpReminders(slug: string) {
+    if (!slug) {
+      alert('Please select an RSVP list first!');
+      return;
+    }
     setIsProcessing(true);
     try {
-      await processRsvpReminders();
+      await processRsvpReminders(slug);
       await refreshMailchimp();
     } catch (err: any) {
       console.error('Error while processing RSVP reminders:', err);
@@ -41,6 +46,20 @@ export default function AdminHeader({
     lastUpdate: 'N/A',
     lastReset: 'N/A',
   };
+  const formatDate = (date: string | Date | null | undefined) => {
+  if (!date || date === 'N/A') return 'N/A';
+
+  const d = typeof date === 'string' ? new Date(date) : date;
+
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'America/Los_Angeles',
+  }) + ' PST';
+};
+
   return (
     <header className="mb-6 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
       <div>
@@ -77,59 +96,21 @@ export default function AdminHeader({
         {showMore && (
           <>
             <p className="mt-1 text-xs">
-              Last update:{' '}
-              {mc.lastUpdate !== 'N/A'
-                ? new Date(mc.lastUpdate).toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    timeZone: 'America/Los_Angeles',
-                  }) + ' PST'
-                : 'N/A'}
+              Last update: {formatDate(mc.lastUpdate)}
             </p>
             <p className="mt-1 text-xs">
-              Last reset:{' '}
-              {mc.lastReset !== 'N/A'
-                ? new Date(mc.lastReset).toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    timeZone: 'America/Los_Angeles',
-                  }) + ' PST'
-                : 'N/A'}
+              Last reset: {formatDate(mc.lastReset)}
             </p>
           </>
         )}
       </div>
 
-      {/* Popup menu */}
-      {isPopupOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="border-2 border-black bg-white shadow-xl max-w-lg w-full p-6 relative">
-            <h2 className="text-lg font-bold mb-4">process rsvp reminders</h2>
-
-            {/* Buttons */}
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={handleProcessRsvpReminders}
-                className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
-                disabled={isProcessing}
-              >
-                {isProcessing ? 'Processing...' : 'CONFIRM (yes)'}
-              </button>
-              <button
-                onClick={() => setIsPopupOpen(false)}
-                className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
-                disabled={isProcessing}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <TitoRsvpModal
+        isOpen={isPopupOpen}
+        isProcessing={isProcessing}
+        onClose={() => setIsPopupOpen(false)}
+        onConfirm={handleProcessRsvpReminders}
+      />
     </header>
   );
 }

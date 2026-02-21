@@ -2,9 +2,46 @@
 
 import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
 
-export async function processRsvpReminders() {
+export async function processRsvpReminders(rsvpListSlug: string) {
   try {
-    const res = await prepareMailchimpInvites('rsvp_reminder');
+    const res = await prepareMailchimpInvites('rsvp_reminder', {
+      rsvpListSlug: rsvpListSlug,
+    });
+
+    // GENERATES SUMMARY CSV
+    if (res.ok && res.applicants) {
+      const headers = ['Email', 'Success', 'Error Details'];
+      const mailchimpSuccessIds = new Set(res.ids);
+
+      const rows = res.applicants.map((app) => {
+        const isSuccess = mailchimpSuccessIds.has(app._id);
+        const result = isSuccess ? 'TRUE' : 'FALSE';
+        // Extract error message if it failed
+        const errorDetail = !isSuccess
+          ? res.error?.includes(app.email)
+            ? 'API Error'
+            : 'Unknown Error'
+          : '';
+
+        return [app.email, result, errorDetail]
+          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+          .join(',');
+      });
+
+      const csvString = [headers.join(','), ...rows].join('\n');
+
+      // Trigger Download
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString();
+      const filename = `applicants_finalized_${timestamp}.csv`;
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
 
     const results: string[] = [];
     const processedCount = res.ids?.length ?? 0;

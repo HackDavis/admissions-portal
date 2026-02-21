@@ -8,10 +8,7 @@ import {
   getApplicationsForRsvpReminder,
 } from '../getFilteredApplications';
 import { reserveMailchimpAPIKeyIndices } from './mailchimpApiStatus';
-import {
-  getTitoRsvpList,
-  getUnredeemedTitoInvites,
-} from '../tito/getTitoInvites';
+import { getUnredeemedTitoInvites } from '../tito/getUnredeemedRsvpInvitation';
 import { getHubSession, createHubInvite } from '../hub/createHubInvite';
 
 // Mailchimp axios client
@@ -97,13 +94,24 @@ export async function prepareMailchimpInvites(
   const errorDetails: string[] = [];
   const hubInviteMap: Record<string, string> = {};
   const MAX_CONCURRENT_REQUESTS = 10;
-  const RSVP_LIST_INDEX = 0; // ONLY checks first rsvp list
 
   let dbApplicants: ApplicationCondensed[] = [];
 
   try {
+    const isAccepted =
+      targetStatus === 'tentatively_accepted' ||
+      targetStatus === 'tentatively_waitlist_accepted';
+    const needsTito = targetStatus === 'rsvp_reminder' || isAccepted;
+    const rsvpSlug = options?.rsvpListSlug as string;
+
+    if (needsTito && !options?.titoInviteMap && !rsvpSlug) {
+      throw new Error(
+        'An RSVP List Slug is required for accepted/waitlist_accepted/rsvp_reminder statuses'
+      );
+    }
+
     if (targetStatus === 'rsvp_reminder') {
-      dbApplicants = await getApplicationsForRsvpReminder();
+      dbApplicants = await getApplicationsForRsvpReminder(rsvpSlug);
     } else {
       dbApplicants = await getApplicationsByStatuses(targetStatus);
     }
@@ -125,9 +133,6 @@ export async function prepareMailchimpInvites(
 
     const statusTemplate = targetStatus.replace(/^tentatively_/, '');
     const tag = `${statusTemplate}_template`; // name of tag in mailchimp
-    const isAccepted =
-      targetStatus === 'tentatively_accepted' ||
-      targetStatus === 'tentatively_waitlist_accepted';
 
     // Double check all required env vars are present
     const requiredEnvs = [
@@ -159,12 +164,8 @@ export async function prepareMailchimpInvites(
         hubSession = await getHubSession();
       } else {
         // Handle rsvp_reminder
-        const rsvpList = options?.rsvpListSlug
-          ? { slug: options.rsvpListSlug }
-          : await getTitoRsvpList(RSVP_LIST_INDEX);
-
         [titoInvitesMap, hubSession] = await Promise.all([
-          getUnredeemedTitoInvites(rsvpList.slug),
+          getUnredeemedTitoInvites(rsvpSlug),
           getHubSession(),
         ]);
       }
@@ -277,6 +278,7 @@ export async function prepareMailchimpInvites(
     return {
       ok: true,
       ids: successfulIds,
+      applicants: dbApplicants,
       hubInviteMap,
       error:
         failedCount === 0
