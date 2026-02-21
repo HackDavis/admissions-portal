@@ -99,12 +99,19 @@ export async function prepareMailchimpInvites(
     const isAccepted =
       targetStatus === 'tentatively_accepted' ||
       targetStatus === 'tentatively_waitlist_accepted';
-    const needsTito = targetStatus === 'rsvp_reminder' || isAccepted;
     const rsvpSlug = options?.rsvpListSlug as string;
 
-    if (needsTito && !options?.titoInviteMap && !rsvpSlug) {
+    // RSVP Reminders REQUIRE the slug
+    if (targetStatus === 'rsvp_reminder' && !rsvpSlug) {
       throw new Error(
-        'An RSVP List Slug is required for accepted/waitlist_accepted/rsvp_reminder statuses'
+        'An RSVP List Slug is required for rsvp_reminder status.'
+      );
+    }
+
+    // Accepted statuses REQUIRE either a pre-provided map OR a slug to fetch one
+    if (isAccepted && !options?.titoInviteMap && !rsvpSlug) {
+      throw new Error(
+        'Either a Tito invite map or an RSVP List Slug is required for accepted statuses.'
       );
     }
 
@@ -161,7 +168,7 @@ export async function prepareMailchimpInvites(
         }
         hubSession = await getHubSession();
       } else {
-        // Handle rsvp_reminder
+        // handles accepted applicants when no pre-provided titoInviteMap is available
         const [titoResponse, session] = await Promise.all([
           getUnredeemedRsvpInvitations(rsvpSlug),
           getHubSession(),
@@ -292,6 +299,12 @@ export async function prepareMailchimpInvites(
           : `${failedCount} FAILED:\n${errorDetails.join('\n')}`,
     };
   } catch (err: any) {
-    return { ok: false, ids: successfulIds, hubInviteMap, error: err.message };
+    return {
+      ok: false,
+      ids: successfulIds,
+      applicants: dbApplicants,
+      hubInviteMap,
+      error: err.message,
+    };
   }
 }

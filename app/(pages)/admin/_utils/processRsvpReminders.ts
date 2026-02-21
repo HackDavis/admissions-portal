@@ -16,12 +16,18 @@ export async function processRsvpReminders(rsvpListSlug: string) {
       const rows = res.applicants.map((app) => {
         const isSuccess = mailchimpSuccessIds.has(app._id);
         const result = isSuccess ? 'TRUE' : 'FALSE';
+
         // Extract error message if it failed
-        const errorDetail = !isSuccess
-          ? res.error
-            ? 'API Error'
-            : 'Unknown Error'
-          : '';
+        let errorDetail = '';
+        // Search the batch error for specific applicant's error
+        const errorLine = res.error
+          .split('\n')
+          .find((line: string) => line.includes(`[${app.email}]`));
+
+        // Clean up the string
+        errorDetail = errorLine
+          ? errorLine.split(']: ')[1] || errorLine
+          : 'Unknown Error';
 
         return [app.email, result, errorDetail]
           .map((v) => `"${String(v).replace(/"/g, '""')}"`)

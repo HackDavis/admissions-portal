@@ -93,7 +93,7 @@ export function TitoRsvpModal({
           <button
             onClick={() => onConfirm(selectedRsvpSlug)}
             className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase text-white bg-black hover:bg-gray-800"
-            disabled={isProcessing || !selectedRsvpSlug}
+            disabled={isProcessing || !selectedRsvpSlug || !!error}
           >
             {isProcessing ? 'Processing...' : 'process all'}
           </button>
