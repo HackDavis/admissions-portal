@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useMailchimp } from '../_hooks/useMailchimp';
 import { incrementMailchimpApiKeyIndex } from '@utils/mailchimp/mailchimpApiStatus';
@@ -20,15 +22,14 @@ export function MailchimpApiStatusModal() {
   const formatDate = (date: string | Date | null | undefined) => {
     if (!date || date === 'N/A') return 'N/A';
     const d = typeof date === 'string' ? new Date(date) : date;
-    return (
-      d.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        timeZone: 'America/Los_Angeles',
-      }) + ' PST'
-    );
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZone: 'America/Los_Angeles',
+      timeZoneName: 'short',
+    });
   };
 
   async function handleIncrementApiKey() {

@@ -1,3 +1,5 @@
+'use client';
+
 interface FinalizeResultsModalProps {
   isOpen: boolean;
   results: {
