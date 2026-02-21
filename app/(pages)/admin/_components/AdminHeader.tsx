@@ -19,10 +19,6 @@ export default function AdminHeader({
   const [showMore, setShowMore] = useState(false);
 
   async function handleProcessRsvpReminders(slug: string) {
-    if (!slug) {
-      alert('Please select an RSVP list first!');
-      return;
-    }
     setIsProcessing(true);
     try {
       await processRsvpReminders(slug);

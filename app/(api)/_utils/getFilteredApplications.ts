@@ -4,7 +4,7 @@ import { getAdminApplications } from '@actions/applications/getApplication';
 import { ApplicationCondensed } from '@/app/_types/application';
 import { Status } from '@app/_types/applicationFilters';
 import { getUnredeemedHubEmails } from './hub/getUnredeemedHubUsers';
-import { getUnredeemedTitoInvites } from './tito/getUnredeemedRsvpInvitation';
+import { getUnredeemedRsvpInvitations } from './tito/getUnredeemedRsvpInvitations';
 
 export async function getApplicationsByStatuses(
   statuses: Status | Status[]
@@ -42,7 +42,7 @@ export async function getApplicationsForRsvpReminder(
   try {
     const unredeemedHubEmails = await getUnredeemedHubEmails();
     console.log('Unredeemed Hub emails:', unredeemedHubEmails);
-    const unredeemedTitoMap = await getUnredeemedTitoInvites(rsvpListSlug);
+    const unredeemedTitoMap = await getUnredeemedRsvpInvitations(rsvpListSlug);
     console.log('Unredeemed Tito emails:', unredeemedTitoMap);
 
     // Merge unredeemed invites from both Hub and Tito (deduplicate by email)

@@ -5,7 +5,7 @@ import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
 export async function processRsvpReminders(rsvpListSlug: string) {
   try {
     const res = await prepareMailchimpInvites('rsvp_reminder', {
-      rsvpListSlug: rsvpListSlug,
+      rsvpListSlug,
     });
 
     // GENERATES SUMMARY CSV
@@ -18,7 +18,7 @@ export async function processRsvpReminders(rsvpListSlug: string) {
         const result = isSuccess ? 'TRUE' : 'FALSE';
         // Extract error message if it failed
         const errorDetail = !isSuccess
-          ? res.error?.includes(app.email)
+          ? res.error
             ? 'API Error'
             : 'Unknown Error'
           : '';
@@ -35,12 +35,13 @@ export async function processRsvpReminders(rsvpListSlug: string) {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       const timestamp = new Date().toISOString();
-      const filename = `applicants_finalized_${timestamp}.csv`;
+      const filename = `rsvp_reminders_${timestamp}.csv`;
       link.href = url;
       link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 0);
     }
 
     const results: string[] = [];

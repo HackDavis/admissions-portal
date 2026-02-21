@@ -8,7 +8,7 @@ import {
   getApplicationsForRsvpReminder,
 } from '../getFilteredApplications';
 import { reserveMailchimpAPIKeyIndices } from './mailchimpApiStatus';
-import { getUnredeemedTitoInvites } from '../tito/getUnredeemedRsvpInvitation';
+import { getUnredeemedRsvpInvitations } from '../tito/getUnredeemedRsvpInvitations';
 import { getHubSession, createHubInvite } from '../hub/createHubInvite';
 
 // Mailchimp axios client
@@ -165,7 +165,7 @@ export async function prepareMailchimpInvites(
       } else {
         // Handle rsvp_reminder
         [titoInvitesMap, hubSession] = await Promise.all([
-          getUnredeemedTitoInvites(rsvpSlug),
+          getUnredeemedRsvpInvitations(rsvpSlug),
           getHubSession(),
         ]);
       }

@@ -19,14 +19,29 @@ export function TitoRsvpModal({
 }: TitoRsvpModalProps) {
   const [rsvpLists, setRsvpLists] = useState<RsvpList[]>([]);
   const [selectedRsvpSlug, setSelectedRsvpSlug] = useState<string>('');
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      getRsvpLists().then((res) => {
-        if (res.ok && res.body) setRsvpLists(res.body);
-      });
-    }
-  }, [isOpen]);
+  if (isOpen) {
+    setIsLoading(true);
+    setError(null);
+
+    getRsvpLists()
+      .then((res) => {
+        if (res.ok && res.body) {
+          setRsvpLists(res.body);
+        } else {
+          setError('Failed to load RSVP lists. Please try again.');
+        }
+      })
+      .catch(() => setError('A network error occurred.'))
+      .finally(() => setIsLoading(false));
+  } else {
+    setSelectedRsvpSlug('');
+    setError(null);
+  }
+}, [isOpen]);
 
   if (!isOpen) return null;
 
