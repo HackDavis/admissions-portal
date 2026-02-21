@@ -11,9 +11,8 @@ jest.mock('@utils/getFilteredApplications', () => ({
   getApplicationsForRsvpReminder: jest.fn(),
 }));
 
-jest.mock('@utils/tito/getTitoInvites', () => ({
-  getTitoRsvpList: jest.fn(),
-  getUnredeemedTitoInvites: jest.fn(),
+jest.mock('@utils/tito/getUnredeemedRsvpInvitations', () => ({
+  getUnredeemedRsvpInvitations: jest.fn(),
 }));
 
 jest.mock('@utils/hub/createHubInvite', () => ({
@@ -33,10 +32,7 @@ import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
 } from '@utils/getFilteredApplications';
-import {
-  getTitoRsvpList,
-  getUnredeemedTitoInvites,
-} from '@utils/tito/getTitoInvites';
+import { getUnredeemedRsvpInvitations } from '@utils/tito/getUnredeemedRsvpInvitations';
 import { getHubSession, createHubInvite } from '@utils/hub/createHubInvite';
 import axios from 'axios';
 
@@ -44,8 +40,7 @@ const mockedReserveKey = reserveMailchimpAPIKeyIndex as jest.Mock;
 const mockedReserveKeys = reserveMailchimpAPIKeyIndices as jest.Mock;
 const mockedGetByStatuses = getApplicationsByStatuses as jest.Mock;
 const mockedGetForReminder = getApplicationsForRsvpReminder as jest.Mock;
-const mockedGetTitoRsvpList = getTitoRsvpList as jest.Mock;
-const mockedGetUnredeemed = getUnredeemedTitoInvites as jest.Mock;
+const mockedGetUnredeemed = getUnredeemedRsvpInvitations as jest.Mock;
 const mockedGetHubSession = getHubSession as jest.Mock;
 const mockedCreateHubInvite = createHubInvite as jest.Mock;
 const mockedAxiosCreate = axios.create as jest.Mock;
@@ -91,7 +86,6 @@ test('uses provided Tito map and skips Tito fetch', async () => {
   });
 
   expect(res.ok).toBe(true);
-  expect(mockedGetTitoRsvpList).not.toHaveBeenCalled();
   expect(mockedGetUnredeemed).not.toHaveBeenCalled();
   expect(mockedCreateHubInvite).toHaveBeenCalledWith(
     {},
@@ -102,16 +96,18 @@ test('uses provided Tito map and skips Tito fetch', async () => {
 });
 
 test('falls back to Tito fetch when map is not provided', async () => {
-  mockedGetTitoRsvpList.mockResolvedValue({ slug: 'fallback-list' });
-  mockedGetUnredeemed.mockResolvedValue(
-    new Map([['ada@example.com', 'tito-url']])
-  );
+  mockedGetUnredeemed.mockResolvedValue({
+    ok: true,
+    body: new Map([['ada@example.com', 'tito-url']]),
+    error: null,
+  });
 
-  const res = await prepareMailchimpInvites('tentatively_accepted');
+  const res = await prepareMailchimpInvites('tentatively_accepted', {
+    rsvpListSlug: 'rsvp-1',
+  });
 
   expect(res.ok).toBe(true);
-  expect(mockedGetTitoRsvpList).toHaveBeenCalled();
-  expect(mockedGetUnredeemed).toHaveBeenCalledWith('fallback-list');
+  expect(mockedGetUnredeemed).toHaveBeenCalledWith('rsvp-1');
 });
 
 test('skips applicant missing from Tito map without calling Hub', async () => {
@@ -129,7 +125,9 @@ test('skips applicant missing from Tito map without calling Hub', async () => {
 test('uses RSVP reminder path without Tito fetch', async () => {
   mockedGetForReminder.mockResolvedValue(baseApplicants);
 
-  const res = await prepareMailchimpInvites('rsvp_reminder');
+  const res = await prepareMailchimpInvites('rsvp_reminder', {
+    rsvpListSlug: 'rsvp-1',
+  });
 
   expect(res.ok).toBe(true);
   expect(mockedGetForReminder).toHaveBeenCalled();

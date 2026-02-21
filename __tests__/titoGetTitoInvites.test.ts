@@ -1,16 +1,19 @@
 /** @jest-environment node */
 
-jest.mock('axios', () => ({
-  get: jest.fn(),
+jest.mock('@utils/tito/getRsvpLists', () => ({
+  __esModule: true,
+  default: jest.fn(),
 }));
 
-import axios from 'axios';
-import {
-  getTitoRsvpList,
-  getUnredeemedTitoInvites,
-} from '@utils/tito/getTitoInvites';
+jest.mock('@utils/tito/getUnredeemedRsvpInvitations', () => ({
+  getUnredeemedRsvpInvitations: jest.fn(),
+}));
 
-const mockedAxiosGet = axios.get as jest.Mock;
+import getRsvpLists from '@utils/tito/getRsvpLists';
+import { getUnredeemedRsvpInvitations } from '@utils/tito/getUnredeemedRsvpInvitations';
+
+const mockedGetRsvpLists = getRsvpLists as jest.Mock;
+const mockedGetUnredeemed = getUnredeemedRsvpInvitations as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -18,57 +21,39 @@ beforeEach(() => {
   process.env.TITO_EVENT_BASE_URL = 'https://tito.test';
 });
 
-test('getTitoRsvpList returns requested list', async () => {
-  mockedAxiosGet.mockResolvedValue({
-    data: { rsvp_lists: [{ slug: 'a' }, { slug: 'b' }] },
+test('getRsvpLists returns requested list', async () => {
+  mockedGetRsvpLists.mockResolvedValue({
+    ok: true,
+    body: [{ slug: 'a' }, { slug: 'b' }],
   });
 
-  const list = await getTitoRsvpList(1);
-  expect(list.slug).toBe('b');
+  const res = await getRsvpLists();
+  expect(res.body?.[1].slug).toBe('b');
 });
 
-test('getTitoRsvpList throws when no lists', async () => {
-  mockedAxiosGet.mockResolvedValue({ data: { rsvp_lists: [] } });
+test('getUnredeemedRsvpInvitations returns unredeemed map', async () => {
+  mockedGetUnredeemed.mockResolvedValue({
+    ok: true,
+    body: new Map([
+      ['fresh@example.com', 'url-fresh'],
+      ['user1@example.com', 'url-1'],
+    ]),
+    error: null,
+  });
 
-  await expect(getTitoRsvpList(0)).rejects.toThrow(/No RSVP lists returned/i);
+  const res = await getUnredeemedRsvpInvitations('slug-1');
+  expect(res.body?.get('fresh@example.com')).toBe('url-fresh');
+  expect(res.body?.size).toBe(2);
 });
 
-test('getUnredeemedTitoInvites returns unredeemed map', async () => {
-  mockedAxiosGet
-    .mockResolvedValueOnce({
-      data: {
-        release_invitations: Array.from({ length: 500 }).map((_, i) => ({
-          email: `user${i}@example.com`,
-          unique_url: `url-${i}`,
-          redeemed: false,
-        })),
-      },
-    })
-    .mockResolvedValueOnce({
-      data: {
-        release_invitations: [
-          {
-            email: 'redeemed@example.com',
-            unique_url: 'url-x',
-            redeemed: true,
-          },
-          {
-            email: 'fresh@example.com',
-            unique_url: 'url-fresh',
-            redeemed: false,
-          },
-        ],
-      },
-    });
+test('getUnredeemedRsvpInvitations handles error', async () => {
+  mockedGetUnredeemed.mockResolvedValue({
+    ok: false,
+    body: null,
+    error: 'Failed to fetch',
+  });
 
-  const map = await getUnredeemedTitoInvites('slug-1');
-  expect(map.get('fresh@example.com')).toBe('url-fresh');
-  expect(map.has('redeemed@example.com')).toBe(false);
-  expect(map.size).toBe(501);
-});
-
-test('getUnredeemedTitoInvites throws on axios error', async () => {
-  mockedAxiosGet.mockRejectedValue(new Error('boom'));
-
-  await expect(getUnredeemedTitoInvites('slug-1')).rejects.toThrow(/boom/);
+  const res = await getUnredeemedRsvpInvitations('slug-1');
+  expect(res.ok).toBe(false);
+  expect(res.error).toBe('Failed to fetch');
 });
