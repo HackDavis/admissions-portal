@@ -25,8 +25,8 @@ export function TitoRsvpModal({ isOpen, onClose }: TitoRsvpModalProps) {
       await processRsvpReminders(slug);
       await refreshMailchimp();
     } catch (err: any) {
-      console.error('Error while processing RSVP reminders:', err);
-      alert('Error processing RSVP reminders:' + err.message);
+      console.error('Error while processing RSVP reminders: ', err);
+      alert('Error processing RSVP reminders: ' + err.message);
     } finally {
       setIsProcessing(false);
       onClose();

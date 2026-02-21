@@ -149,7 +149,7 @@ describe('reserveMailchimpAPIKeyIndices', () => {
 });
 
 describe('incrementMailchimpApiKeyIndex', () => {
-  test('calls updateMailchimp with index 1 (manual reset/increment)', async () => {
+  test('calls updateMailchimp to increment index by 1 (manual reset/increment)', async () => {
     mockedGetMailchimp.mockResolvedValue({
       ok: true,
       body: { apiKeyIndex: 1, maxApiKeys: 5 },
@@ -184,6 +184,19 @@ describe('incrementMailchimpApiKeyIndex', () => {
 
     await expect(incrementMailchimpApiKeyIndex()).rejects.toThrow(
       'Database Timeout'
+    );
+  });
+
+  test('throws if environment variables for the next index are missing', async () => {
+    mockedGetMailchimp.mockResolvedValue({
+      ok: true,
+      body: { apiKeyIndex: 1, maxApiKeys: 5 },
+    });
+
+    delete process.env.MAILCHIMP_API_KEY_2;
+
+    await expect(incrementMailchimpApiKeyIndex()).rejects.toThrow(
+      'Missing Environment Variable'
     );
   });
 });

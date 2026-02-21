@@ -36,7 +36,7 @@ export function MailchimpApiStatusModal() {
     try {
       await incrementMailchimpApiKeyIndex();
     } catch (err: any) {
-      alert('Error incrementing API key:' + err.message);
+      alert('Error incrementing API key: ' + err.message);
     } finally {
       await refreshMailchimp();
       setIsProcessing(false);
