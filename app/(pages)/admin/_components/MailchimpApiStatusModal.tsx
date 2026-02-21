@@ -36,10 +36,10 @@ export function MailchimpApiStatusModal() {
     setIsPopupOpen(true);
     try {
       await incrementMailchimpApiKeyIndex();
-      await refreshMailchimp();
     } catch (err: any) {
       alert('Error incrementing API key:' + err.message);
     } finally {
+      await refreshMailchimp();
       setIsProcessing(false);
       setIsPopupOpen(false);
     }

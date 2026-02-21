@@ -1,7 +1,5 @@
 'use client';
 
-import { useMailchimp } from '../_hooks/useMailchimp';
-import { processRsvpReminders } from '../_utils/processRsvpReminders';
 import { useState } from 'react';
 import { TitoRsvpModal } from '../_components/TitoRsvpModal';
 import { MailchimpApiStatusModal } from './MailchimpApiStatusModal';
@@ -15,23 +13,7 @@ export default function AdminHeader({
   totalCount,
   onLogout,
 }: AdminHeaderProps) {
-  const [isProcessing, setIsProcessing] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { refresh: refreshMailchimp } = useMailchimp();
-
-  async function handleProcessRsvpReminders(slug: string) {
-    setIsProcessing(true);
-    try {
-      await processRsvpReminders(slug);
-      await refreshMailchimp();
-    } catch (err: any) {
-      console.error('Error while processing RSVP reminders:', err);
-      alert('Error processing RSVP reminders:' + err.message);
-    } finally {
-      setIsProcessing(false);
-      setIsPopupOpen(false);
-    }
-  }
 
   return (
     <header className="mb-6 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -48,7 +30,6 @@ export default function AdminHeader({
       <button
         onClick={setIsPopupOpen.bind(null, true)}
         className="special-button px-2 py-1 text-xs"
-        disabled={isProcessing}
       >
         process rsvp reminders
       </button>
@@ -57,9 +38,7 @@ export default function AdminHeader({
 
       <TitoRsvpModal
         isOpen={isPopupOpen}
-        isProcessing={isProcessing}
         onClose={() => setIsPopupOpen(false)}
-        onConfirm={handleProcessRsvpReminders}
       />
     </header>
   );

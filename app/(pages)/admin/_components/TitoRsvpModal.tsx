@@ -3,24 +3,35 @@
 import { useState, useEffect } from 'react';
 import { RsvpList } from '@app/_types/tito';
 import getRsvpLists from '@utils/tito/getRsvpLists';
+import { useMailchimp } from '../_hooks/useMailchimp';
+import { processRsvpReminders } from '../_utils/processRsvpReminders';
 
 interface TitoRsvpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (slug: string) => Promise<void>;
-  isProcessing: boolean;
 }
 
-export function TitoRsvpModal({
-  isOpen,
-  onClose,
-  onConfirm,
-  isProcessing,
-}: TitoRsvpModalProps) {
+export function TitoRsvpModal({ isOpen, onClose }: TitoRsvpModalProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { refresh: refreshMailchimp } = useMailchimp();
   const [rsvpLists, setRsvpLists] = useState<RsvpList[]>([]);
   const [selectedRsvpSlug, setSelectedRsvpSlug] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  async function handleProcessRsvpReminders(slug: string) {
+    setIsProcessing(true);
+    try {
+      await processRsvpReminders(slug);
+      await refreshMailchimp();
+    } catch (err: any) {
+      console.error('Error while processing RSVP reminders:', err);
+      alert('Error processing RSVP reminders:' + err.message);
+    } finally {
+      setIsProcessing(false);
+      onClose();
+    }
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -73,8 +84,8 @@ export function TitoRsvpModal({
                   </option>
                 ))}
               </select>
-              <p className="mt-2 text-[11px] text-gray-500 italic">
-                Only unredeemed tickets from this list AND unredeemed hub
+              <p className="mt-2 text-[11px] text-red-500 italic">
+                Unredeemed tickets from this list AND unredeemed hub
                 invites will be processed.
               </p>
             </div>
@@ -91,7 +102,7 @@ export function TitoRsvpModal({
             cancel
           </button>
           <button
-            onClick={() => onConfirm(selectedRsvpSlug)}
+            onClick={() => handleProcessRsvpReminders(selectedRsvpSlug)}
             className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase text-white bg-black hover:bg-gray-800"
             disabled={isProcessing || !selectedRsvpSlug || !!error}
           >
