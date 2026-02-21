@@ -28,16 +28,14 @@ export async function createHubInvite(
   email: string
 ): Promise<string> {
   try {
-    const hubStart = Date.now();
     const res = await session.post(
       `${process.env.HACKDAVIS_HUB_BASE_URL}/api/invite`,
       {
         data: { email, name: `${first} ${last}`, role: 'hacker' },
       }
     );
-    const hubMs = Date.now() - hubStart;
 
-    console.log(`Hub invite response for ${email} (${hubMs}ms)`, res.data);
+    console.log('Hub invite response for', email, res.data);
 
     if (!res.data?.ok || !res.data.body) {
       throw new Error(`Hub invite failed for ${email}`);

@@ -30,7 +30,7 @@ export function TitoConfigModal({
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-white border-2 border-black shadow-xl max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-bold mb-4">Finalize All Applicants</h2>
 
         {loadingTitoData ? (
@@ -112,7 +112,7 @@ export function TitoConfigModal({
                 <ol className="text-xs space-y-1 list-decimal list-inside">
                   <li>Create Tito invitations for accepted applicants</li>
                   <li>Create Hub invitations for accepted applicants</li>
-                  <li>Send Mailchimp emails to all applicants</li>
+                  <li>Add applicant decision to Mailchimp dashboard</li>
                   <li>Update application statuses in database</li>
                   <li>Download CSV with all data and any errors</li>
                 </ol>

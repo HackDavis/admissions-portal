@@ -5,9 +5,7 @@ import {
   ReleaseInvitation,
   TitoResponse,
 } from '@typeDefs/tito';
-
-const TITO_AUTH_TOKEN = process.env.TITO_AUTH_TOKEN;
-const TITO_EVENT_BASE_URL = process.env.TITO_EVENT_BASE_URL;
+import { TitoRequest } from './titoClient';
 
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 1000;
@@ -21,12 +19,6 @@ export default async function createRsvpInvitation(
   data: InvitationData
 ): Promise<TitoResponse<ReleaseInvitation>> {
   try {
-    if (!TITO_AUTH_TOKEN || !TITO_EVENT_BASE_URL) {
-      const error = 'Missing Tito API configuration in environment variables';
-      console.error('[Tito API] createRsvpInvitation:', error);
-      throw new Error(error);
-    }
-
     if (!data.email || data.email.trim() === '') {
       const error = 'Email is required';
       console.error('[Tito API] createRsvpInvitation:', error);
@@ -57,8 +49,6 @@ export default async function createRsvpInvitation(
       throw new Error(error);
     }
 
-    const url = `${TITO_EVENT_BASE_URL}/rsvp_lists/${data.rsvpListSlug}/release_invitations`;
-
     // Build the request body according to the API documentation
     const requestBody: {
       email: string;
@@ -71,89 +61,47 @@ export default async function createRsvpInvitation(
       release_ids: releaseIdsArray,
     };
 
-    if (data.firstName && data.firstName.trim()) {
-      requestBody.first_name = data.firstName.trim();
-    }
-
-    if (data.lastName && data.lastName.trim()) {
-      requestBody.last_name = data.lastName.trim();
-    }
-
-    if (data.discountCode && data.discountCode.trim()) {
+    if (data.firstName?.trim()) requestBody.first_name = data.firstName.trim();
+    if (data.lastName?.trim()) requestBody.last_name = data.lastName.trim();
+    if (data.discountCode?.trim())
       requestBody.discount_code = data.discountCode.trim();
-    }
 
-    console.log('[Tito API] Creating release invitation for:', data.email);
-    console.log('[Tito API] Request URL:', url);
-    console.log('[Tito API] Request body:', requestBody);
+    const url = `/rsvp_lists/${data.rsvpListSlug}/release_invitations`;
 
-    let lastError = '';
+    // let lastError = '';
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          Authorization: `Token token=${TITO_AUTH_TOKEN}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          release_invitation: requestBody,
-        }),
-      });
+      try {
+        const response = await TitoRequest<{
+          release_invitation: ReleaseInvitation;
+        }>(url, {
+          method: 'POST',
+          body: JSON.stringify({ release_invitation: requestBody }),
+        });
+        return { ok: true, body: response.release_invitation, error: null };
+      } catch (error: any) {
+        const isRateLimited = error.message.includes('429');
+        // Handle rate limiting with retries (Retry-After header is extract in TitoRequest)
+        if (isRateLimited && attempt < MAX_RETRIES) {
+          const waitMs = error.retryAfter
+            ? parseFloat(error.retryAfter) * BASE_DELAY_MS
+            : Math.pow(2, attempt) * BASE_DELAY_MS +
+              Math.random() * BASE_DELAY_MS;
 
-      if (response.status === 429 && attempt < MAX_RETRIES) {
-        const retryAfter = response.headers.get('Retry-After');
-        const waitMs = retryAfter
-          ? parseFloat(retryAfter) * 1000
-          : BASE_DELAY_MS * Math.pow(2, attempt) +
-            Math.random() * BASE_DELAY_MS;
-
-        console.warn(
-          `[Tito API] 429 rate-limited for ${
-            data.email
-          }, retrying in ${Math.round(waitMs)}ms (attempt ${
-            attempt + 1
-          }/${MAX_RETRIES})`
-        );
-        await delay(waitMs);
-        continue;
-      }
-
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error(
-            `Tito API rate limit exceeded after ${MAX_RETRIES} retries for ${data.email}`
+          console.warn(
+            `[Tito API] 429 rate-limited for ${
+              data.email
+            }, retrying in ${Math.round(waitMs)}ms (attempt ${
+              attempt + 1
+            }/${MAX_RETRIES})`
           );
+          await delay(waitMs);
+          continue;
         }
-        const errorText = await response.text();
-        lastError = `Tito API error: ${response.status} - ${errorText}`;
-        console.error('[Tito API] createRsvpInvitation failed:', lastError);
-        console.error('[Tito API] Request URL:', url);
-        console.error('[Tito API] Request body:', requestBody);
-        throw new Error(lastError);
+        throw error;
       }
-
-      const responseData = await response.json();
-      const invitation = responseData.release_invitation;
-
-      if (invitation.unique_url) {
-        console.log('[Tito API] Unique invitation URL:', invitation.unique_url);
-      }
-      if (invitation.url) {
-        console.log('[Tito API] Invitation URL:', invitation.url);
-      }
-
-      return {
-        ok: true,
-        body: invitation,
-        error: null,
-      };
     }
-
     // All retries exhausted on 429
-    throw new Error(
-      `Tito API rate limit exceeded after ${MAX_RETRIES} retries for ${data.email}`
-    );
+    throw new Error('Maximum retries exceeded');
   } catch (e) {
     const error = e as Error;
     console.error('[Tito API] createRsvpInvitation exception:', error);
