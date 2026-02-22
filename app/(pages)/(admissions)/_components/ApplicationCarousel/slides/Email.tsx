@@ -85,7 +85,7 @@ export default function Email({
           </p>
         </header>
 
-        <div className="mt-12 flex flex-col items-center gap-8">
+        <div className="mt-12 flex flex-col items-center gap-4">
           <div className="w-full max-w-md">
             <input
               type="email"
@@ -99,15 +99,15 @@ export default function Email({
             />
           </div>
 
-          {showEduError && (
-            <p className="mt-2 text-sm font-semibold text-red-500">
-              Please enter a valid school email ending in .edu
-            </p>
-          )}
-
-          {submitted && error && (
-            <p className="text-sm font-semibold text-red-400">{error}</p>
-          )}
+          <p
+            className={`mt-2 text-sm font-semibold text-red-500 ${
+              showEduError || (submitted && error) ? '' : 'invisible'
+            }`}
+          >
+            {submitted && error
+              ? error
+              : 'Please enter a valid school email ending in .edu'}
+          </p>
 
           <button
             type="button"

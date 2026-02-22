@@ -47,9 +47,14 @@ export default function ABitMore({
   };
 
   useEnterKey(handleNext, isActive);
+  const linkedinShowError =
+    (submitted || linkedinTouched) &&
+    !!formData.linkedin?.trim() &&
+    !isLinkedInValid(formData.linkedin);
+
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center pb-5">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-24">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Just a bit more...
         </h1>
@@ -60,7 +65,7 @@ export default function ABitMore({
           Responses are only collected to improve HackDavis.
         </p>
 
-        <div className="mx-auto mt-12 w-full max-w-lg space-y-10 text-left">
+        <div className="mx-auto mt-12 w-full max-w-lg space-y-8 text-left">
           {/* LinkedIn */}
           <div>
             <label className="block text-sm font-semibold text-[#0F2530]">
@@ -74,22 +79,21 @@ export default function ABitMore({
                 setFormData({ ...formData, linkedin: e.target.value })
               }
               placeholder="https://www.linkedin.com/in/your-username"
-              className="mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
+              className={[
+                'mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none',
+                linkedinShowError ? 'ring-1 ring-red-400' : '',
+              ].join(' ')}
             />
 
-            {submitted && !formData.linkedin?.trim() && (
-              <p className="mt-2 text-sm font-semibold text-red-400">
-                ERROR: Please enter a link to your LinkedIn.
-              </p>
-            )}
-
-            {submitted &&
-              formData.linkedin?.trim() &&
-              !isLinkedInValid(formData.linkedin) && (
-                <p className="mt-2 text-sm font-semibold text-red-400">
-                  ERROR: Please enter a valid LinkedIn URL.
-                </p>
-              )}
+            <p className={`mt-2 text-sm font-semibold text-red-400 ${
+              (submitted && !formData.linkedin?.trim()) ||
+              ((submitted || linkedinTouched) && !!formData.linkedin?.trim() && !isLinkedInValid(formData.linkedin))
+                ? '' : 'invisible'
+            }`}>
+              {(submitted || linkedinTouched) && formData.linkedin?.trim() && !isLinkedInValid(formData.linkedin)
+                ? 'ERROR: Please enter a valid LinkedIn URL (e.g. linkedin.com/in/your-username)'
+                : 'ERROR: Please enter your LinkedIn profile URL.'}
+            </p>
           </div>
 
           {/* GitHub / Portfolio */}
@@ -108,13 +112,9 @@ export default function ABitMore({
               className="mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />
 
-            {submitted &&
-              formData.githubOrPortfolio?.trim() &&
-              !isValidUrl(formData.githubOrPortfolio) && (
-                <p className="mt-2 text-sm font-semibold text-red-400">
-                  ERROR: Please enter a valid URL.
-                </p>
-              )}
+            <p className={`mt-2 text-sm font-semibold text-red-400 ${submitted && formData.githubOrPortfolio?.trim() && !isValidUrl(formData.githubOrPortfolio) ? '' : 'invisible'}`}>
+              ERROR: Please enter a valid URL.
+            </p>
           </div>
 
           {/* Sponsors connect */}
@@ -131,11 +131,9 @@ export default function ABitMore({
               }
             />
 
-            {submitted && typeof formData.connectWithSponsors !== 'boolean' && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please select an option.
-              </p>
-            )}
+            <p className={`mt-3 text-sm font-semibold text-red-400 ${submitted && typeof formData.connectWithSponsors !== 'boolean' ? '' : 'invisible'}`}>
+              ERROR: Please select an option.
+            </p>
           </div>
 
           {/* Resume (text box per your note) */}
@@ -154,28 +152,23 @@ export default function ABitMore({
               className="mt-3 h-28 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />
 
-            {submitted && resumeRequired && !formData.resume?.trim() && (
-              <p className="mt-2 text-sm font-semibold text-red-400">
-                ERROR: Please enter a link to your resume.
-              </p>
-            )}
-
-            {submitted &&
-              formData.resume?.trim() &&
-              !isValidUrl(formData.resume) && (
-                <p className="mt-2 text-sm font-semibold text-red-400">
-                  ERROR: Please enter a valid URL.
-                </p>
-              )}
+            <p className={`mt-2 text-sm font-semibold text-red-400 ${
+              (submitted && resumeRequired && !formData.resume?.trim()) ||
+              (submitted && !!formData.resume?.trim() && !isValidUrl(formData.resume))
+                ? '' : 'invisible'
+            }`}>
+              {submitted && formData.resume?.trim() && !isValidUrl(formData.resume)
+                ? 'ERROR: Please enter a valid URL.'
+                : 'ERROR: Please enter a link to your resume.'}
+            </p>
           </div>
         </div>
 
-        {/* Bottom button */}
-        <div className="mt-14 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <button
             type="button"
             onClick={handleNext}
-            className={`flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
+            className={`flex items-center gap-3 rounded-full px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
               isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
             }`}
           >

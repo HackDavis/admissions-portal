@@ -88,7 +88,7 @@ export default function KeepGoing({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center pb-14">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-24">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Keep Going...
         </h1>
@@ -99,7 +99,7 @@ export default function KeepGoing({
           Responses are only collected to improve HackDavis.
         </p>
 
-        <div className="mt-12 text-left space-y-10">
+        <div className="mt-12 text-left space-y-8">
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
               What is your current level of study?*
@@ -112,11 +112,13 @@ export default function KeepGoing({
               onChange={(v) => setFormData({ ...formData, levelOfStudy: v })}
             />
 
-            {submitted && !formData.levelOfStudy && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Wait! You left this one blank.
-              </p>
-            )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && !formData.levelOfStudy ? '' : 'invisible'
+              }`}
+            >
+              ERROR: Wait! You left this one blank.
+            </p>
           </div>
 
           <div>
@@ -136,11 +138,13 @@ export default function KeepGoing({
               onChange={(v) => setFormData({ ...formData, major: v })}
             />
 
-            {submitted && !formData.major && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Wait! You left this one blank.
-              </p>
-            )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && !formData.major ? '' : 'invisible'
+              }`}
+            >
+              ERROR: Wait! You left this one blank.
+            </p>
           </div>
 
           <div>
@@ -153,11 +157,13 @@ export default function KeepGoing({
               onChange={(v) => setHasMinorOrDoubleMajor(v)}
             />
 
-            {submitted && hasMinorOrDoubleMajor === null && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please select Yes or No.
-              </p>
-            )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && hasMinorOrDoubleMajor === null ? '' : 'invisible'
+              }`}
+            >
+              ERROR: Please select Yes or No.
+            </p>
           </div>
 
           <div className={hasMinorOrDoubleMajor !== true ? 'opacity-50' : ''}>
@@ -181,13 +187,17 @@ export default function KeepGoing({
               disabled={hasMinorOrDoubleMajor !== true}
             />
 
-            {submitted &&
-              hasMinorOrDoubleMajor === true &&
-              !formData.minorOrDoubleMajor && (
-                <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Wait! You left this one blank.
-                </p>
-              )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted &&
+                hasMinorOrDoubleMajor === true &&
+                !formData.minorOrDoubleMajor
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Wait! You left this one blank.
+            </p>
           </div>
 
           <div className={isUCDSelected ? '' : 'opacity-50'}>
@@ -211,19 +221,23 @@ export default function KeepGoing({
               />
             </div>
 
-            {submitted &&
-              isUCDSelected &&
-              (!Array.isArray(formData.college) ||
-                formData.college.length === 0) && (
-                <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Please select a college.
-                </p>
-              )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted &&
+                isUCDSelected &&
+                (!Array.isArray(formData.college) ||
+                  formData.college.length === 0)
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Please select a college.
+            </p>
           </div>
         </div>
 
         {/* Next button (center like screenshot) */}
-        <div className="mt-14 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <button
             type="button"
             disabled={!isValid}

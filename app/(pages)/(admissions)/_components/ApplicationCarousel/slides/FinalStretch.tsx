@@ -33,7 +33,7 @@ export default function FinalStretch({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center pb-4">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-24">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Final stretch!
         </h1>
@@ -44,7 +44,7 @@ export default function FinalStretch({
           Responses are only collected to improve HackDavis.
         </p>
 
-        <div className="mt-12 text-left space-y-12">
+        <div className="mt-12 text-left space-y-10">
           {/* HackDavis updates */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
@@ -65,11 +65,9 @@ export default function FinalStretch({
               />
             </div>
 
-            {submitted && !isValid && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please select Yes or No.
-              </p>
-            )}
+            <p className={`mt-3 text-sm font-semibold text-red-400 ${submitted && !isValid ? '' : 'invisible'}`}>
+              ERROR: Please select Yes or No.
+            </p>
           </div>
 
           {/* MLH optional */}
@@ -94,7 +92,7 @@ export default function FinalStretch({
           </div>
         </div>
 
-        <div className="mt-14 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <button
             type="button"
             disabled={!isValid}
