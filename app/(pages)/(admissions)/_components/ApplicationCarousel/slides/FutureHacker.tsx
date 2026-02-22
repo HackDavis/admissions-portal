@@ -112,7 +112,7 @@ export default function FutureHacker({
           {/* OVER 18 */}
           <div className={formData.age < 18 ? '' : 'opacity-50'}>
             <p className="text-base font-semibold text-[#0F2530]">
-              Will you be at least 18 years old by DOE?*
+              Will you be at least 18 years old by May 9, 2026?*
             </p>
 
             <YesNoGroup
