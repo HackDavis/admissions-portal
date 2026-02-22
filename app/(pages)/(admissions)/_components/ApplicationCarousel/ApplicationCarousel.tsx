@@ -28,6 +28,31 @@ type SlideDef = {
   node: (isActive: boolean) => React.ReactNode;
 };
 
+function SlideContainer({
+  active,
+  children,
+}: {
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+    if (active) {
+      ref.current.removeAttribute('inert');
+    } else {
+      ref.current.setAttribute('inert', '');
+    }
+  }, [active]);
+
+  return (
+    <div ref={ref} className="min-w-0 flex-[0_0_100%]">
+      {children}
+    </div>
+  );
+}
+
 export default function ApplicationCarousel() {
   const [viewportRef, api] = useEmblaCarousel(
     {
@@ -393,9 +418,9 @@ export default function ApplicationCarousel() {
         <div ref={viewportRef} className="overflow-hidden">
           <div className="flex items-start">
             {SLIDES.map((s, i) => (
-              <div key={s.key} className="min-w-0 flex-[0_0_100%]">
+              <SlideContainer key={s.key} active={i === index}>
                 <div className="h-auto">{s.node(i === index)}</div>
-              </div>
+              </SlideContainer>
             ))}
           </div>
         </div>
