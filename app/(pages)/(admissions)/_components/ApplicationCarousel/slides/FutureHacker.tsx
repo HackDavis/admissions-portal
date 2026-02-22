@@ -4,17 +4,20 @@ import React, { useEffect } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
 import { fetchCountryNames } from '@utils/fetch/fetchCountryNames';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 interface FutureHackerProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
 
 export default function FutureHacker({
   formData,
   setFormData,
   onNext,
+  isActive,
 }: FutureHackerProps) {
   const [universities, setUniversities] = React.useState<string[]>([]);
   const [submitted, setSubmitted] = React.useState(false);
@@ -66,6 +69,8 @@ export default function FutureHacker({
     if (!isValid) return;
     onNext?.();
   };
+
+  useEnterKey(handleNext, isActive);
 
   return (
     <section className="w-full">

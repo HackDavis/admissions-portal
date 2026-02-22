@@ -25,7 +25,7 @@ import FutureHacker from './slides/FutureHacker';
 
 type SlideDef = {
   key: string;
-  node: React.ReactNode;
+  node: (isActive: boolean) => React.ReactNode;
 };
 
 export default function ApplicationCarousel() {
@@ -147,95 +147,104 @@ export default function ApplicationCarousel() {
   const SLIDES: SlideDef[] = [
     {
       key: 'email',
-      node: (
+      node: (isActive) => (
         <Email
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
+          isActive={isActive}
         />
       ),
     },
     {
       key: 'contact',
-      node: (
+      node: (isActive) => (
         <Contact
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
+          isActive={isActive}
         />
       ),
     },
     {
       key: 'future-hacker',
-      node: (
+      node: (isActive) => (
         <FutureHacker
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
+          isActive={isActive}
         />
       ),
     },
     {
       key: 'keep-going',
-      node: (
+      node: (isActive) => (
         <KeepGoing
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
+          isActive={isActive}
         />
       ),
     },
     {
       key: 'nearly-set',
-      node: (
+      node: (isActive) => (
         <NearlySet
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
+          isActive={isActive}
         />
       ),
     },
     {
       key: 'diversity',
-      node: (
+      node: (isActive) => (
         <Diversity
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
+          isActive={isActive}
         />
       ),
     },
     {
       key: 'a-bit-more',
-      node: (
+      node: (isActive) => (
         <ABitMore
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
+          isActive={isActive}
         />
       ),
     },
     {
       key: 'final-stretch',
-      node: (
+      node: (isActive) => (
         <FinalStretch
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}
+          isActive={isActive}
         />
       ),
     },
     {
       key: 'mlh',
-      node: (
+      node: (isActive) => (
         <MLH
           formData={formData}
           setFormData={setFormData}
           onNext={handleFinalSubmit}
+          isActive={isActive}
         />
       ),
     },
-    { key: 'confirmation', node: <Confirmation /> },
+    { key: 'confirmation', node: () => <Confirmation /> },
   ];
 
   React.useEffect(() => {
@@ -383,9 +392,9 @@ export default function ApplicationCarousel() {
       >
         <div ref={viewportRef} className="overflow-hidden">
           <div className="flex items-start">
-            {SLIDES.map((s) => (
+            {SLIDES.map((s, i) => (
               <div key={s.key} className="min-w-0 flex-[0_0_100%]">
-                <div className="h-auto">{s.node}</div>
+                <div className="h-auto">{s.node(i === index)}</div>
               </div>
             ))}
           </div>

@@ -9,7 +9,7 @@ const AGREEMENT_OPTIONS = [
   'Event Logistics Information',
 ] as const;
 
-export default function MLH({ formData, setFormData, onNext }: any) {
+export default function MLH({ formData, setFormData, onNext, isActive }: any) {
   const [submitted, setSubmitted] = React.useState(false);
   const [showConfirm, setShowConfirm] = React.useState(false);
 

@@ -2,17 +2,20 @@
 
 import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 interface ABitMoreProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
 
 export default function ABitMore({
   formData,
   setFormData,
   onNext,
+  isActive,
 }: ABitMoreProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
@@ -43,6 +46,7 @@ export default function ABitMore({
     onNext?.();
   };
 
+  useEnterKey(handleNext, isActive);
   return (
     <section className="w-full">
       <div className="mx-auto w-full max-w-[520px] text-center pb-5">

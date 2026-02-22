@@ -2,17 +2,20 @@
 
 import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 interface FinalStretchProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
 
 export default function FinalStretch({
   formData,
   setFormData,
   onNext,
+  isActive,
 }: FinalStretchProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
@@ -25,6 +28,8 @@ export default function FinalStretch({
     if (!isValid) return;
     onNext?.();
   };
+
+  useEnterKey(handleNext, isActive);
 
   return (
     <section className="w-full">
