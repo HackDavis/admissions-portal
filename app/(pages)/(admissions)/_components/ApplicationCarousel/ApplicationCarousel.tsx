@@ -248,7 +248,6 @@ export default function ApplicationCarousel() {
           formData={formData}
           setFormData={setFormData}
           onNext={handleFinalSubmit}
-          isActive={isActive}
         />
       ),
     },
