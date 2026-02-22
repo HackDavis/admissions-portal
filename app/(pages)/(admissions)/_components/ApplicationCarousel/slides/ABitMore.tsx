@@ -11,6 +11,22 @@ interface ABitMoreProps {
   isActive: boolean;
 }
 
+const normalizeLinkedIn = (url: string): string => {
+  const trimmed = url.trim();
+  if (!trimmed) return trimmed;
+  let withoutProtocol = trimmed.replace(/^https?:\/\//, '');
+  if (!withoutProtocol.startsWith('www.')) {
+    withoutProtocol = 'www.' + withoutProtocol;
+  }
+  return 'https://' + withoutProtocol;
+};
+
+const isLinkedInValid = (url: string) => {
+  if (!url.trim()) return false;
+  const normalized = normalizeLinkedIn(url);
+  return /^https?:\/\/(www\.)?linkedin\.com\/in\/.+$/.test(normalized);
+};
+
 export default function ABitMore({
   formData,
   setFormData,
@@ -20,9 +36,6 @@ export default function ABitMore({
   const [submitted, setSubmitted] = React.useState(false);
 
   const resumeRequired = formData.connectWithSponsors === true;
-
-  const isLinkedInValid = (url: string) =>
-    /^https?:\/\/(www\.)?linkedin\.com\/in\/.+$/.test(url.trim());
 
   const isValidUrl = (url: string) => {
     try {
@@ -47,8 +60,9 @@ export default function ABitMore({
   };
 
   useEnterKey(handleNext, isActive);
+
   const linkedinShowError =
-    (submitted || linkedinTouched) &&
+    submitted &&
     !!formData.linkedin?.trim() &&
     !isLinkedInValid(formData.linkedin);
 
@@ -78,6 +92,14 @@ export default function ABitMore({
               onChange={(e) =>
                 setFormData({ ...formData, linkedin: e.target.value })
               }
+              onBlur={() => {
+                if (formData.linkedin?.trim()) {
+                  setFormData({
+                    ...formData,
+                    linkedin: normalizeLinkedIn(formData.linkedin),
+                  });
+                }
+              }}
               placeholder="https://www.linkedin.com/in/your-username"
               className={[
                 'mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none',
@@ -85,12 +107,19 @@ export default function ABitMore({
               ].join(' ')}
             />
 
-            <p className={`mt-2 text-sm font-semibold text-red-400 ${
-              (submitted && !formData.linkedin?.trim()) ||
-              ((submitted || linkedinTouched) && !!formData.linkedin?.trim() && !isLinkedInValid(formData.linkedin))
-                ? '' : 'invisible'
-            }`}>
-              {(submitted || linkedinTouched) && formData.linkedin?.trim() && !isLinkedInValid(formData.linkedin)
+            <p
+              className={`mt-2 text-sm font-semibold text-red-400 ${
+                (submitted && !formData.linkedin?.trim()) ||
+                (submitted &&
+                  !!formData.linkedin?.trim() &&
+                  !isLinkedInValid(formData.linkedin))
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              {submitted &&
+              formData.linkedin?.trim() &&
+              !isLinkedInValid(formData.linkedin)
                 ? 'ERROR: Please enter a valid LinkedIn URL (e.g. linkedin.com/in/your-username)'
                 : 'ERROR: Please enter your LinkedIn profile URL.'}
             </p>
@@ -112,7 +141,15 @@ export default function ABitMore({
               className="mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />
 
-            <p className={`mt-2 text-sm font-semibold text-red-400 ${submitted && formData.githubOrPortfolio?.trim() && !isValidUrl(formData.githubOrPortfolio) ? '' : 'invisible'}`}>
+            <p
+              className={`mt-2 text-sm font-semibold text-red-400 ${
+                submitted &&
+                formData.githubOrPortfolio?.trim() &&
+                !isValidUrl(formData.githubOrPortfolio)
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
               ERROR: Please enter a valid URL.
             </p>
           </div>
@@ -131,7 +168,13 @@ export default function ABitMore({
               }
             />
 
-            <p className={`mt-3 text-sm font-semibold text-red-400 ${submitted && typeof formData.connectWithSponsors !== 'boolean' ? '' : 'invisible'}`}>
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && typeof formData.connectWithSponsors !== 'boolean'
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
               ERROR: Please select an option.
             </p>
           </div>
@@ -152,12 +195,19 @@ export default function ABitMore({
               className="mt-3 h-28 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />
 
-            <p className={`mt-2 text-sm font-semibold text-red-400 ${
-              (submitted && resumeRequired && !formData.resume?.trim()) ||
-              (submitted && !!formData.resume?.trim() && !isValidUrl(formData.resume))
-                ? '' : 'invisible'
-            }`}>
-              {submitted && formData.resume?.trim() && !isValidUrl(formData.resume)
+            <p
+              className={`mt-2 text-sm font-semibold text-red-400 ${
+                (submitted && resumeRequired && !formData.resume?.trim()) ||
+                (submitted &&
+                  !!formData.resume?.trim() &&
+                  !isValidUrl(formData.resume))
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              {submitted &&
+              formData.resume?.trim() &&
+              !isValidUrl(formData.resume)
                 ? 'ERROR: Please enter a valid URL.'
                 : 'ERROR: Please enter a link to your resume.'}
             </p>

@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "run-script-os",
+    "test:nix": "npx jest --detectOpenHandles",
+    "test:windows": "npx jest --detectOpenHandles"
   },
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.80",
@@ -32,12 +35,20 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.25.9",
     "@eslint/js": "^9.39.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^29.5.14",
     "@types/node": "^20.19.25",
     "@types/nodemailer": "^7.0.9",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
+    "babel-jest": "^29.7.0",
     "baseline-browser-mapping": "^2.9.11",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.4",
@@ -45,9 +56,14 @@
     "eslint-plugin-lit-a11y": "^1.1.0-next.1",
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-unicorn": "^50.0.1",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.49",
     "prettier": "3.0.3",
+    "run-script-os": "^1.1.6",
     "tailwindcss": "^3.4.1",
+    "ts-jest": "^29.3.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3"
