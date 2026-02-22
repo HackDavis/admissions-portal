@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -24,54 +20,23 @@
     ],
     "baseUrl": "./",
     "paths": {
-      "@public/*": [
-        "./public/*"
-      ],
-      "@app/*": [
-        "app/*"
-      ],
-      "@scripts/*": [
-        "./scripts/*"
-      ],
-      "@pages/*": [
-        "app/(pages)/*"
-      ],
-      "@components/*": [
-        "app/(pages)/_components/*"
-      ],
-      "@contexts/*": [
-        "app/(pages)/_contexts/*"
-      ],
-      "@data/*": [
-        "app/(pages)/_data/*"
-      ],
-      "@globals/*": [
-        "app/(pages)/_globals/*"
-      ],
-      "@hooks/*": [
-        "app/(pages)/_hooks/*"
-      ],
-      "@api/*": [
-        "app/(api)/*"
-      ],
-      "@actions/*": [
-        "app/(api)/_actions/*"
-      ],
-      "@utils/*": [
-        "app/(api)/_utils/*"
-      ],
-      "@apidata/*": [
-        "app/(api)/_data/*"
-      ],
-      "@datalib/*": [
-        "app/(api)/_datalib/*"
-      ],
-      "@/auth": [
-        "auth.ts"
-      ],
-      "@/app/_types/*": [
-        "app/_types/*"
-      ]
+      "@public/*": ["./public/*"],
+      "@app/*": ["app/*"],
+      "@scripts/*": ["./scripts/*"],
+      "@pages/*": ["app/(pages)/*"],
+      "@components/*": ["app/(pages)/_components/*"],
+      "@contexts/*": ["app/(pages)/_contexts/*"],
+      "@data/*": ["app/(pages)/_data/*"],
+      "@globals/*": ["app/(pages)/_globals/*"],
+      "@hooks/*": ["app/(pages)/_hooks/*"],
+      "@api/*": ["app/(api)/*"],
+      "@actions/*": ["app/(api)/_actions/*"],
+      "@utils/*": ["app/(api)/_utils/*"],
+      "@apidata/*": ["app/(api)/_data/*"],
+      "@datalib/*": ["app/(api)/_datalib/*"],
+      "@/auth": ["auth.ts"],
+      "@typeDefs/*": ["app/_types/*"],
+      "@/app/_types/*": ["app/_types/*"]
     }
   },
   "include": [
@@ -81,7 +46,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

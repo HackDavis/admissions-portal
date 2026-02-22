@@ -1,8 +1,8 @@
 'use client';
 
-import { useMailchimp } from '../_hooks/useMailchimp';
-import { processRsvpReminders } from '../_utils/processRsvpReminders';
 import { useState } from 'react';
+import { TitoRsvpModal } from '../_components/TitoRsvpModal';
+import { MailchimpApiStatusModal } from './MailchimpApiStatusModal';
 
 interface AdminHeaderProps {
   totalCount: number;
@@ -13,35 +13,10 @@ export default function AdminHeader({
   totalCount,
   onLogout,
 }: AdminHeaderProps) {
-  const [isProcessing, setIsProcessing] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  async function handleProcessRsvpReminders() {
-    setIsProcessing(true);
-    try {
-      await processRsvpReminders();
-      await refreshMailchimp();
-    } catch (err: any) {
-      console.error('Error while processing RSVP reminders:', err);
-      alert('Error processing RSVP reminders:' + err.message);
-    } finally {
-      setIsProcessing(false);
-      setIsPopupOpen(false);
-    }
-  }
-
-  const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
-  const mc = mailchimp ?? {
-    batchNumber: 'N/A',
-    apiCallsMade: 0,
-    maxApiCalls: 0,
-    apiKeyIndex: 0,
-    maxApiKeys: 0,
-    lastUpdate: 'N/A',
-    lastReset: 'N/A',
-  };
   return (
-    <header className="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+    <header className="mb-6 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
       <div>
         <h1 className="text-xl font-semibold">hackdavis admissions admin</h1>
         <button onClick={onLogout} className="special-button px-2 py-1 text-xs">
@@ -55,48 +30,16 @@ export default function AdminHeader({
       <button
         onClick={setIsPopupOpen.bind(null, true)}
         className="special-button px-2 py-1 text-xs"
-        disabled={isProcessing}
       >
         process rsvp reminders
       </button>
 
-      <div>
-        <p className="mt-1 text-xs font-semibold">Mailchimp API status</p>
-        <p className="mt-1 text-xs">Batch: {mc.batchNumber}</p>
-        <p className="mt-1 text-xs">
-          Calls: {mc.apiCallsMade}/{mc.maxApiCalls} (key #{mc.apiKeyIndex}/
-          {mc.maxApiKeys})
-        </p>
-        <p className="mt-1 text-xs">Last update: {mc.lastUpdate.toString()}</p>
-        <p className="mt-1 text-xs">Last reset: {mc.lastReset.toString()}</p>
-      </div>
+      <MailchimpApiStatusModal />
 
-      {/* Popup menu */}
-      {isPopupOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="border-2 border-black bg-white shadow-xl max-w-lg w-full p-6 relative">
-            <h2 className="text-lg font-bold mb-4">process rsvp reminders</h2>
-
-            {/* Buttons */}
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={handleProcessRsvpReminders}
-                className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
-                disabled={isProcessing}
-              >
-                {isProcessing ? 'Processing...' : 'CONFIRM (yes)'}
-              </button>
-              <button
-                onClick={() => setIsPopupOpen(false)}
-                className="special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase"
-                disabled={isProcessing}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <TitoRsvpModal
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+      />
     </header>
   );
 }
