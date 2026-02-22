@@ -117,7 +117,15 @@ export default function ApplicationCarousel() {
             ? customUniversity
             : formData.university,
         status:
-          formData.isOver18 === true ? 'pending' : 'tentatively_waitlisted',
+          formData.isOver18 !== true ||
+          [
+            'Graduate University (Masters, Professional, Doctoral, etc)',
+            'Code School / Bootcamp',
+            'Other Vocational / Trade Program or Apprenticeship',
+            'Post Doctorate',
+          ].includes(formData.levelOfStudy)
+            ? 'tentatively_waitlisted'
+            : 'pending',
       };
       //submit application
       const ok = await submit(payload);
