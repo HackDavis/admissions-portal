@@ -243,7 +243,7 @@ export default function ApplicationCarousel() {
     },
     {
       key: 'mlh',
-      node: (isActive) => (
+      node: () => (
         <MLH
           formData={formData}
           setFormData={setFormData}

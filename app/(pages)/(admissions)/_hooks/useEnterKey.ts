@@ -13,7 +13,10 @@ export function useEnterKey(handleNext: () => void, isActive: boolean) {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && enabled) {
         const target = e.target as HTMLElement | null;
-        if (target instanceof HTMLTextAreaElement || target?.isContentEditable) {
+        if (
+          target instanceof HTMLTextAreaElement ||
+          target?.isContentEditable
+        ) {
           return;
         }
         e.preventDefault();
