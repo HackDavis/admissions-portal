@@ -59,7 +59,10 @@ export function ConfirmSubmitModal({
 
           {/* White panel */}
           <div className="relative mt-3 rounded-[22px] bg-white p-10">
-            <h2 id="confirm-submit-title" className="text-[28px] font-bold leading-[1.05] text-[#005271]">
+            <h2
+              id="confirm-submit-title"
+              className="text-[28px] font-bold leading-[1.05] text-[#005271]"
+            >
               Are you sure you want to submit?
             </h2>
 
