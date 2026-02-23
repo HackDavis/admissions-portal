@@ -65,7 +65,11 @@ export default function FinalStretch({
               />
             </div>
 
-            <p className={`mt-3 text-sm font-semibold text-red-400 ${submitted && !isValid ? '' : 'invisible'}`}>
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && !isValid ? '' : 'invisible'
+              }`}
+            >
               ERROR: Please select Yes or No.
             </p>
           </div>
