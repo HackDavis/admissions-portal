@@ -88,18 +88,12 @@ export default function KeepGoing({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center pb-24">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-6 px-2 sm:px-0">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Keep Going...
         </h1>
 
-        <p className="mx-auto mt-4 max-w-[420px] text-sm leading-snug text-[#0F2530]">
-          We never use this information to review applications.
-          <br />
-          Responses are only collected to improve HackDavis.
-        </p>
-
-        <div className="mt-12 text-left space-y-6">
+        <div className="mt-12 text-left space-y-2 sm:space-y-6">
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
               What is your current level of study?*

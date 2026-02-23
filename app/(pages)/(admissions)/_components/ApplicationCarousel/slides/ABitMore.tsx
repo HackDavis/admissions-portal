@@ -79,7 +79,7 @@ export default function ABitMore({
           Responses are only collected to improve HackDavis.
         </p>
 
-        <div className="mx-auto mt-12 w-full max-w-lg space-y-8 text-left">
+        <div className="mx-auto text-left w-full max-w-lg mt-6 sm:mt-12 space-y-3 sm:space-y-6 px-2 sm:px-0">
           {/* LinkedIn */}
           <div>
             <label className="block text-sm font-semibold text-[#0F2530]">
