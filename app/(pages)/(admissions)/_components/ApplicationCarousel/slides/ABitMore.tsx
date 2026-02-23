@@ -218,6 +218,7 @@ export default function ABitMore({
           <button
             type="button"
             onClick={handleNext}
+            disabled={!isValid}
             className={`flex items-center gap-3 rounded-full px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
               isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
             }`}
