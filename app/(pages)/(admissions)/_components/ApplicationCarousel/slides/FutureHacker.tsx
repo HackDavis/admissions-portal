@@ -42,7 +42,29 @@ export default function FutureHacker({
     fetchCountryNames().then((data) => setCountries(data));
   }, []);
 
-  const uniqueUniversities = Array.from(new Set(universities));
+  const uniqueUniversities = Array.from(new Set(universities)).sort((a, b) => {
+    const priority = [
+      'University of California Davis',
+      'University of California Berkeley',
+      'University of California Irvine',
+      'University of California Los Angeles',
+      'University of California Merced',
+      'University of California Riverside',
+      'University of California San Diego',
+      'University of California Santa Barbara',
+      'University of California Santa Cruz',
+      'California State University-Sacramento',
+      'San Francisco State University',
+      'San Jose State University',
+      'Standford University',
+    ];
+    const aIndex = priority.indexOf(a);
+    const bIndex = priority.indexOf(b);
+    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    return a.localeCompare(b);
+  });
   // "United States of America" populates first, then sort the rest alphabetically
   const uniqueCountries = Array.from(new Set(countries)).sort((a, b) => {
     if (a === 'United States of America') return -1;
