@@ -172,27 +172,25 @@ export default function FutureHacker({
               What is your country of residence?*
             </p>
 
-            <div className="mt-0">
-              <SearchableSelect
-                placeholder=""
-                value={formData.countryOfResidence}
-                options={uniqueCountries}
-                onChange={(v) =>
-                  setFormData({
-                    ...formData,
-                    countryOfResidence: v,
-                  })
-                }
-              />
+            <SearchableSelect
+              placeholder="Select a country"
+              value={formData.countryOfResidence}
+              options={uniqueCountries}
+              onChange={(v) =>
+                setFormData({
+                  ...formData,
+                  countryOfResidence: v,
+                })
+              }
+            />
 
-              <p
-                className={`mt-3 text-sm font-semibold text-red-400 ${
-                  submitted && !formData.countryOfResidence ? '' : 'invisible'
-                }`}
-              >
-                ERROR: Wait! You left this one blank.
-              </p>
-            </div>
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && !formData.countryOfResidence ? '' : 'invisible'
+              }`}
+            >
+              ERROR: Wait! You left this one blank.
+            </p>
           </div>
 
           {/* UNIVERSITY */}
@@ -201,52 +199,50 @@ export default function FutureHacker({
               Which University do you attend?*
             </p>
 
-            <div className="mt-0">
-              <SearchableSelect
-                placeholder=""
-                value={formData.university}
-                options={uniqueUniversities}
-                onChange={(v) => setFormData({ ...formData, university: v })}
-                disabled={formData.isUCDavisStudent === true}
-                pinnedOptions={['Other']}
-              />
+            <SearchableSelect
+              placeholder="Select a university"
+              value={formData.university}
+              options={uniqueUniversities}
+              onChange={(v) => setFormData({ ...formData, university: v })}
+              disabled={formData.isUCDavisStudent === true}
+              pinnedOptions={['Other']}
+            />
 
-              <p
-                className={`mt-3 text-sm font-semibold text-red-400 ${
-                  submitted && !formData.university ? '' : 'invisible'
-                }`}
-              >
-                ERROR: Wait! You left this one blank.
-              </p>
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && !formData.university ? '' : 'invisible'
+              }`}
+            >
+              ERROR: Wait! You left this one blank.
+            </p>
 
-              <div className="h-24">
-                {formData.university === 'Other' && (
-                  <textarea
-                    value={formData.customUniversity}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        customUniversity: e.target.value,
-                      })
-                    }
-                    placeholder="Please specify your school"
-                    className="mt-4 h-20 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
-                  />
-                )}
-              </div>
-
-              <p
-                className={`mt-3 text-sm font-semibold text-red-400 ${
-                  submitted &&
-                  formData.university === 'Other' &&
-                  !(formData.customUniversity || '').trim()
-                    ? ''
-                    : 'invisible'
-                }`}
-              >
-                ERROR: Please specify your school.
-              </p>
+            <div className="h-24">
+              {formData.university === 'Other' && (
+                <textarea
+                  value={formData.customUniversity}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      customUniversity: e.target.value,
+                    })
+                  }
+                  placeholder="Please specify your school"
+                  className="mt-4 h-20 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
+                />
+              )}
             </div>
+
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted &&
+                formData.university === 'Other' &&
+                !(formData.customUniversity || '').trim()
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Please specify your school.
+            </p>
           </div>
         </div>
 

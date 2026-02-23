@@ -62,16 +62,28 @@ export function SearchableSelect({
     setHighlightIndex(0);
   }, [search]);
 
-  // Position dropdown on open
-  useEffect(() => {
-    if (!open || !wrapperRef.current) return;
+  // Recompute dropdown position from the trigger element
+  const updatePosition = useCallback(() => {
+    if (!wrapperRef.current) return;
     const rect = wrapperRef.current.getBoundingClientRect();
     setPos({
       top: rect.bottom + 4,
       left: rect.left,
       width: rect.width,
     });
-  }, [open]);
+  }, []);
+
+  // Position dropdown on open and keep aligned on scroll/resize
+  useEffect(() => {
+    if (!open) return;
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [open, updatePosition]);
 
   // Focus input on open, clear search on close
   useEffect(() => {
@@ -137,7 +149,9 @@ export function SearchableSelect({
     if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
-      // Stop the native event from reaching the useEnterKey window listener
+      // Prevent useEnterKey's window-level keydown listener from advancing the
+      // carousel slide. stopImmediatePropagation is needed because that hook
+      // registers directly on window, which React's stopPropagation won't reach.
       e.nativeEvent.stopImmediatePropagation();
       if (displayList[highlightIndex]) {
         select(displayList[highlightIndex]);
@@ -145,6 +159,8 @@ export function SearchableSelect({
       return;
     }
   };
+
+  const listboxId = 'searchable-select-listbox';
 
   const dropdown = open
     ? createPortal(
@@ -159,7 +175,13 @@ export function SearchableSelect({
           }}
           className="rounded-2xl bg-white shadow-lg border border-gray-200 overflow-hidden"
         >
-          <ul ref={listRef} className="max-h-48 overflow-y-auto" role="listbox">
+          <ul
+            ref={listRef}
+            id={listboxId}
+            className="max-h-48 overflow-y-auto"
+            role="listbox"
+            aria-label="Options"
+          >
             {filtered.length === 0 && pinnedOptions.length === 0 && (
               <li className="px-6 py-2 text-sm text-gray-400">
                 No results found
@@ -169,6 +191,7 @@ export function SearchableSelect({
             {filtered.map((opt, i) => (
               <li
                 key={opt}
+                id={`option-${i}`}
                 role="option"
                 aria-selected={opt === value}
                 onMouseEnter={() => setHighlightIndex(i)}
@@ -185,12 +208,17 @@ export function SearchableSelect({
 
             {pinnedOptions.length > 0 && (
               <>
-                <li className="border-t border-gray-200" />
+                <li
+                  role="separator"
+                  aria-hidden="true"
+                  className="border-t border-gray-200"
+                />
                 {pinnedOptions.map((opt, j) => {
                   const idx = filtered.length + j;
                   return (
                     <li
                       key={opt}
+                      id={`option-${idx}`}
                       role="option"
                       aria-selected={opt === value}
                       onMouseEnter={() => setHighlightIndex(idx)}
@@ -215,11 +243,18 @@ export function SearchableSelect({
 
   return (
     <>
+      {/* !block and !text-left override the global button{display:flex;
+          justify-content:center} rule in globals.scss (lines 84-91) */}
       <div ref={wrapperRef} className="mt-4 relative !text-left">
         {open ? (
           <input
             ref={inputRef}
             type="text"
+            role="combobox"
+            aria-expanded={true}
+            aria-controls={listboxId}
+            aria-autocomplete="list"
+            aria-activedescendant={`option-${highlightIndex}`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -229,6 +264,9 @@ export function SearchableSelect({
         ) : (
           <button
             type="button"
+            role="combobox"
+            aria-expanded={false}
+            aria-controls={listboxId}
             disabled={disabled}
             onClick={() => setOpen(true)}
             className={`!block w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm !text-left outline-none ${
