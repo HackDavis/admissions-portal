@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 const GENDER_OPTIONS = [
   'Woman',
@@ -25,12 +26,14 @@ interface DiversityProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
 
 export default function Diversity({
   formData,
   setFormData,
   onNext,
+  isActive,
 }: DiversityProps) {
   const toggleOption = (section: 'gender' | 'race', value: string) => {
     const currentArray = formData[section] || [];
@@ -46,6 +49,13 @@ export default function Diversity({
   const isValid =
     typeof formData.attendedHackDavis === 'boolean' &&
     typeof formData.firstHackathon === 'boolean';
+
+  const handleNext = () => {
+    if (!isValid) return;
+    onNext?.();
+  };
+
+  useEnterKey(handleNext, isActive);
 
   return (
     <section className="w-full">
@@ -106,7 +116,7 @@ export default function Diversity({
           <button
             type="button"
             disabled={!isValid}
-            onClick={onNext}
+            onClick={handleNext}
             className={`flex items-center gap-3 rounded-full px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
               isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
             }`}

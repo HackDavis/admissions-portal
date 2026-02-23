@@ -5,6 +5,7 @@ import { YesNoGroup } from '../_components/YesNoGroup';
 import { fetchMajors } from '@utils/fetch/fetchMajors';
 import { fetchMinors } from '@utils/fetch/fetchMinors';
 import { MultiSelectGroup } from '../_components/MultiSelectGroup';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 const COLLEGE_OPTIONS = [
   'College of Engineering',
@@ -32,12 +33,14 @@ interface KeepGoingProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
 
 export default function KeepGoing({
   formData,
   setFormData,
   onNext,
+  isActive,
 }: KeepGoingProps) {
   const [majorOptions, setMajorOptions] = useState<string[]>([]);
   const [minorOptions, setMinorOptions] = useState<string[]>([]);
@@ -81,11 +84,13 @@ export default function KeepGoing({
     onNext?.();
   };
 
+  useEnterKey(handleNext, isActive);
+
   return (
     <section className="w-full">
       <div className="mx-auto w-full max-w-[520px] text-center pb-14">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
-          Keep Going..
+          Keep Going...
         </h1>
 
         <p className="mx-auto mt-4 max-w-[420px] text-sm leading-snug text-[#0F2530]">

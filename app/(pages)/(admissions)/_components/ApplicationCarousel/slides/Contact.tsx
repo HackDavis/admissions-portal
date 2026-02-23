@@ -2,6 +2,7 @@
 
 import React from 'react';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 type FieldId = 'firstName' | 'lastName' | 'phone';
 
@@ -21,12 +22,14 @@ interface ContactProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
 
 export default function Contact({
   formData,
   setFormData,
   onNext,
+  isActive,
 }: ContactProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
@@ -55,6 +58,8 @@ export default function Contact({
     if (!isValid) return;
     onNext?.();
   };
+
+  useEnterKey(handleNext, isActive);
 
   return (
     <section className="w-full">

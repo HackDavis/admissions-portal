@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { MultiSelectGroup } from '../_components/MultiSelectGroup';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 const YEAR_OPTIONS = ['1', '2', '3', '4', '5+', 'N/A'] as const;
 
@@ -21,12 +22,14 @@ interface NearlySetProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
 
 export default function NearlySet({
   formData,
   setFormData,
   onNext,
+  isActive,
 }: NearlySetProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
@@ -41,6 +44,8 @@ export default function NearlySet({
     if (!isValid) return;
     onNext?.();
   };
+
+  useEnterKey(handleNext, isActive);
 
   return (
     <section className="w-full">

@@ -3,14 +3,21 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useCheckEmail } from '../../../_hooks/useCheckEmail';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 interface EmailProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
 
-export default function Email({ formData, setFormData, onNext }: EmailProps) {
+export default function Email({
+  formData,
+  setFormData,
+  onNext,
+  isActive,
+}: EmailProps) {
   const { checkEmail, loading, error } = useCheckEmail();
   const [submitted, setSubmitted] = useState(false);
 
@@ -29,6 +36,8 @@ export default function Email({ formData, setFormData, onNext }: EmailProps) {
     const ok = await checkEmail(formData.email);
     if (ok) onNext?.();
   };
+
+  useEnterKey(handleNext, isActive);
 
   return (
     <section className="relative w-full">

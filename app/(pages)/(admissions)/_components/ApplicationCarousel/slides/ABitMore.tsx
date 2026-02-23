@@ -2,24 +2,40 @@
 
 import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 interface ABitMoreProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
+
+const normalizeLinkedIn = (url: string): string => {
+  const trimmed = url.trim();
+  if (!trimmed) return trimmed;
+  let withoutProtocol = trimmed.replace(/^https?:\/\//, '');
+  if (!withoutProtocol.startsWith('www.')) {
+    withoutProtocol = 'www.' + withoutProtocol;
+  }
+  return 'https://' + withoutProtocol;
+};
+
+const isLinkedInValid = (url: string) => {
+  if (!url.trim()) return false;
+  const normalized = normalizeLinkedIn(url);
+  return /^https?:\/\/(www\.)?linkedin\.com\/in\/.+$/.test(normalized);
+};
 
 export default function ABitMore({
   formData,
   setFormData,
   onNext,
+  isActive,
 }: ABitMoreProps) {
   const [submitted, setSubmitted] = React.useState(false);
 
   const resumeRequired = formData.connectWithSponsors === true;
-
-  const isLinkedInValid = (url: string) =>
-    /^https?:\/\/(www\.)?linkedin\.com\/in\/.+$/.test(url.trim());
 
   const isValidUrl = (url: string) => {
     try {
@@ -42,6 +58,8 @@ export default function ABitMore({
     if (!isValid) return; // stops next if validation fails
     onNext?.();
   };
+
+  useEnterKey(handleNext, isActive);
 
   return (
     <section className="w-full">
@@ -69,6 +87,14 @@ export default function ABitMore({
               onChange={(e) =>
                 setFormData({ ...formData, linkedin: e.target.value })
               }
+              onBlur={() => {
+                if (formData.linkedin?.trim()) {
+                  setFormData({
+                    ...formData,
+                    linkedin: normalizeLinkedIn(formData.linkedin),
+                  });
+                }
+              }}
               placeholder="https://www.linkedin.com/in/your-username"
               className="mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
             />

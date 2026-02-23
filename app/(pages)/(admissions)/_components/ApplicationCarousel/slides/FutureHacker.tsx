@@ -4,17 +4,20 @@ import React, { useEffect } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
 import { fetchCountryNames } from '@utils/fetch/fetchCountryNames';
+import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 interface FutureHackerProps {
   formData: any;
   setFormData: (data: any) => void;
   onNext?: () => void;
+  isActive: boolean;
 }
 
 export default function FutureHacker({
   formData,
   setFormData,
   onNext,
+  isActive,
 }: FutureHackerProps) {
   const [universities, setUniversities] = React.useState<string[]>([]);
   const [submitted, setSubmitted] = React.useState(false);
@@ -39,7 +42,12 @@ export default function FutureHacker({
   }, []);
 
   const uniqueUniversities = Array.from(new Set(universities));
-  const uniqueCountries = Array.from(new Set(countries));
+  // "United States of America" populates first, then sort the rest alphabetically
+  const uniqueCountries = Array.from(new Set(countries)).sort((a, b) => {
+    if (a === 'United States of America') return -1;
+    if (b === 'United States of America') return 1;
+    return a.localeCompare(b);
+  });
 
   useEffect(() => {
     if (formData.isUCDavisStudent === true) {
@@ -66,6 +74,8 @@ export default function FutureHacker({
     if (!isValid) return;
     onNext?.();
   };
+
+  useEnterKey(handleNext, isActive);
 
   return (
     <section className="w-full">
@@ -112,7 +122,7 @@ export default function FutureHacker({
           {/* OVER 18 */}
           <div className={formData.age < 18 ? '' : 'opacity-50'}>
             <p className="text-base font-semibold text-[#0F2530]">
-              Will you be at least 18 years old by DOE?*
+              Will you be at least 18 years old by May 9, 2026?*
             </p>
 
             <YesNoGroup
