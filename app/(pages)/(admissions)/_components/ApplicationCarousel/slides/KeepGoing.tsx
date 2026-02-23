@@ -131,6 +131,7 @@ export default function KeepGoing({
               value={formData.major || ''}
               options={majorOptions}
               onChange={(v) => setFormData({ ...formData, major: v })}
+              pinnedOptions={['Not on this list']}
             />
 
             <p
@@ -180,6 +181,7 @@ export default function KeepGoing({
                 setFormData({ ...formData, minorOrDoubleMajor: v })
               }
               disabled={hasMinorOrDoubleMajor !== true}
+              pinnedOptions={['Not on this list']}
             />
 
             <p
