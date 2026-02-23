@@ -43,7 +43,7 @@ export default function FinalStretch({
           <br />
           Responses are only collected to improve HackDavis.
         </p>
-        {/* mt-6 sm:mt-12 text-left space-y-3 sm:space-y-6 px-2 sm:px-0 */}
+
         <div className="mt-6 sm:mt-12 text-left space-y-3 sm:space-y-6 px-2 sm:px-0">
           {/* HackDavis updates */}
           <div>

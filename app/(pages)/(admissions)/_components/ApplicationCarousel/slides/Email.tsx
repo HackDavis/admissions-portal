@@ -100,7 +100,7 @@ export default function Email({
           </div>
 
           <p
-            className={`mt-2 text-sm font-semibold text-red-500 text-center  ${
+            className={`mt-2 text-sm font-semibold text-red-400 text-center ${
               showEduError || (submitted && error) ? '' : 'invisible'
             }`}
           >
