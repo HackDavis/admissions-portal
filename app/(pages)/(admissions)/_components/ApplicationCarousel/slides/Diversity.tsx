@@ -59,7 +59,7 @@ export default function Diversity({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center pb-4">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-24">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           Diversity matters
           <br />
@@ -72,7 +72,7 @@ export default function Diversity({
           Responses are only collected to improve inclusivity at HackDavis.
         </p>
 
-        <div className="mt-12 text-left space-y-12">
+        <div className="mt-12 text-left space-y-10">
           <Question
             title="What’s your gender?"
             section="gender"
@@ -112,7 +112,7 @@ export default function Diversity({
           </div>
         </div>
 
-        <div className="mt-14 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <button
             type="button"
             disabled={!isValid}

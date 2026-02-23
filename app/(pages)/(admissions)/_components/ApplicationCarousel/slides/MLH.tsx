@@ -56,7 +56,7 @@ export default function MLH({ formData, setFormData, onNext }: any) {
 
   return (
     <section className="w-full relative">
-      <div className="mx-auto w-full max-w-[520px] text-center pb-4">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-24">
         <h1 className="font-metropolis text-[40px] font-bold leading-[1.05] tracking-[0.01em] text-[#005271]">
           You&apos;re almost
           <br />
@@ -139,14 +139,16 @@ export default function MLH({ formData, setFormData, onNext }: any) {
             }
           />
 
-          {submitted && !isValid && (
-            <p className="mt-3 text-sm font-semibold text-red-400">
-              ERROR: Please check both boxes.
-            </p>
-          )}
+          <p
+            className={`mt-3 text-sm font-semibold text-red-400 ${
+              submitted && !isValid ? '' : 'invisible'
+            }`}
+          >
+            ERROR: Please check both boxes.
+          </p>
         </div>
 
-        <div className="mt-14 flex flex-col items-center gap-4">
+        <div className="mt-10 flex flex-col items-center gap-4">
           <button
             type="button"
             disabled={!isValid}

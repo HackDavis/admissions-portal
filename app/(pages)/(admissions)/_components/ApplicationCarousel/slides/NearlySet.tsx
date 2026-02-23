@@ -49,7 +49,7 @@ export default function NearlySet({
 
   return (
     <section className="w-full">
-      <div className="mx-auto w-full max-w-[520px] text-center pb-20">
+      <div className="mx-auto w-full max-w-[520px] text-center pb-24">
         <h1 className="font-metropolis text-[48px] font-bold leading-[1] tracking-[0.01em] text-[#005271]">
           We&apos;re Nearly Set!
         </h1>
@@ -60,7 +60,7 @@ export default function NearlySet({
           Responses are only collected to improve HackDavis.
         </p>
 
-        <div className="mt-12 text-left space-y-10">
+        <div className="mt-12 text-left space-y-8">
           {/* Year in school */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
@@ -95,11 +95,13 @@ export default function NearlySet({
               })}
             </div>
 
-            {submitted && !formData.year && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please select your year in school.
-              </p>
-            )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && !formData.year ? '' : 'invisible'
+              }`}
+            >
+              ERROR: Please select your year in school.
+            </p>
           </div>
 
           {/* Shirt size */}
@@ -115,11 +117,13 @@ export default function NearlySet({
               onChange={(v) => setFormData({ ...formData, shirtSize: v })}
             />
 
-            {submitted && !formData.shirtSize && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please select a shirt size.
-              </p>
-            )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && !formData.shirtSize ? '' : 'invisible'
+              }`}
+            >
+              ERROR: Please select a shirt size.
+            </p>
           </div>
 
           {/* Dietary restrictions */}
@@ -141,17 +145,21 @@ export default function NearlySet({
               }}
             />
 
-            {submitted &&
-              (!Array.isArray(formData.dietaryRestrictions) ||
-                formData.dietaryRestrictions.length === 0) && (
-                <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Please select at least one option.
-                </p>
-              )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted &&
+                (!Array.isArray(formData.dietaryRestrictions) ||
+                  formData.dietaryRestrictions.length === 0)
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Please select at least one option.
+            </p>
           </div>
         </div>
 
-        <div className="mt-14 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <button
             type="button"
             disabled={!isValid}

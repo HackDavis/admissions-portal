@@ -84,7 +84,7 @@ export default function FutureHacker({
           Future Hacker <br /> Incoming
         </h1>
 
-        <div className="mt-12 text-left space-y-10">
+        <div className="mt-12 text-left space-y-3">
           {/* AGE — FIRST QUESTION */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
@@ -106,17 +106,18 @@ export default function FutureHacker({
               />
             </div>
 
-            {submitted && !formData.age && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please enter your age.
-              </p>
-            )}
-
-            {formData.age != '' && formData.age < 17 && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: You must be at least 17 years old.
-              </p>
-            )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                (submitted && !formData.age) ||
+                (formData.age != '' && formData.age < 17)
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              {formData.age != '' && formData.age < 17
+                ? 'ERROR: You must be at least 17 years old.'
+                : 'ERROR: Please enter your age.'}
+            </p>
           </div>
 
           {/* OVER 18 */}
@@ -130,11 +131,15 @@ export default function FutureHacker({
               onChange={(v) => setFormData({ ...formData, isOver18: v })}
               disabled={formData.age >= 18}
             />
-            {submitted && typeof formData.isOver18 !== 'boolean' && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please select an option.
-              </p>
-            )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && typeof formData.isOver18 !== 'boolean'
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Please select an option.
+            </p>
           </div>
 
           {/* UC DAVIS */}
@@ -149,11 +154,15 @@ export default function FutureHacker({
                 setFormData({ ...formData, isUCDavisStudent: v })
               }
             />
-            {submitted && typeof formData.isUCDavisStudent !== 'boolean' && (
-              <p className="mt-3 text-sm font-semibold text-red-400">
-                ERROR: Please select an option.
-              </p>
-            )}
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && typeof formData.isUCDavisStudent !== 'boolean'
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Please select an option.
+            </p>
           </div>
 
           {/* COUNTRY */}
@@ -193,11 +202,13 @@ export default function FutureHacker({
                 </svg>
               </div>
 
-              {submitted && !formData.countryOfResidence && (
-                <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Wait! You left this one blank.
-                </p>
-              )}
+              <p
+                className={`mt-3 text-sm font-semibold text-red-400 ${
+                  submitted && !formData.countryOfResidence ? '' : 'invisible'
+                }`}
+              >
+                ERROR: Wait! You left this one blank.
+              </p>
             </div>
           </div>
 
@@ -237,13 +248,15 @@ export default function FutureHacker({
                 </svg>
               </div>
 
-              {submitted && !formData.university && (
-                <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Wait! You left this one blank.
-                </p>
-              )}
+              <p
+                className={`mt-3 text-sm font-semibold text-red-400 ${
+                  submitted && !formData.university ? '' : 'invisible'
+                }`}
+              >
+                ERROR: Wait! You left this one blank.
+              </p>
 
-              <div className="h-32">
+              <div className="h-24">
                 {formData.university === 'Other' && (
                   <textarea
                     value={formData.customUniversity}
@@ -254,28 +267,32 @@ export default function FutureHacker({
                       })
                     }
                     placeholder="Please specify your school"
-                    className="mt-4 h-24 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
+                    className="mt-4 h-20 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
                   />
                 )}
               </div>
 
-              {submitted &&
-                formData.university === 'Other' &&
-                !(formData.customUniversity || '').trim() && (
-                  <p className="mt-3 text-sm font-semibold text-red-400">
-                    ERROR: Please specify your school.
-                  </p>
-                )}
+              <p
+                className={`mt-3 text-sm font-semibold text-red-400 ${
+                  submitted &&
+                  formData.university === 'Other' &&
+                  !(formData.customUniversity || '').trim()
+                    ? ''
+                    : 'invisible'
+                }`}
+              >
+                ERROR: Please specify your school.
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="mt-14 flex justify-center">
+        <div className="mt-2 flex justify-center">
           <button
             type="button"
             disabled={!isValid}
             onClick={handleNext}
-            className={`flex items-center gap-3 rounded-full bg-[#005271] px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
+            className={`flex items-center gap-3 rounded-full px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 ${
               isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
             }`}
           >

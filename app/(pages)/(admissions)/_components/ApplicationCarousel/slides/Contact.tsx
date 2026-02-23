@@ -127,25 +127,25 @@ export default function Contact({
                 </div>
               )}
 
-              {isEmptyError ? (
-                <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Wait! You left this one blank.
-                </p>
-              ) : isPhoneError ? (
-                <p className="mt-3 text-sm font-semibold text-red-400">
-                  ERROR: Please enter a valid phone number.
-                </p>
-              ) : null}
+              <p
+                className={`mt-3 text-sm font-semibold text-red-400 ${
+                  isEmptyError || isPhoneError ? '' : 'invisible'
+                }`}
+              >
+                {isPhoneError
+                  ? 'ERROR: Please enter a valid phone number.'
+                  : 'ERROR: Wait! You left this one blank.'}
+              </p>
             </div>
           );
         })}
 
-        <div className="pt-2">
+        <div className="flex justify-center pt-4">
           <button
             type="button"
             disabled={!isValid}
             onClick={handleNext}
-            className={`mx-auto flex items-center gap-3 rounded-full px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 active:opacity-90 ${
+            className={`flex items-center gap-3 rounded-full px-10 py-4 text-base font-semibold text-white transition hover:opacity-95 active:opacity-90 ${
               isValid ? 'bg-[#005271]' : 'bg-gray-400 cursor-not-allowed'
             }`}
           >
