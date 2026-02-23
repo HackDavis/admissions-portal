@@ -50,7 +50,10 @@ export default function Diversity({
     typeof formData.attendedHackDavis === 'boolean' &&
     typeof formData.firstHackathon === 'boolean';
 
+  const [submitted, setSubmitted] = React.useState(false);
+
   const handleNext = () => {
+    setSubmitted(true);
     if (!isValid) return;
     onNext?.();
   };
@@ -72,20 +75,22 @@ export default function Diversity({
           Responses are only collected to improve inclusivity at HackDavis.
         </p>
 
-        <div className="mt-12 text-left space-y-10">
-          <Question
-            title="What’s your gender?"
-            section="gender"
-            formData={formData}
-            onToggle={toggleOption}
-          />
+        <div className="mt-6 sm:mt-12 text-left space-y-3 sm:space-y-6 px-2 sm:px-0">
+          <div className="space-y-6 pb-6">
+            <Question
+              title="What's your gender?"
+              section="gender"
+              formData={formData}
+              onToggle={toggleOption}
+            />
 
-          <Question
-            title="Which race/ethnicity do you identify with?"
-            section="race"
-            formData={formData}
-            onToggle={toggleOption}
-          />
+            <Question
+              title="Which race/ethnicity do you identify with?"
+              section="race"
+              formData={formData}
+              onToggle={toggleOption}
+            />
+          </div>
 
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
@@ -98,6 +103,16 @@ export default function Diversity({
                 setFormData({ ...formData, attendedHackDavis: v })
               }
             />
+
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && typeof formData.attendedHackDavis !== 'boolean'
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Please select Yes or No.
+            </p>
           </div>
 
           <div>
@@ -109,6 +124,16 @@ export default function Diversity({
               value={formData.firstHackathon}
               onChange={(v) => setFormData({ ...formData, firstHackathon: v })}
             />
+
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && typeof formData.firstHackathon !== 'boolean'
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Please select Yes or No.
+            </p>
           </div>
         </div>
 

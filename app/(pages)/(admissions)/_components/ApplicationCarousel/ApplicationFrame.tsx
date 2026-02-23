@@ -9,7 +9,7 @@ export function ApplicationFrame({
   topRight, // leftDecor,
 }: ApplicationFrameProps) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-10">
+    <div className="mx-auto w-full max-w-5xl px-3 md:px-6 py-6 md:py-10">
       <div className="relative rounded-[28px] border-[#A6BFC7] border bg-[#E5EEF1] p-3 shadow-[18px_18px_0_#A6BFC7]">
         {/* top bar */}
         <div className="relative h-10 rounded-[20px]">
@@ -21,7 +21,7 @@ export function ApplicationFrame({
         </div>
 
         {/* white panel */}
-        <div className="relative mt-3 rounded-[22px] py-10 bg-white overflow-visible">
+        <div className="relative mt-3 rounded-[22px] px-1 md:px-0 py-10 bg-white overflow-visible">
           {/* decor sits OUTSIDE embla viewport so it won't be clipped */}
           {/* {leftDecor} */}
 

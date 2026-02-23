@@ -60,7 +60,7 @@ export default function NearlySet({
           Responses are only collected to improve HackDavis.
         </p>
 
-        <div className="mt-12 text-left space-y-8">
+        <div className="mt-6 sm:mt-12 text-left space-y-3 sm:space-y-6 px-2 sm:px-0">
           {/* Year in school */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">

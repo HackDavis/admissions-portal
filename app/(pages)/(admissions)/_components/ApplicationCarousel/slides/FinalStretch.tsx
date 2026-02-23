@@ -43,8 +43,8 @@ export default function FinalStretch({
           <br />
           Responses are only collected to improve HackDavis.
         </p>
-
-        <div className="mt-12 text-left space-y-10">
+        {/* mt-6 sm:mt-12 text-left space-y-3 sm:space-y-6 px-2 sm:px-0 */}
+        <div className="mt-6 sm:mt-12 text-left space-y-3 sm:space-y-6 px-2 sm:px-0">
           {/* HackDavis updates */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
@@ -67,7 +67,9 @@ export default function FinalStretch({
 
             <p
               className={`mt-3 text-sm font-semibold text-red-400 ${
-                submitted && !isValid ? '' : 'invisible'
+                submitted && typeof formData.connectWithHackDavis !== 'boolean'
+                  ? ''
+                  : 'invisible'
               }`}
             >
               ERROR: Please select Yes or No.
@@ -93,6 +95,16 @@ export default function FinalStretch({
                 }
               />
             </div>
+
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && typeof formData.connectWithMLH !== 'boolean'
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Please select Yes or No.
+            </p>
           </div>
         </div>
 

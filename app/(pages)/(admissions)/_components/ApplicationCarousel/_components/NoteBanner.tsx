@@ -14,7 +14,7 @@ export function NoteBanner({ emoji, bold, message }: NoteBannerProps) {
     <div className="mx-auto w-full max-w-5xl px-6">
       <div className="rounded-[40px] border border-[#A6BFC7] bg-[#fff] shadow-[10px_10px_0_#A6BFC7]">
         <div className="flex items-center gap-6 px-8 py-3">
-          <div className="relative h-[88px] w-[88px] shrink-0">
+          <div className="relative h-[88px] w-[88px] shrink-0 hidden md:block">
             <Image
               src={emoji}
               alt="notification icon"

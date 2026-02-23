@@ -75,7 +75,7 @@ function MultiSelectOption({
     >
       <span
         className={[
-          'grid h-5 w-5 place-items-center rounded border-2',
+          'grid h-5 w-5 place-items-center rounded border-2 aspect-square',
           active
             ? 'border-white bg-[#9FB6BE] text-[#173B47]'
             : 'border-[#9FB6BE] bg-white',
@@ -84,7 +84,9 @@ function MultiSelectOption({
         {active && <FiCheck className="h-3.5 w-3.5" />}
       </span>
 
-      <span className="text-sm font-medium leading-none">{label}</span>
+      <span className="text-sm font-medium leading-none text-left">
+        {label}
+      </span>
     </button>
   );
 }

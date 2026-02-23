@@ -59,7 +59,7 @@ export function ConfirmSubmitModal({
           {/* White panel */}
           <div className="relative mt-3 rounded-[22px] bg-white p-10">
             <h2 className="whitespace-pre-line text-[28px] font-bold leading-[1.05] text-[#005271]">
-              Are you sure you want{'\n'}to submit?
+              Are you sure you want to submit?
             </h2>
 
             <p className="mt-4 text-xs font-semibold leading-snug text-[#0F2530]">

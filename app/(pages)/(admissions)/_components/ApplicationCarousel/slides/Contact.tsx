@@ -71,7 +71,7 @@ export default function Contact({
         </h1>
       </header>
 
-      <div className="mx-auto mt-12 w-full max-w-lg space-y-10">
+      <div className="mx-auto mt-12 w-full max-w-lg space-y-6 px-1 sm:px-0">
         {QUESTIONS.map((q) => {
           const value = formData[q.id];
           const isEmptyError = submitted && q.required && !value;
