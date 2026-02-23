@@ -42,7 +42,12 @@ export default function FutureHacker({
   }, []);
 
   const uniqueUniversities = Array.from(new Set(universities));
-  const uniqueCountries = Array.from(new Set(countries));
+  // "United States of America" populates first, then sort the rest alphabetically
+  const uniqueCountries = Array.from(new Set(countries)).sort((a, b) => {
+    if (a === 'United States of America') return -1;
+    if (b === 'United States of America') return 1;
+    return a.localeCompare(b);
+  });
 
   useEffect(() => {
     if (formData.isUCDavisStudent === true) {
