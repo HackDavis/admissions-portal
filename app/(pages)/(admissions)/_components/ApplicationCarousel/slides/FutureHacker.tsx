@@ -79,7 +79,7 @@ export default function FutureHacker({
           Future Hacker <br /> Incoming
         </h1>
 
-        <div className="mt-12 text-left space-y-4">
+        <div className="mt-12 text-left space-y-3">
           {/* AGE — FIRST QUESTION */}
           <div>
             <p className="text-base font-semibold text-[#0F2530]">

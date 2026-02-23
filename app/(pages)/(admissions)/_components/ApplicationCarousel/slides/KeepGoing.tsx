@@ -99,7 +99,7 @@ export default function KeepGoing({
           Responses are only collected to improve HackDavis.
         </p>
 
-        <div className="mt-12 text-left space-y-8">
+        <div className="mt-12 text-left space-y-6">
           <div>
             <p className="text-base font-semibold text-[#0F2530]">
               What is your current level of study?*
