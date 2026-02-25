@@ -3,6 +3,8 @@
 import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { useEnterKey } from '../../../_hooks/useEnterKey';
+import { FaLinkedin } from 'react-icons/fa';
+import { LuLink } from 'react-icons/lu';
 
 interface ABitMoreProps {
   formData: any;
@@ -85,27 +87,30 @@ export default function ABitMore({
             <label className="block text-sm font-semibold text-[#0F2530]">
               Link your LinkedIn here!*
             </label>
+            <div className="relative mt-3">
+              <FaLinkedin className="absolute left-6 top-1/2 -translate-y-1/2 text-[#005271] text-lg pointer-events-none" />
 
-            <input
-              type="url"
-              value={formData.linkedin || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, linkedin: e.target.value })
-              }
-              onBlur={() => {
-                if (formData.linkedin?.trim()) {
-                  setFormData({
-                    ...formData,
-                    linkedin: normalizeLinkedIn(formData.linkedin),
-                  });
+              <input
+                type="url"
+                value={formData.linkedin || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, linkedin: e.target.value })
                 }
-              }}
-              placeholder="https://www.linkedin.com/in/your-username"
-              className={[
-                'mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none',
-                linkedinShowError ? 'ring-1 ring-red-400' : '',
-              ].join(' ')}
-            />
+                onBlur={() => {
+                  if (formData.linkedin?.trim()) {
+                    setFormData({
+                      ...formData,
+                      linkedin: normalizeLinkedIn(formData.linkedin),
+                    });
+                  }
+                }}
+                placeholder="https://www.linkedin.com/in/your-username"
+                className={[
+                  'w-full rounded-full bg-[#E5EEF1] pl-14 pr-6 py-4 text-sm text-[#0F2530] outline-none',
+                  linkedinShowError ? 'ring-1 ring-red-400' : '',
+                ].join(' ')}
+              />
+            </div>
 
             <p
               className={`mt-2 text-sm font-semibold text-red-400 ${
@@ -131,15 +136,21 @@ export default function ABitMore({
               (OPTIONAL) Link your GitHub / Portfolio here!
             </label>
 
-            <input
-              type="url"
-              value={formData.githubOrPortfolio || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, githubOrPortfolio: e.target.value })
-              }
-              placeholder=""
-              className="mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
-            />
+            <div className="relative mt-3">
+              <LuLink className="absolute left-6 top-1/2 -translate-y-1/2 text-[#005271] text-lg pointer-events-none" />
+
+              <input
+                type="url"
+                value={formData.githubOrPortfolio || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    githubOrPortfolio: e.target.value,
+                  })
+                }
+                className="w-full rounded-full bg-[#E5EEF1] pl-14 pr-6 py-4 text-sm text-[#0F2530] outline-none"
+              />
+            </div>
 
             <p
               className={`mt-2 text-sm font-semibold text-red-400 ${
