@@ -101,7 +101,10 @@ export default function ABitMore({
               Link your LinkedIn here!*
             </label>
             <div className="relative mt-3">
-              <FaLinkedin className="absolute left-6 top-1/2 -translate-y-1/2 text-[#005271] text-lg pointer-events-none" />
+              <FaLinkedin
+                aria-hidden="true"
+                className="absolute left-6 top-1/2 -translate-y-1/2 text-[#005271] text-lg pointer-events-none"
+              />
 
               <input
                 type="url"
@@ -150,7 +153,10 @@ export default function ABitMore({
             </label>
 
             <div className="relative mt-3">
-              <LuLink className="absolute left-6 top-1/2 -translate-y-1/2 text-[#005271] text-lg pointer-events-none" />
+              <LuLink
+                aria-hidden="true"
+                className="absolute left-6 top-1/2 -translate-y-1/2 text-[#005271] text-lg pointer-events-none"
+              />
 
               <input
                 type="url"
@@ -167,6 +173,7 @@ export default function ABitMore({
 
             <p
               className={`mt-2 text-sm font-semibold text-red-400 ${
+                submitted &&
                 formData.githubOrPortfolio?.trim() &&
                 !isValidUrl(formData.githubOrPortfolio)
                   ? ''
