@@ -40,20 +40,33 @@ export default function ABitMore({
   const resumeRequired = formData.connectWithSponsors === true;
 
   const isValidUrl = (url: string) => {
+    if (!url) return false;
+    let normalized = url.trim();
+    // Append https:// if none provided
+    if (!/^https?:\/\//i.test(normalized)) {
+      normalized = `https://${normalized}`;
+    }
     try {
-      new URL(url.trim());
+      const parsed = new URL(normalized);
+      // Require a . in the link
+      if (!parsed.hostname.includes('.')) return false;
+      // Must end in (2+ letters)
+      if (!/\.[a-z]{2,}$/i.test(parsed.hostname)) return false;
       return true;
     } catch {
       return false;
     }
   };
 
+  const hasGithub = !!formData.githubOrPortfolio?.trim();
+
   const isValid =
     typeof formData.connectWithSponsors === 'boolean' &&
     !!formData.linkedin?.trim() &&
     isLinkedInValid(formData.linkedin) &&
     (!resumeRequired ||
-      (!!formData.resume?.trim() && isValidUrl(formData.resume)));
+      (!!formData.resume?.trim() && isValidUrl(formData.resume))) &&
+    (!hasGithub || isValidUrl(formData.githubOrPortfolio!));
 
   const handleNext = () => {
     setSubmitted(true);
@@ -154,7 +167,6 @@ export default function ABitMore({
 
             <p
               className={`mt-2 text-sm font-semibold text-red-400 ${
-                submitted &&
                 formData.githubOrPortfolio?.trim() &&
                 !isValidUrl(formData.githubOrPortfolio)
                   ? ''
