@@ -3,6 +3,8 @@
 import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { useEnterKey } from '../../../_hooks/useEnterKey';
+import { FaLinkedin } from 'react-icons/fa';
+import { LuLink } from 'react-icons/lu';
 
 interface ABitMoreProps {
   formData: any;
@@ -27,6 +29,25 @@ const isLinkedInValid = (url: string) => {
   return /^https?:\/\/(www\.)?linkedin\.com\/in\/.+$/.test(normalized);
 };
 
+const isValidUrl = (url: string) => {
+  if (!url) return false;
+  let normalized = url.trim();
+  // Append https:// if none provided
+  if (!/^https?:\/\//i.test(normalized)) {
+    normalized = `https://${normalized}`;
+  }
+  try {
+    const parsed = new URL(normalized);
+    // Require a . in the link
+    if (!parsed.hostname.includes('.')) return false;
+    // Must end in (2+ letters)
+    if (!/\.[a-z]{2,}$/i.test(parsed.hostname)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export default function ABitMore({
   formData,
   setFormData,
@@ -37,21 +58,20 @@ export default function ABitMore({
 
   const resumeRequired = formData.connectWithSponsors === true;
 
-  const isValidUrl = (url: string) => {
-    try {
-      new URL(url.trim());
-      return true;
-    } catch {
-      return false;
-    }
-  };
+  const hasGithub = !!formData.githubOrPortfolio?.trim();
+
+  const linkedinShowError =
+    submitted &&
+    !!formData.linkedin?.trim() &&
+    !isLinkedInValid(formData.linkedin);
 
   const isValid =
     typeof formData.connectWithSponsors === 'boolean' &&
     !!formData.linkedin?.trim() &&
     isLinkedInValid(formData.linkedin) &&
     (!resumeRequired ||
-      (!!formData.resume?.trim() && isValidUrl(formData.resume)));
+      (!!formData.resume?.trim() && isValidUrl(formData.resume))) &&
+    (!hasGithub || isValidUrl(formData.githubOrPortfolio!));
 
   const handleNext = () => {
     setSubmitted(true);
@@ -60,11 +80,6 @@ export default function ABitMore({
   };
 
   useEnterKey(handleNext, isActive);
-
-  const linkedinShowError =
-    submitted &&
-    !!formData.linkedin?.trim() &&
-    !isLinkedInValid(formData.linkedin);
 
   return (
     <section className="w-full">
@@ -85,27 +100,33 @@ export default function ABitMore({
             <label className="block text-sm font-semibold text-[#0F2530]">
               Link your LinkedIn here!*
             </label>
+            <div className="relative mt-3">
+              <FaLinkedin
+                aria-hidden="true"
+                className="absolute left-6 top-1/2 -translate-y-1/2 text-[#005271] text-lg pointer-events-none"
+              />
 
-            <input
-              type="url"
-              value={formData.linkedin || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, linkedin: e.target.value })
-              }
-              onBlur={() => {
-                if (formData.linkedin?.trim()) {
-                  setFormData({
-                    ...formData,
-                    linkedin: normalizeLinkedIn(formData.linkedin),
-                  });
+              <input
+                type="url"
+                value={formData.linkedin || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, linkedin: e.target.value })
                 }
-              }}
-              placeholder="https://www.linkedin.com/in/your-username"
-              className={[
-                'mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none',
-                linkedinShowError ? 'ring-1 ring-red-400' : '',
-              ].join(' ')}
-            />
+                onBlur={() => {
+                  if (formData.linkedin?.trim()) {
+                    setFormData({
+                      ...formData,
+                      linkedin: normalizeLinkedIn(formData.linkedin),
+                    });
+                  }
+                }}
+                placeholder="https://www.linkedin.com/in/your-username"
+                className={[
+                  'w-full rounded-full bg-[#E5EEF1] pl-14 pr-6 py-4 text-sm text-[#0F2530] outline-none',
+                  linkedinShowError ? 'ring-1 ring-red-400' : '',
+                ].join(' ')}
+              />
+            </div>
 
             <p
               className={`mt-2 text-sm font-semibold text-red-400 ${
@@ -131,15 +152,24 @@ export default function ABitMore({
               (OPTIONAL) Link your GitHub / Portfolio here!
             </label>
 
-            <input
-              type="url"
-              value={formData.githubOrPortfolio || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, githubOrPortfolio: e.target.value })
-              }
-              placeholder=""
-              className="mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
-            />
+            <div className="relative mt-3">
+              <LuLink
+                aria-hidden="true"
+                className="absolute left-6 top-1/2 -translate-y-1/2 text-[#005271] text-lg pointer-events-none"
+              />
+
+              <input
+                type="url"
+                value={formData.githubOrPortfolio || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    githubOrPortfolio: e.target.value,
+                  })
+                }
+                className="w-full rounded-full bg-[#E5EEF1] pl-14 pr-6 py-4 text-sm text-[#0F2530] outline-none"
+              />
+            </div>
 
             <p
               className={`mt-2 text-sm font-semibold text-red-400 ${
