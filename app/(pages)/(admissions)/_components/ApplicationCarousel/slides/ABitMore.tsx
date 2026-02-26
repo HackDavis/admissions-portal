@@ -29,6 +29,25 @@ const isLinkedInValid = (url: string) => {
   return /^https?:\/\/(www\.)?linkedin\.com\/in\/.+$/.test(normalized);
 };
 
+const isValidUrl = (url: string) => {
+  if (!url) return false;
+  let normalized = url.trim();
+  // Append https:// if none provided
+  if (!/^https?:\/\//i.test(normalized)) {
+    normalized = `https://${normalized}`;
+  }
+  try {
+    const parsed = new URL(normalized);
+    // Require a . in the link
+    if (!parsed.hostname.includes('.')) return false;
+    // Must end in (2+ letters)
+    if (!/\.[a-z]{2,}$/i.test(parsed.hostname)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export default function ABitMore({
   formData,
   setFormData,
@@ -39,26 +58,12 @@ export default function ABitMore({
 
   const resumeRequired = formData.connectWithSponsors === true;
 
-  const isValidUrl = (url: string) => {
-    if (!url) return false;
-    let normalized = url.trim();
-    // Append https:// if none provided
-    if (!/^https?:\/\//i.test(normalized)) {
-      normalized = `https://${normalized}`;
-    }
-    try {
-      const parsed = new URL(normalized);
-      // Require a . in the link
-      if (!parsed.hostname.includes('.')) return false;
-      // Must end in (2+ letters)
-      if (!/\.[a-z]{2,}$/i.test(parsed.hostname)) return false;
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   const hasGithub = !!formData.githubOrPortfolio?.trim();
+
+  const linkedinShowError =
+    submitted &&
+    !!formData.linkedin?.trim() &&
+    !isLinkedInValid(formData.linkedin);
 
   const isValid =
     typeof formData.connectWithSponsors === 'boolean' &&
@@ -75,11 +80,6 @@ export default function ABitMore({
   };
 
   useEnterKey(handleNext, isActive);
-
-  const linkedinShowError =
-    submitted &&
-    !!formData.linkedin?.trim() &&
-    !isLinkedInValid(formData.linkedin);
 
   return (
     <section className="w-full">
