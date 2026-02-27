@@ -18,6 +18,8 @@ export async function sendConfirmationEmail(formData: {
 Thank you for applying to HackDavis 2026!
 Please note that your participation is not yet confirmed. We'll be in touch soon with more details, updates, and important information as the event approaches.
 
+We'd love to hear your experience navigating our admissions portal, please fill out this form: https://forms.gle/REFV8DMWKyWNFkuSA
+
 Warmly,
 HackDavis 2026 Team`,
       html: `
@@ -25,6 +27,9 @@ HackDavis 2026 Team`,
 
         <p>Thank you for applying to HackDavis 2026!<br>
         Please note that your participation is not yet confirmed. We'll be in touch soon with more details, updates, and important information as the event approaches.</p>
+
+        <p>We'd love to hear your experience navigating our admissions portal, please 
+        <a href="https://forms.gle/REFV8DMWKyWNFkuSA">fill out this form</a>.</p>
 
         <p>Warmly,<br>
         HackDavis 2026 Team</p>
