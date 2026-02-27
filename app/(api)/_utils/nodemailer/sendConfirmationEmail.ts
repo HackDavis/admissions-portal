@@ -6,6 +6,7 @@ export async function sendConfirmationEmail(formData: {
   firstName: string;
   email: string;
 }): Promise<boolean> {
+  const FEEDBACK_URL = 'https://forms.gle/REFV8DMWKyWNFkuSA';
   try {
     // Email options
     // Note: text and html versions of the email are included for fallback in case the email client does not support html (HTML ver usually sent)
@@ -18,7 +19,7 @@ export async function sendConfirmationEmail(formData: {
 Thank you for applying to HackDavis 2026!
 Please note that your participation is not yet confirmed. We'll be in touch soon with more details, updates, and important information as the event approaches.
 
-We'd love to hear your experience navigating our admissions portal, please fill out this form: https://forms.gle/REFV8DMWKyWNFkuSA
+We'd love to hear your experience navigating our admissions portal, please fill out this form: ${FEEDBACK_URL}
 
 Warmly,
 HackDavis 2026 Team`,
@@ -28,8 +29,7 @@ HackDavis 2026 Team`,
         <p>Thank you for applying to HackDavis 2026!<br>
         Please note that your participation is not yet confirmed. We'll be in touch soon with more details, updates, and important information as the event approaches.</p>
 
-        <p>We'd love to hear your experience navigating our admissions portal, please 
-        <a href="https://forms.gle/REFV8DMWKyWNFkuSA">fill out this form</a>.</p>
+        <p>We'd love to hear your experience navigating our admissions portal, please <a href="${FEEDBACK_URL}">fill out this form</a>.</p>
 
         <p>Warmly,<br>
         HackDavis 2026 Team</p>
