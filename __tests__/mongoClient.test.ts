@@ -3,8 +3,8 @@ import { getClient, resetClient } from '@utils/mongodb/mongoClient.mjs';
 import { MongoClient } from 'mongodb';
 
 describe('getClient', () => {
-  beforeEach(() => {
-    resetClient();
+  beforeEach(async () => {
+    await resetClient();
     jest.restoreAllMocks();
   });
 
@@ -20,7 +20,7 @@ describe('getClient', () => {
     const originalUri = process.env.MONGODB_URI;
     delete process.env.MONGODB_URI;
 
-    resetClient();
+    await resetClient();
 
     await expect(getClient()).rejects.toThrow(
       'Missing MONGODB_URI environment variable.'
