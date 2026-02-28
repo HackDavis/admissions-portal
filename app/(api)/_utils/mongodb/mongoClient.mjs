@@ -2,14 +2,14 @@ import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI;
 
-if (!uri) {
-  throw new Error('Missing MONGODB_URI environment variable.');
-}
-
 let cachedClient = null;
 let cachedPromise = null;
 
 export async function getClient() {
+  if (!uri) {
+    throw new Error('Missing MONGODB_URI environment variable.');
+  }
+
   if (cachedClient) {
     return cachedClient;
   }
@@ -23,6 +23,7 @@ export async function getClient() {
         return connectedClient;
       })
       .catch((error) => {
+        client.close().catch(() => {});
         cachedPromise = null;
         cachedClient = null;
         throw error;
