@@ -33,7 +33,7 @@ export async function getClient() {
 }
 
 // Helper function for testing
-export function resetClient() {
+export async function resetClient() {
   cachedClient = null;
   cachedPromise = null;
 }

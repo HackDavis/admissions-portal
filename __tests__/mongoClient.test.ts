@@ -16,6 +16,19 @@ describe('getClient', () => {
     delete process.env.MONGODB_URI;
   });
 
+  it('should throw an error if MONGODB_URI is missing', async () => {
+    const originalUri = process.env.MONGODB_URI;
+    delete process.env.MONGODB_URI;
+
+    resetClient();
+
+    await expect(getClient()).rejects.toThrow(
+      'Missing MONGODB_URI environment variable.'
+    );
+
+    process.env.MONGODB_URI = originalUri;
+  });
+
   it('should return the same instance on multiple calls', async () => {
     const mockDb = { db: jest.fn() };
     const spy = jest
@@ -29,6 +42,16 @@ describe('getClient', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
+  it('should dedupe concurrent callers using cachedPromise', async () => {
+    const mockDb = { db: jest.fn() };
+    const spy = jest
+      .spyOn(MongoClient.prototype, 'connect')
+      .mockResolvedValue(mockDb as any);
+    const [c1, c2] = await Promise.all([getClient(), getClient()]);
+    expect(c1).toBe(c2);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
   it('should retry after a failed connection', async () => {
     const spy = jest
       .spyOn(MongoClient.prototype, 'connect')
@@ -36,8 +59,6 @@ describe('getClient', () => {
       .mockResolvedValueOnce({ db: jest.fn() } as any);
 
     await expect(getClient()).rejects.toThrow('Network Fail');
-
-    resetClient();
 
     await expect(getClient()).resolves.toBeDefined();
     expect(spy).toHaveBeenCalledTimes(2);
