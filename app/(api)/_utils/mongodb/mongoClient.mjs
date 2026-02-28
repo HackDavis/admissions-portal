@@ -34,9 +34,6 @@ export async function getClient() {
 
 // Helper function for testing
 export async function resetClient() {
-  if (cachedClient) {
-    await cachedClient.close().catch(() => {});
-  }
   cachedClient = null;
   cachedPromise = null;
 }
