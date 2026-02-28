@@ -29,7 +29,13 @@ export async function getClient() {
       });
   }
 
-  return cachedClient;
+  return cachedPromise;
+}
+
+// Helper function for testing
+export function resetClient() {
+  cachedClient = null;
+  cachedPromise = null;
 }
 
 export async function getDatabase() {
