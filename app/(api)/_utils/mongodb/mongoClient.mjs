@@ -1,11 +1,10 @@
 import { MongoClient } from 'mongodb';
 
-const uri = process.env.MONGODB_URI;
-
 let cachedClient = null;
 let cachedPromise = null;
 
 export async function getClient() {
+  const uri = process.env.MONGODB_URI;
   if (!uri) {
     throw new Error('Missing MONGODB_URI environment variable.');
   }

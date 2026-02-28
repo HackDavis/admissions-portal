@@ -8,6 +8,14 @@ describe('getClient', () => {
     jest.restoreAllMocks();
   });
 
+  beforeAll(() => {
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
+  });
+
+  afterAll(() => {
+    delete process.env.MONGODB_URI;
+  });
+
   it('should return the same instance on multiple calls', async () => {
     const mockDb = { db: jest.fn() };
     const spy = jest
