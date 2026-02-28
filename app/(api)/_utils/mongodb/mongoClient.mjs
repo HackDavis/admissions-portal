@@ -2,13 +2,19 @@ import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI;
 let cachedClient = null;
+let cachedPromise = null;
 
 export async function getClient() {
   if (cachedClient) {
     return cachedClient;
   }
-  const client = new MongoClient(uri);
-  cachedClient = client;
+
+  if (!cachedPromise) {
+    const client = new MongoClient(uri);
+    cachedPromise = client.connect();
+  }
+
+  cachedClient = await cachedPromise;
   return cachedClient;
 }
 
