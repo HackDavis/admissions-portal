@@ -17,6 +17,18 @@ export default function Confirmation() {
         </h1>
 
         <p className="mx-auto mt-4 max-w-[460px] text-sm leading-snug text-[#0F2530]">
+          You will receive a{' '}
+          <span className="font-bold">confirmation email</span> within 3-5
+          minutes. If you have not received an email, please contact us at{' '}
+          <a
+            href="mailto:hello@hackdavis.io"
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            hello@hackdavis.io
+          </a>
+        </p>
+
+        <p className="mx-auto mt-4 max-w-[460px] text-sm leading-snug text-[#0F2530]">
           <span className="font-bold">
             Please note that your participation is not yet
           </span>
