@@ -5,6 +5,7 @@ import { YesNoGroup } from '../_components/YesNoGroup';
 import { fetchMajors } from '@utils/fetch/fetchMajors';
 import { fetchMinors } from '@utils/fetch/fetchMinors';
 import { MultiSelectGroup } from '../_components/MultiSelectGroup';
+import { SearchableSelect } from '../_components/SearchableSelect';
 import { useEnterKey } from '../../../_hooks/useEnterKey';
 
 const COLLEGE_OPTIONS = [
@@ -123,13 +124,14 @@ export default function KeepGoing({
               If you have more than one major, please select your primary major.
             </p>
 
-            <Select
+            <SearchableSelect
               placeholder={
                 majorOptions.length ? 'Select an option' : 'Loading majors...'
               }
               value={formData.major || ''}
               options={majorOptions}
               onChange={(v) => setFormData({ ...formData, major: v })}
+              pinnedOptions={['Not on this list']}
             />
 
             <p
@@ -169,7 +171,7 @@ export default function KeepGoing({
               select &quot;Other&quot; if it does not appear.
             </p>
 
-            <Select
+            <SearchableSelect
               placeholder={
                 minorOptions.length ? 'Select an option' : 'Loading minors...'
               }
@@ -179,6 +181,7 @@ export default function KeepGoing({
                 setFormData({ ...formData, minorOrDoubleMajor: v })
               }
               disabled={hasMinorOrDoubleMajor !== true}
+              pinnedOptions={['Not on this list']}
             />
 
             <p
