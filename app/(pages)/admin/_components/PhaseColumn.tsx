@@ -6,6 +6,8 @@ import { Application } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import { prettyStatus } from '../_utils/format';
 import ApplicantDetailsModal from './ApplicantDetailsModal';
+import { FaLinkedin } from 'react-icons/fa';
+import { LuLink } from 'react-icons/lu';
 
 interface PhaseColumnProps {
   phase: Phase;
@@ -73,7 +75,25 @@ export default function PhaseColumn({
               key={app._id}
               className="border-2 border-black p-2 flex flex-col gap-1"
             >
-              <p className="text-xs">id: {app._id}</p>
+              <div className="flex flex-row justify-between">
+                <p className="text-xs">id: {app._id}</p>
+                <div className="flex flex-row gap-2">
+                  <FaLinkedin
+                    aria-hidden="true"
+                    className="text-[#005271] text-md cursor-pointer hover:opacity-80"
+                    onClick={() => window.open(app.linkedin, '_blank')}
+                  />
+                  {app.githubOrPortfolio && (
+                    <LuLink
+                      aria-hidden="true"
+                      className="text-[#005271] text-md cursor-pointer hover:opacity-80"
+                      onClick={() =>
+                        window.open(app.githubOrPortfolio, '_blank')
+                      }
+                    />
+                  )}
+                </div>
+              </div>
               <p className="text-xs">
                 name: {app.firstName ?? '-'} {app.lastName ?? ''}
               </p>
