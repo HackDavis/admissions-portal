@@ -42,8 +42,6 @@ jobs:
           printf "${{ secrets.AUTH_SECRET }}" | vercel env add AUTH_SECRET production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.TITO_AUTH_TOKEN }}" | vercel env add TITO_AUTH_TOKEN production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.HUB_ADMIN_PASSWORD }}" | vercel env add HUB_ADMIN_PASSWORD production --force --token=${{ secrets.VERCEL_TOKEN }}
-          printf "${{ secrets.MONGODB_DB }}" | vercel env add MONGODB_DB production --force --token=${{ secrets.VERCEL_TOKEN }}
-          printf "${{ secrets.MONGODB_COLLECTION }}" | vercel env add MONGODB_COLLECTION production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.SENDER_PWD }}" | vercel env add SENDER_PWD production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_API_KEY_1 }}" | vercel env add MAILCHIMP_API_KEY_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_SERVER_PREFIX_1 }}" | vercel env add MAILCHIMP_SERVER_PREFIX_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
@@ -61,9 +59,6 @@ jobs:
           printf "${{ vars.TITO_EVENT_BASE_URL }}" | vercel env add TITO_EVENT_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.HACKDAVIS_HUB_BASE_URL }}" | vercel env add HACKDAVIS_HUB_BASE_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.HUB_ADMIN_EMAIL }}" | vercel env add HUB_ADMIN_EMAIL production --force --token=${{ secrets.VERCEL_TOKEN }}
-          printf "${{ vars.TITO_DASHBOARD_URL }}" | vercel env add TITO_DASHBOARD_URL production --force --token=${{ secrets.VERCEL_TOKEN }}
-          printf "${{ vars.TITO_HACKER_TICKET_NAME }}" | vercel env add TITO_HACKER_TICKET_NAME production --force --token=${{ secrets.VERCEL_TOKEN }}
-          printf "${{ vars.TITO_TICKET_EXPIRY }}" | vercel env add TITO_TICKET_EXPIRY production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ vars.HUB_ADMIN_EMAIL }}" | vercel env add SENDER_EMAIL production --force --token=${{ secrets.VERCEL_TOKEN }}
           
         env:
