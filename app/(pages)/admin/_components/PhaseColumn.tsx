@@ -79,34 +79,34 @@ export default function PhaseColumn({
                 <p className="text-xs">id: {app._id}</p>
                 <div className="flex flex-row gap-2">
                   <a
-                    href={getSafeUrl(app.linkedin)}
+                    href={getSafeUrl(app.linkedin) ?? undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[#005271] hover:opacity-80 transition-opacity"
                     title="View LinkedIn Profile"
                   >
-                    <FaLinkedin className="text-md" />
+                    <FaLinkedin aria-hidden="true" className="text-md" />
                   </a>
                   {app.githubOrPortfolio && (
                     <a
-                      href={getSafeUrl(app.githubOrPortfolio)}
+                      href={getSafeUrl(app.githubOrPortfolio) ?? undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#005271] hover:opacity-80 transition-opacity"
                       title="View Portfolio/GitHub"
                     >
-                      <LuLink className="text-md" />
+                      <LuLink aria-hidden="true" className="text-md" />
                     </a>
                   )}
                   {app.resume && (
                     <a
-                      href={getSafeUrl(app.resume)}
+                      href={getSafeUrl(app.resume) ?? undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#005271] hover:opacity-80 transition-opacity"
                       title="View Resume"
                     >
-                      <FaRegFileAlt className="text-md" />
+                      <FaRegFileAlt aria-hidden="true" className="text-md" />
                     </a>
                   )}
                 </div>

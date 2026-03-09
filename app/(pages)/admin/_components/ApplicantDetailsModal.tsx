@@ -14,19 +14,19 @@ function formatValue(value: unknown) {
   return String(value);
 }
 
-export const getSafeUrl = (url: unknown): string => {
-  if (typeof url !== 'string') return '';
+export const getSafeUrl = (url: unknown): string | null => {
+  if (typeof url !== 'string') return null;
   const trimmed = url.trim();
-  if (!trimmed) return '';
+  if (!trimmed) return null;
   const isSafeProtocol = /^(https?|mailto|tel):/i.test(trimmed);
   if (
     !isSafeProtocol &&
     (trimmed.includes('.') || trimmed.startsWith('localhost'))
   ) {
-    if (trimmed.toLowerCase().startsWith('javascript:')) return '#';
+    if (trimmed.toLowerCase().startsWith('javascript:')) return null;
     return `https://${trimmed}`;
   }
-  return isSafeProtocol ? trimmed : '#'; // return '#' for unsafe URLs
+  return isSafeProtocol ? trimmed : null; // return null for unsafe URLs
 };
 
 export default function ApplicantDetailsModal({
