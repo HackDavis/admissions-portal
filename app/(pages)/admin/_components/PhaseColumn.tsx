@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { Application } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import { prettyStatus } from '../_utils/format';
-import ApplicantDetailsModal from './ApplicantDetailsModal';
-import { FaLinkedin } from 'react-icons/fa';
+import ApplicantDetailsModal, { getSafeUrl } from './ApplicantDetailsModal';
+import { FaLinkedin, FaRegFileAlt } from 'react-icons/fa';
 import { LuLink } from 'react-icons/lu';
 
 interface PhaseColumnProps {
@@ -78,19 +78,36 @@ export default function PhaseColumn({
               <div className="flex flex-row justify-between">
                 <p className="text-xs">id: {app._id}</p>
                 <div className="flex flex-row gap-2">
-                  <FaLinkedin
-                    aria-hidden="true"
-                    className="text-[#005271] text-md cursor-pointer hover:opacity-80"
-                    onClick={() => window.open(app.linkedin, '_blank')}
-                  />
+                  <a
+                    href={getSafeUrl(app.linkedin)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#005271] hover:opacity-80 transition-opacity"
+                    title="View LinkedIn Profile"
+                  >
+                    <FaLinkedin className="text-md" />
+                  </a>
                   {app.githubOrPortfolio && (
-                    <LuLink
-                      aria-hidden="true"
-                      className="text-[#005271] text-md cursor-pointer hover:opacity-80"
-                      onClick={() =>
-                        window.open(app.githubOrPortfolio, '_blank')
-                      }
-                    />
+                    <a
+                      href={getSafeUrl(app.githubOrPortfolio)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#005271] hover:opacity-80 transition-opacity"
+                      title="View Portfolio/GitHub"
+                    >
+                      <LuLink className="text-md" />
+                    </a>
+                  )}
+                  {app.resume && (
+                    <a
+                      href={getSafeUrl(app.resume)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#005271] hover:opacity-80 transition-opacity"
+                      title="View Resume"
+                    >
+                      <FaRegFileAlt className="text-md" />
+                    </a>
                   )}
                 </div>
               </div>
