@@ -15,7 +15,7 @@ export default function AdminLayout({
   if (!adminEmails) {
     console.warn('ADMISSIONS_ADMIN_EMAILS environment variable is not set');
   }
-  
+
   const parsedAdminEmails = adminEmails
     ? adminEmails.split(',').map((email) => email.trim())
     : [];
