@@ -14,11 +14,12 @@ function formatValue(value: unknown) {
   return String(value);
 }
 
+// Set as exported bc used in PhaseColumn.tsx
 export const getSafeUrl = (url: unknown): string | null => {
   if (typeof url !== 'string') return null;
   const trimmed = url.trim();
   if (!trimmed) return null;
-  const isSafeProtocol = /^(https?|mailto|tel):/i.test(trimmed);
+  const isSafeProtocol = /^(https?:\/\/|mailto:|tel:)/i.test(trimmed);
   if (
     !isSafeProtocol &&
     (trimmed.includes('.') || trimmed.startsWith('localhost'))
