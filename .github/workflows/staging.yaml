@@ -45,6 +45,7 @@ jobs:
           printf "${{ secrets.TITO_AUTH_TOKEN }}" | vercel env add TITO_AUTH_TOKEN production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.HUB_ADMIN_PASSWORD }}" | vercel env add HUB_ADMIN_PASSWORD production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.SENDER_PWD }}" | vercel env add SENDER_PWD production --force --token=${{ secrets.VERCEL_TOKEN }}
+          printf "${{ secrets.ADMISSIONS_ADMIN_EMAILS }}" | vercel env add ADMISSIONS_ADMIN_EMAILS production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_API_KEY_1 }}" | vercel env add MAILCHIMP_API_KEY_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_SERVER_PREFIX_1 }}" | vercel env add MAILCHIMP_SERVER_PREFIX_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
           printf "${{ secrets.MAILCHIMP_AUDIENCE_ID_1 }}" | vercel env add MAILCHIMP_AUDIENCE_ID_1 production --force --token=${{ secrets.VERCEL_TOKEN }}
