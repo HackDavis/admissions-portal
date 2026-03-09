@@ -26,6 +26,7 @@ jobs:
       - name: Build Next.js app
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          ADMISSIONS_ADMIN_EMAILS: ${{ secrets.ADMISSIONS_ADMIN_EMAILS }}
         run: npm run build
 
       - name: Run tests

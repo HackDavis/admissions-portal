@@ -20,7 +20,8 @@ export default async function ProtectedDisplay({
 
   if (
     !allowedRoles.includes(session.user.role) ||
-    (allowedUsers && !allowedUsers.includes(session.user.email.trim().toLowerCase()))
+    (allowedUsers &&
+      !allowedUsers.includes(session.user.email.trim().toLowerCase()))
   ) {
     redirect('/');
   }
