@@ -10,8 +10,19 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if (!process.env.ADMISSIONS_ADMIN_EMAILS) {
+    throw new Error('ADMISSIONS_ADMIN_EMAILS environment variable is not set');
+  }
+  const adminEmails = process.env.ADMISSIONS_ADMIN_EMAILS.split(',').map(
+    (email) => email.trim()
+  );
+
   return (
-    <ProtectedDisplay allowedRoles={['admin']} failRedirectRoute="/login">
+    <ProtectedDisplay
+      allowedRoles={['admin']}
+      allowedUsers={adminEmails}
+      failRedirectRoute="/login"
+    >
       {children}
     </ProtectedDisplay>
   );

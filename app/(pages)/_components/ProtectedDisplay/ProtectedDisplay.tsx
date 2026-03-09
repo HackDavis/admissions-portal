@@ -3,10 +3,12 @@ import { auth } from '@/auth';
 
 export default async function ProtectedDisplay({
   allowedRoles,
+  allowedUsers,
   failRedirectRoute,
   children,
 }: {
   allowedRoles: string[];
+  allowedUsers?: string[];
   failRedirectRoute: string;
   children: React.ReactNode;
 }) {
@@ -16,7 +18,10 @@ export default async function ProtectedDisplay({
     redirect(failRedirectRoute);
   }
 
-  if (!allowedRoles.includes(session.user.role)) {
+  if (
+    !allowedRoles.includes(session.user.role) ||
+    (allowedUsers && !allowedUsers.includes(session.user.email))
+  ) {
     redirect('/');
   }
 
