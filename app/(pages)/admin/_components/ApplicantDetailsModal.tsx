@@ -14,14 +14,21 @@ function formatValue(value: unknown) {
   return String(value);
 }
 
-function toUrl(value: unknown) {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
+// Set as exported bc used in PhaseColumn.tsx
+export const getSafeUrl = (url: unknown): string | null => {
+  if (typeof url !== 'string') return null;
+  const trimmed = url.trim();
   if (!trimmed) return null;
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://'))
-    return trimmed;
-  return `https://${trimmed}`;
-}
+  const isSafeProtocol = /^(https?:\/\/|mailto:|tel:)/i.test(trimmed);
+  if (
+    !isSafeProtocol &&
+    (trimmed.includes('.') || trimmed.startsWith('localhost'))
+  ) {
+    if (trimmed.toLowerCase().startsWith('javascript:')) return null;
+    return `https://${trimmed}`;
+  }
+  return isSafeProtocol ? trimmed : null; // return null for unsafe URLs
+};
 
 export default function ApplicantDetailsModal({
   applicant,
@@ -55,17 +62,17 @@ export default function ApplicantDetailsModal({
     {
       label: 'linkedin',
       value: applicant.linkedin,
-      href: toUrl(applicant.linkedin),
+      href: getSafeUrl(applicant.linkedin),
     },
     {
       label: 'github / portfolio',
       value: applicant.githubOrPortfolio,
-      href: toUrl(applicant.githubOrPortfolio),
+      href: getSafeUrl(applicant.githubOrPortfolio),
     },
     {
       label: 'resume',
       value: applicant.resume,
-      href: toUrl(applicant.resume),
+      href: getSafeUrl(applicant.resume),
     },
     { label: 'connect with hackdavis', value: applicant.connectWithHackDavis },
     { label: 'connect with mlh', value: applicant.connectWithMLH },
@@ -114,7 +121,7 @@ export default function ApplicantDetailsModal({
                 <a
                   href={row.href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="text-xs underline"
                 >
                   {formatValue(row.value)}
