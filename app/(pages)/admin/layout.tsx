@@ -13,7 +13,9 @@ export default function AdminLayout({
   const adminEmails = process.env.ADMISSIONS_ADMIN_EMAILS;
 
   if (!adminEmails) {
-    console.warn('ADMISSIONS_ADMIN_EMAILS environment variable is not set');
+    console.warn(
+      'ADMISSIONS_ADMIN_EMAILS environment variable is not set, no users will have access to the admin panel'
+    );
   }
 
   const parsedAdminEmails = adminEmails
