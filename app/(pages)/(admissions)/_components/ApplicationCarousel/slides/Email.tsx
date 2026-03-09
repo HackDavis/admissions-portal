@@ -21,17 +21,17 @@ export default function Email({
   const { checkEmail, loading, error } = useCheckEmail();
   const [submitted, setSubmitted] = useState(false);
 
-  // Email input has no spaces, has @, ends in .edu
-  const eduRegex = /^[^\s@]+@[^\s@]+\.edu$/;
+  // Email input has no spaces, has @, ends in .edu or .ca (for Canadian schools)
+  const eduOrCaRegex = /^[^\s@]+@[^\s@]+\.(edu|ca)$/;
 
-  const showEduError =
-    formData.email.length > 0 && !eduRegex.test(formData.email);
+  const showEduOrCaError =
+    formData.email.length > 0 && !eduOrCaRegex.test(formData.email);
 
-  const isValidEdu = eduRegex.test(formData.email);
+  const isValidEduOrCa = eduOrCaRegex.test(formData.email);
 
   const handleNext = async () => {
     setSubmitted(true);
-    if (!isValidEdu) return;
+    if (!isValidEduOrCa) return;
 
     const ok = await checkEmail(formData.email);
     if (ok) onNext?.();
@@ -94,27 +94,27 @@ export default function Email({
                 setFormData({ ...formData, email: e.target.value });
                 setSubmitted(false);
               }}
-              placeholder="Enter School Email (.edu)"
+              placeholder="Enter School Email (.edu or .ca)"
               className="w-full border-b-2 border-[#005271]/60 bg-transparent py-3 text-center text-xl outline-none placeholder:text-[#9FB6BE]"
             />
           </div>
 
           <p
             className={`mt-2 text-sm font-semibold text-red-400 text-center ${
-              showEduError || (submitted && error) ? '' : 'invisible'
+              showEduOrCaError || (submitted && error) ? '' : 'invisible'
             }`}
           >
             {submitted && error
               ? error
-              : 'Please enter a valid school email ending in .edu'}
+              : 'Please enter a valid school email ending in .edu or .ca'}
           </p>
 
           <button
             type="button"
-            disabled={loading || !isValidEdu}
+            disabled={loading || !isValidEduOrCa}
             onClick={handleNext}
             className={`rounded-full px-8 py-3 text-white ${
-              isValidEdu && !loading
+              isValidEduOrCa && !loading
                 ? 'bg-[#005271]'
                 : 'bg-gray-400 cursor-not-allowed'
             }`}
