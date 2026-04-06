@@ -16,7 +16,7 @@ export default function Closed() {
             <a
               href="https://hackdavis.io"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="underline decoration-[#0F2530] underline-offset-4"
             >
               https://hackdavis.io
@@ -29,8 +29,8 @@ export default function Closed() {
           <Image
             src="/Images/ClosedMascots.svg"
             alt="HackDavis mascots in a closed applications illustration."
-            width={1200}
-            height={620}
+            width={1087}
+            height={400}
             className="block h-auto w-full"
             priority
           />
