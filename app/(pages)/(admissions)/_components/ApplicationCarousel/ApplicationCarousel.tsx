@@ -22,6 +22,7 @@ import ABitMore from './slides/ABitMore';
 import MLH from './slides/MLH';
 import { NoteBanner } from './_components/NoteBanner';
 import FutureHacker from './slides/FutureHacker';
+import Closed from './slides/Closed';
 
 type SlideDef = {
   key: string;
@@ -54,6 +55,8 @@ function SlideContainer({
 }
 
 export default function ApplicationCarousel() {
+  const applicationsClosed = Date.now() >= Date.parse('2026-04-24T07:00:00Z'); // April 24, 2026 at 12:00 AM PDT
+
   const [viewportRef, api] = useEmblaCarousel(
     {
       loop: false,
@@ -341,6 +344,16 @@ export default function ApplicationCarousel() {
         return null;
     }
   })();
+
+  if (applicationsClosed) {
+    return (
+      <div>
+        <ApplicationFrame>
+          <Closed />
+        </ApplicationFrame>
+      </div>
+    );
+  }
 
   return (
     <>

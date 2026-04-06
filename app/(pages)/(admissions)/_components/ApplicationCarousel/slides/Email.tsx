@@ -52,7 +52,6 @@ export default function Email({
           z-0
         "
       >
-        {/* Make THIS box the exact size you want */}
         <div className="relative h-[320px] w-[320px]">
           <Image
             src="/Images/Peeping.svg"
