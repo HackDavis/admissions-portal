@@ -5,6 +5,10 @@ import deleteRsvpInvitationByEmail from './deleteRsvpInvitationByEmail';
 import { BulkInvitationParams, BulkInvitationResult } from '@/app/_types/tito';
 import { getRsvpInvitationsMap } from './getRsvpInvitationsMap';
 
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 function isDuplicateTicketError(error: string | null | undefined): boolean {
   if (!error) return false;
   const normalized = error.toLowerCase();
@@ -39,7 +43,7 @@ export default async function bulkCreateInvitations(
   let queuedForCreateCount = 0;
 
   const uniqueApplicants = applicants.filter((app) => {
-    const normalizedEmail = app.email.toLowerCase().trim();
+    const normalizedEmail = normalizeEmail(app.email);
     if (seenEmails.has(normalizedEmail)) {
       errors.push(
         `${app.email}: skipped duplicate applicant email in finalize batch`
@@ -52,14 +56,18 @@ export default async function bulkCreateInvitations(
 
   try {
     preloadedInviteMap = await getRsvpInvitationsMap(rsvpListSlug);
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(
+      `[Bulk Tito] Failed to preload RSVP invitations for ${rsvpListSlug}: ${message}`
+    );
     preloadedInviteMap = new Map<string, string>();
   }
 
   const applicantsToCreate: typeof uniqueApplicants = [];
 
   for (const app of uniqueApplicants) {
-    const normalizedEmail = app.email.toLowerCase();
+    const normalizedEmail = normalizeEmail(app.email);
     const existingInviteUrl = preloadedInviteMap.get(normalizedEmail);
 
     if (existingInviteUrl) {
@@ -107,7 +115,7 @@ export default async function bulkCreateInvitations(
       try {
         const result = batchResults[j];
         const app = batch[j];
-        const normalizedEmail = app.email.toLowerCase();
+        const normalizedEmail = normalizeEmail(app.email);
 
         if (
           result.status === 'fulfilled' &&
@@ -150,12 +158,9 @@ export default async function bulkCreateInvitations(
             });
 
             if (retryResult.ok && retryResult.body?.unique_url) {
-              inviteMap.set(
-                app.email.toLowerCase(),
-                retryResult.body.unique_url
-              );
+              inviteMap.set(normalizedEmail, retryResult.body.unique_url);
               autoFixedCount += 1;
-              autoFixedNotesMap[app.email.toLowerCase()] =
+              autoFixedNotesMap[normalizedEmail] =
                 'A new Tito invite was generated due to duplication.';
               continue;
             }

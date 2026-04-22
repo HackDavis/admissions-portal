@@ -51,7 +51,7 @@ beforeEach(() => {
   });
 });
 
-test('reuses existing invitation URL on duplicate ticket error', async () => {
+test('reuses preloaded invitation URL and skips create for that applicant', async () => {
   mockedCreate.mockResolvedValueOnce({
     ok: true,
     body: { unique_url: 'url-2' },
@@ -61,8 +61,16 @@ test('reuses existing invitation URL on duplicate ticket error', async () => {
     new Map([['ada@example.com', 'url-existing']])
   );
 
+  const spacedApplicants = [
+    {
+      ...applicants[0],
+      email: '  ada@example.com  ',
+    },
+    applicants[1],
+  ];
+
   const result = await bulkCreateInvitations({
-    applicants: applicants as any,
+    applicants: spacedApplicants as any,
     rsvpListSlug: 'rsvp-1',
     releaseIds: '1',
   });
