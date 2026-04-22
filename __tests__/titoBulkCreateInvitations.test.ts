@@ -11,18 +11,18 @@ jest.mock('@utils/tito/deleteRsvpInvitationByEmail', () => ({
   default: jest.fn(),
 }));
 
-jest.mock('@utils/tito/getRsvpInvitationByEmail', () => ({
+jest.mock('@utils/tito/getRsvpInvitationsMap', () => ({
   __esModule: true,
-  default: jest.fn(),
+  getRsvpInvitationsMap: jest.fn(),
 }));
 
 import createRsvpInvitation from '@utils/tito/createRsvpInvitation';
 import deleteRsvpInvitationByEmail from '@utils/tito/deleteRsvpInvitationByEmail';
-import getRsvpInvitationByEmail from '@utils/tito/getRsvpInvitationByEmail';
+import { getRsvpInvitationsMap } from '@utils/tito/getRsvpInvitationsMap';
 
 const mockedCreate = createRsvpInvitation as jest.Mock;
 const mockedDeleteByEmail = deleteRsvpInvitationByEmail as jest.Mock;
-const mockedGetByEmail = getRsvpInvitationByEmail as jest.Mock;
+const mockedGetInviteMap = getRsvpInvitationsMap as jest.Mock;
 
 const applicants = [
   {
@@ -43,49 +43,46 @@ const applicants = [
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockedGetInviteMap.mockResolvedValue(new Map());
   mockedDeleteByEmail.mockResolvedValue({
     ok: false,
     deletedInvitationSlug: null,
     error: 'not called',
   });
-  mockedGetByEmail.mockResolvedValue({
-    ok: false,
-    invitation: null,
-    error: 'not called',
-  });
 });
 
-test('reuses existing invitation URL on duplicate ticket error', async () => {
-  mockedCreate
-    .mockResolvedValueOnce({
-      ok: false,
-      body: null,
-      error: 'email has already been taken',
-    })
-    .mockResolvedValueOnce({ ok: true, body: { unique_url: 'url-2' } });
-
-  mockedGetByEmail.mockResolvedValueOnce({
+test('reuses preloaded invitation URL and skips create for that applicant', async () => {
+  mockedCreate.mockResolvedValueOnce({
     ok: true,
-    invitation: {
-      slug: 'rsvp_existing_123',
-      email: 'ada@example.com',
-      unique_url: 'url-existing',
-    },
-    error: null,
+    body: { unique_url: 'url-2' },
   });
 
+  mockedGetInviteMap.mockResolvedValueOnce(
+    new Map([['ada@example.com', 'url-existing']])
+  );
+
+  const spacedApplicants = [
+    {
+      ...applicants[0],
+      email: '  ada@example.com  ',
+    },
+    applicants[1],
+  ];
+
   const result = await bulkCreateInvitations({
-    applicants: applicants as any,
+    applicants: spacedApplicants as any,
     rsvpListSlug: 'rsvp-1',
     releaseIds: '1',
   });
 
-  expect(mockedGetByEmail).toHaveBeenCalledWith({
-    rsvpListSlug: 'rsvp-1',
-    email: 'ada@example.com',
-  });
+  expect(mockedGetInviteMap).toHaveBeenCalledWith('rsvp-1');
+  expect(mockedCreate).toHaveBeenCalledTimes(1);
+  expect(mockedCreate).toHaveBeenCalledWith(
+    expect.objectContaining({ email: 'grace@example.com' })
+  );
   expect(mockedDeleteByEmail).not.toHaveBeenCalled();
   expect(result.inviteMap.get('ada@example.com')).toBe('url-existing');
+  expect(result.inviteMap.get('grace@example.com')).toBe('url-2');
   expect(result.autoFixedCount).toBe(1);
   expect(result.autoFixedNotesMap['ada@example.com']).toMatch(/reused/i);
 });
