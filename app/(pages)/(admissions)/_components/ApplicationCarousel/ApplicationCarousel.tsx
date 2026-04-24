@@ -55,7 +55,7 @@ function SlideContainer({
 }
 
 export default function ApplicationCarousel() {
-  const applicationsClosed = Date.now() >= Date.parse('2026-04-30T06:59:00Z'); // April 30, 2026 at 11:59 PM PDT
+  const applicationsClosed = Date.now() >= Date.parse('2026-04-30T23:59:00-07:00'); // April 30, 2026 at 11:59 PM PDT
 
   const [viewportRef, api] = useEmblaCarousel(
     {
