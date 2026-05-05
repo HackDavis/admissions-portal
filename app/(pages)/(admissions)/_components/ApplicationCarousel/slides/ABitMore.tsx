@@ -173,7 +173,6 @@ export default function ABitMore({
 
             <p
               className={`mt-2 text-sm font-semibold text-red-400 ${
-                submitted &&
                 formData.githubOrPortfolio?.trim() &&
                 !isValidUrl(formData.githubOrPortfolio)
                   ? ''
