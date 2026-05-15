@@ -4,7 +4,6 @@ import data from '../app/_data/db_validation_data.json' with { type: 'json' };
 
 const years = [...new Set(data.years)];
 const shirtSizes = [...new Set(data.shirtSizes)];
-const statuses = [...new Set(data.statuses)];
 
 const universities = [
   'University of California Davis',
@@ -106,7 +105,7 @@ function generateApplications(numDocuments) {
         mlhCodeOfConduct: true,
         eventLogisticsInformation: true,
       },
-      status: faker.helpers.arrayElement(statuses),
+      status: 'pending',
       wasWaitlisted: false,
       submittedAt: faker.date.between({
         from: '2026-03-01T00:00:00.000Z',
