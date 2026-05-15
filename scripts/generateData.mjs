@@ -1,37 +1,11 @@
+import { faker } from '@faker-js/faker';
+// import type { Application, Mailchimp } from '../app/_types/app';
 import data from '../app/_data/db_validation_data.json' with { type: 'json' };
 
 const years = [...new Set(data.years)];
 const shirtSizes = [...new Set(data.shirtSizes)];
 const statuses = [...new Set(data.statuses)];
 
-const firstNames = [
-  'Haylie',
-  'Michelle',
-  'Kelly',
-  'Sandeep',
-  'Afifah',
-  'Jamie',
-  'Jordan',
-  'Alex',
-  'Jack',
-  'Win',
-  'Austin',
-  'Brandon',
-];
-const lastNames = [
-  'Tan',
-  'Yeoh',
-  'Tran',
-  'Wu',
-  'Mai',
-  'Nguyen',
-  'Lu',
-  'Liu',
-  'Yu',
-  'Smith',
-  'Le',
-  'Lee',
-];
 const universities = [
   'University of California Davis',
   'University of California, Berkeley',
@@ -84,86 +58,60 @@ const colleges = [
   'Agricultural and Environmental Sciences',
 ];
 
-const randomInt = (min, max) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
-
-const randomElement = (items) => items[randomInt(0, items.length - 1)];
-
-const shuffle = (items) => {
-  const shuffled = [...items];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = randomInt(0, i);
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
-
-const randomElements = (items, min, max = min) =>
-  shuffle(items).slice(0, randomInt(min, max));
-
-const randomBoolean = () => Math.random() > 0.5;
-
-const randomDateBetween = (from, to) => {
-  const fromTime = new Date(from).getTime();
-  const toTime = new Date(to).getTime();
-  return new Date(randomInt(fromTime, toTime));
-};
-
-const randomEmail = (index) => `seed.${index}.${Date.now()}@example.com`;
-
-const randomPhone = () =>
-  `+1${randomInt(200, 999)}${randomInt(200, 999)}${randomInt(1000, 9999)}`;
-
 function generateApplications(numDocuments) {
   return Array.from({ length: numDocuments }, (_, index) => {
-    const firstName = randomElement(firstNames);
-    const lastName = randomElement(lastNames);
-    const age = randomInt(17, 25);
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const age = faker.number.int({ min: 17, max: 25 });
 
+    // return as app type
     return {
-      email: randomEmail(index + 1),
+      email: faker.internet.email(),
       firstName,
       lastName,
-      phone: randomPhone(),
+      phone: `+1${faker.string.numeric(10)}`,
       age,
       isOver18: age >= 18,
-      isUCDavisStudent: randomBoolean(),
-      university: randomElement(universities),
+      isUCDavisStudent: faker.datatype.boolean(),
+      university: faker.helpers.arrayElement(universities),
       countryOfResidence: 'United States of America',
-      levelOfStudy: randomElement(levelOfStudyOptions),
-      major: randomElement(majors),
-      minorOrDoubleMajor: Math.random() > 0.65 ? randomElement(majors) : '',
-      college: randomElements(colleges, 1, 2),
-      year: randomElement(years),
-      shirtSize: randomElement(shirtSizes),
-      dietaryRestrictions: randomElements(dietaryRestrictionOptions, 1, 2),
-      connectWithSponsors: randomBoolean(),
-      gender: randomElements(genderOptions, 1),
-      race: randomElements(raceOptions, 1, 2),
-      attendedHackDavis: randomBoolean(),
-      firstHackathon: randomBoolean(),
+      levelOfStudy: faker.helpers.arrayElement(levelOfStudyOptions),
+      major: faker.helpers.arrayElement(majors),
+      minorOrDoubleMajor: faker.datatype.boolean()
+        ? faker.helpers.arrayElement(majors)
+        : '',
+      college: faker.helpers.arrayElements(colleges, { min: 1, max: 2 }),
+      year: faker.helpers.arrayElement(years),
+      shirtSize: faker.helpers.arrayElement(shirtSizes),
+      dietaryRestrictions: faker.helpers.arrayElements(
+        dietaryRestrictionOptions
+      ),
+      connectWithSponsors: faker.datatype.boolean(),
+      gender: faker.helpers.arrayElements(genderOptions, { min: 1, max: 1 }),
+      race: faker.helpers.arrayElements(raceOptions),
+      attendedHackDavis: faker.datatype.boolean(),
+      firstHackathon: faker.datatype.boolean(),
       linkedin: `https://www.linkedin.com/in/${firstName.toLowerCase()}-${lastName.toLowerCase()}-${
         index + 1
       }`,
-      githubOrPortfolio:
-        Math.random() > 0.4
-          ? `https://github.com/${firstName.toLowerCase()}${lastName.toLowerCase()}${
-              index + 1
-            }`
-          : '',
+      githubOrPortfolio: faker.datatype.boolean()
+        ? `https://github.com/${firstName.toLowerCase()}${lastName.toLowerCase()}${
+            index + 1
+          }`
+        : '',
       resume: '',
-      connectWithHackDavis: randomBoolean(),
-      connectWithMLH: randomBoolean(),
+      connectWithHackDavis: faker.datatype.boolean(),
+      connectWithMLH: faker.datatype.boolean(),
       mlhAgreements: {
         mlhCodeOfConduct: true,
         eventLogisticsInformation: true,
       },
-      status: randomElement(statuses),
+      status: faker.helpers.arrayElement(statuses),
       wasWaitlisted: false,
-      submittedAt: randomDateBetween(
-        '2026-03-01T00:00:00.000Z',
-        '2026-05-01T07:59:59.999Z'
-      ),
+      submittedAt: faker.date.between({
+        from: '2026-03-01T00:00:00.000Z',
+        to: '2026-05-01T07:59:59.999Z',
+      }),
     };
   });
 }
@@ -176,8 +124,8 @@ function generateMailchimp() {
       maxApiCalls: 1500,
       apiKeyIndex: 1,
       maxApiKeys: 4,
-      lastUpdate: new Date(0),
-      lastReset: new Date(0),
+      lastUpdate: Date.now(),
+      lastReset: Date.now(),
     },
   ];
 }
