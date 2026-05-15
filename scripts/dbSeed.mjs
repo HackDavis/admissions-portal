@@ -22,8 +22,6 @@ async function dbSeed(collectionNames, numDocuments, wipe) {
     for (const collection of schema) {
       schemaKeys.push(collection.name);
     }
-    // schemaKeys.push('admin');
-
     // Prepare existingData for applications if needed
     let existingData = {};
     if (collectionNames.includes('applications')) {

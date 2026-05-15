@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-// import type { Application, Mailchimp } from '../app/_types/app';
 import data from '../app/_data/db_validation_data.json' with { type: 'json' };
 
 const years = [...new Set(data.years)];
@@ -123,8 +122,8 @@ function generateMailchimp() {
       maxApiCalls: 1500,
       apiKeyIndex: 1,
       maxApiKeys: 4,
-      lastUpdate: Date.now(),
-      lastReset: Date.now(),
+      lastUpdate: new Date(),
+      lastReset: new Date(),
     },
   ];
 }
