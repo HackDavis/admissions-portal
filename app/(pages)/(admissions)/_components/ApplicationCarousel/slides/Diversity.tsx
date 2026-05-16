@@ -4,7 +4,7 @@ import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { useEnterKey } from '../../../_hooks/useEnterKey';
 
-const GENDER_OPTIONS = [
+export const GENDER_OPTIONS = [
   'Woman',
   'Man',
   'Transgender',
@@ -12,7 +12,7 @@ const GENDER_OPTIONS = [
   'Prefer not to answer',
   'Other',
 ];
-const RACE_OPTIONS = [
+export const RACE_OPTIONS = [
   'American Indian or Alaska Native',
   'Asian or Pacific Islander',
   'Black or African American',
