@@ -8,7 +8,7 @@ const YEAR_OPTIONS = ['1', '2', '3', '4', '5+', 'N/A'] as const;
 
 const SHIRT_OPTIONS = ['S', 'M', 'L', 'XL', 'XXL'];
 
-const DIETARY_OPTIONS = [
+export const DIETARY_OPTIONS = [
   'Vegetarian',
   'Vegan',
   'Celiac Disease',

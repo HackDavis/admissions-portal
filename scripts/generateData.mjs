@@ -8,6 +8,7 @@ import {
   COLLEGE_OPTIONS,
   LEVEL_OF_STUDY_OPTIONS,
 } from '../app/(pages)/(admissions)/_components/ApplicationCarousel/slides/KeepGoing.tsx';
+import { DIETARY_OPTIONS } from '../app/(pages)/(admissions)/_components/ApplicationCarousel/slides/NearlySet.tsx';
 
 const years = [...new Set(data.years)];
 const shirtSizes = [...new Set(data.shirtSizes)];
@@ -28,15 +29,6 @@ const majors = [
   'Design',
   'Cognitive Science',
   'Business',
-];
-const dietaryRestrictionOptions = [
-  'None',
-  'Vegetarian',
-  'Vegan',
-  'Gluten Free',
-  'Halal',
-  'Kosher',
-  'Nut Allergy',
 ];
 function generateApplications(numDocuments) {
   return Array.from({ length: numDocuments }, (_, index) => {
@@ -63,9 +55,7 @@ function generateApplications(numDocuments) {
       college: faker.helpers.arrayElements(COLLEGE_OPTIONS, { min: 1, max: 2 }),
       year: faker.helpers.arrayElement(years),
       shirtSize: faker.helpers.arrayElement(shirtSizes),
-      dietaryRestrictions: faker.helpers.arrayElements(
-        dietaryRestrictionOptions
-      ),
+      dietaryRestrictions: faker.helpers.arrayElements(DIETARY_OPTIONS),
       connectWithSponsors: faker.datatype.boolean(),
       gender: faker.helpers.arrayElements(GENDER_OPTIONS, { min: 1, max: 1 }),
       race: faker.helpers.arrayElements(RACE_OPTIONS),
