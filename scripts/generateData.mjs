@@ -4,6 +4,10 @@ import {
   GENDER_OPTIONS,
   RACE_OPTIONS,
 } from '../app/(pages)/(admissions)/_components/ApplicationCarousel/slides/Diversity.tsx';
+import {
+  COLLEGE_OPTIONS,
+  LEVEL_OF_STUDY_OPTIONS,
+} from '../app/(pages)/(admissions)/_components/ApplicationCarousel/slides/KeepGoing.tsx';
 
 const years = [...new Set(data.years)];
 const shirtSizes = [...new Set(data.shirtSizes)];
@@ -25,16 +29,6 @@ const majors = [
   'Cognitive Science',
   'Business',
 ];
-const levelOfStudyOptions = [
-  'Undergraduate University (2 year - community college or similar)',
-  'Undergraduate University (3+ year)',
-  'Graduate University (Masters, Professional, Doctoral, etc)',
-  'Code School / Bootcamp',
-  'Other Vocational / Trade Program or Apprenticeship',
-  'Post Doctorate',
-  'Other',
-  'I am not currently a student',
-];
 const dietaryRestrictionOptions = [
   'None',
   'Vegetarian',
@@ -44,13 +38,6 @@ const dietaryRestrictionOptions = [
   'Kosher',
   'Nut Allergy',
 ];
-const colleges = [
-  'Engineering',
-  'Letters and Science',
-  'Biological Sciences',
-  'Agricultural and Environmental Sciences',
-];
-
 function generateApplications(numDocuments) {
   return Array.from({ length: numDocuments }, (_, index) => {
     const firstName = faker.person.firstName();
@@ -68,12 +55,12 @@ function generateApplications(numDocuments) {
       isUCDavisStudent: faker.datatype.boolean(),
       university: faker.helpers.arrayElement(universities),
       countryOfResidence: 'United States of America',
-      levelOfStudy: faker.helpers.arrayElement(levelOfStudyOptions),
+      levelOfStudy: faker.helpers.arrayElement(LEVEL_OF_STUDY_OPTIONS),
       major: faker.helpers.arrayElement(majors),
       minorOrDoubleMajor: faker.datatype.boolean()
         ? faker.helpers.arrayElement(majors)
         : '',
-      college: faker.helpers.arrayElements(colleges, { min: 1, max: 2 }),
+      college: faker.helpers.arrayElements(COLLEGE_OPTIONS, { min: 1, max: 2 }),
       year: faker.helpers.arrayElement(years),
       shirtSize: faker.helpers.arrayElement(shirtSizes),
       dietaryRestrictions: faker.helpers.arrayElements(
