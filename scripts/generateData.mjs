@@ -1,5 +1,9 @@
 import { faker } from '@faker-js/faker';
 import data from '../app/_data/db_validation_data.json' with { type: 'json' };
+import {
+  GENDER_OPTIONS,
+  RACE_OPTIONS,
+} from '../app/(pages)/(admissions)/_components/ApplicationCarousel/slides/Diversity.tsx';
 
 const years = [...new Set(data.years)];
 const shirtSizes = [...new Set(data.shirtSizes)];
@@ -40,15 +44,6 @@ const dietaryRestrictionOptions = [
   'Kosher',
   'Nut Allergy',
 ];
-const genderOptions = ['Woman', 'Man', 'Non-binary', 'Prefer not to answer'];
-const raceOptions = [
-  'Asian',
-  'Black or African American',
-  'Hispanic or Latino',
-  'Middle Eastern or North African',
-  'White',
-  'Prefer not to answer',
-];
 const colleges = [
   'Engineering',
   'Letters and Science',
@@ -85,8 +80,8 @@ function generateApplications(numDocuments) {
         dietaryRestrictionOptions
       ),
       connectWithSponsors: faker.datatype.boolean(),
-      gender: faker.helpers.arrayElements(genderOptions, { min: 1, max: 1 }),
-      race: faker.helpers.arrayElements(raceOptions),
+      gender: faker.helpers.arrayElements(GENDER_OPTIONS, { min: 1, max: 1 }),
+      race: faker.helpers.arrayElements(RACE_OPTIONS),
       attendedHackDavis: faker.datatype.boolean(),
       firstHackathon: faker.datatype.boolean(),
       linkedin: `https://www.linkedin.com/in/${firstName.toLowerCase()}-${lastName.toLowerCase()}-${

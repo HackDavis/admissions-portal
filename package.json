@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed": "node scripts/dbSeed.mjs",
+    "seed": "tsx scripts/dbSeed.mjs",
     "lint": "next lint",
     "test": "run-script-os",
     "test:nix": "npx jest --detectOpenHandles",
