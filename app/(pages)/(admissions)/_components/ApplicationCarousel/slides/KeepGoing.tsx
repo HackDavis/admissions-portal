@@ -8,7 +8,7 @@ import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 import { SearchableSelect } from '../_components/SearchableSelect';
 import { useEnterKey } from '../../../_hooks/useEnterKey';
 
-const COLLEGE_OPTIONS = [
+export const COLLEGE_OPTIONS = [
   'College of Engineering',
   'College of Letters and Science',
   'College of Biological Sciences',
@@ -16,7 +16,7 @@ const COLLEGE_OPTIONS = [
   'Other',
 ];
 
-const LEVEL_OF_STUDY_OPTIONS = [
+export const LEVEL_OF_STUDY_OPTIONS = [
   'Less than Secondary / High School',
   'Secondary / High School',
   'Undergraduate University (2 year - community college or similar)',
