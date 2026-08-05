@@ -3,20 +3,13 @@
 import React from 'react';
 import { MultiSelectGroup } from '../_components/MultiSelectGroup';
 import { useEnterKey } from '../../../_hooks/useEnterKey';
+import { DIETARY_OPTIONS } from '@app/_data/applicationOptions';
 
 const YEAR_OPTIONS = ['1', '2', '3', '4', '5+', 'N/A'] as const;
 
 const SHIRT_OPTIONS = ['S', 'M', 'L', 'XL', 'XXL'];
 
-export const DIETARY_OPTIONS = [
-  'Vegetarian',
-  'Vegan',
-  'Celiac Disease',
-  'Allergies',
-  'Kosher',
-  'Halal',
-  'None',
-];
+export { DIETARY_OPTIONS };
 
 interface NearlySetProps {
   formData: any;
