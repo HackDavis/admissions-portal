@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
+import { SearchableSelect } from '../_components/SearchableSelect';
 import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
 import { fetchCountryNames } from '@utils/fetch/fetchCountryNames';
 import { useEnterKey } from '../../../_hooks/useEnterKey';
@@ -193,45 +194,25 @@ export default function FutureHacker({
               What is your country of residence?*
             </p>
 
-            <div className="mt-4">
-              <div className="relative">
-                <select
-                  value={formData.countryOfResidence}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      countryOfResidence: e.target.value,
-                    })
-                  }
-                  className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
-                >
-                  <option value="" />
-                  {uniqueCountries.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
+            <SearchableSelect
+              placeholder="Select a country"
+              value={formData.countryOfResidence}
+              options={uniqueCountries}
+              onChange={(v) =>
+                setFormData({
+                  ...formData,
+                  countryOfResidence: v,
+                })
+              }
+            />
 
-                <svg
-                  className="pointer-events-none absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#005271]"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </div>
-
-              <p
-                className={`mt-3 text-sm font-semibold text-red-400 ${
-                  submitted && !formData.countryOfResidence ? '' : 'invisible'
-                }`}
-              >
-                ERROR: Wait! You left this one blank.
-              </p>
-            </div>
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && !formData.countryOfResidence ? '' : 'invisible'
+              }`}
+            >
+              ERROR: Wait! You left this one blank.
+            </p>
           </div>
 
           {/* UNIVERSITY */}
@@ -240,72 +221,50 @@ export default function FutureHacker({
               Which University do you attend?*
             </p>
 
-            <div className="mt-4">
-              <div className="relative">
-                <select
-                  disabled={formData.isUCDavisStudent === true}
-                  value={formData.university}
+            <SearchableSelect
+              placeholder="Select a university"
+              value={formData.university}
+              options={uniqueUniversities}
+              onChange={(v) => setFormData({ ...formData, university: v })}
+              disabled={formData.isUCDavisStudent === true}
+              pinnedOptions={['Other']}
+            />
+
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted && !formData.university ? '' : 'invisible'
+              }`}
+            >
+              ERROR: Wait! You left this one blank.
+            </p>
+
+            <div className="h-24">
+              {formData.university === 'Other' && (
+                <textarea
+                  value={formData.customUniversity}
                   onChange={(e) =>
-                    setFormData({ ...formData, university: e.target.value })
+                    setFormData({
+                      ...formData,
+                      customUniversity: e.target.value,
+                    })
                   }
-                  className="w-full appearance-none rounded-full bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
-                >
-                  <option value="" />
-                  {uniqueUniversities.map((uni) => (
-                    <option key={uni} value={uni}>
-                      {uni}
-                    </option>
-                  ))}
-                  <option value="Other">Other</option>
-                </select>
-
-                <svg
-                  className="pointer-events-none absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#005271]"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </div>
-
-              <p
-                className={`mt-3 text-sm font-semibold text-red-400 ${
-                  submitted && !formData.university ? '' : 'invisible'
-                }`}
-              >
-                ERROR: Wait! You left this one blank.
-              </p>
-
-              <div className="h-24">
-                {formData.university === 'Other' && (
-                  <textarea
-                    value={formData.customUniversity}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        customUniversity: e.target.value,
-                      })
-                    }
-                    placeholder="Please specify your school"
-                    className="mt-4 h-20 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
-                  />
-                )}
-              </div>
-
-              <p
-                className={`mt-3 text-sm font-semibold text-red-400 ${
-                  submitted &&
-                  formData.university === 'Other' &&
-                  !(formData.customUniversity || '').trim()
-                    ? ''
-                    : 'invisible'
-                }`}
-              >
-                ERROR: Please specify your school.
-              </p>
+                  placeholder="Please specify your school"
+                  className="mt-4 h-20 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm outline-none"
+                />
+              )}
             </div>
+
+            <p
+              className={`mt-3 text-sm font-semibold text-red-400 ${
+                submitted &&
+                formData.university === 'Other' &&
+                !(formData.customUniversity || '').trim()
+                  ? ''
+                  : 'invisible'
+              }`}
+            >
+              ERROR: Please specify your school.
+            </p>
           </div>
         </div>
 
