@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 
-import { Application } from '@/app/_types/application';
+import { Application, ApplicationNote } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import { prettyStatus } from '../_utils/format';
+import { sortNotesByNewest } from '../_utils/notes';
 import ApplicantDetailsModal, { getSafeUrl } from './ApplicantDetailsModal';
 import { FaLinkedin, FaRegFileAlt } from 'react-icons/fa';
 import { LuLink } from 'react-icons/lu';
@@ -19,6 +20,7 @@ interface PhaseColumnProps {
   onStatusChange?: (value: StatusFilter) => void;
   footer?: React.ReactNode;
   renderActions?: (app: Application) => React.ReactNode;
+  onNotesChange: (applicationId: string, notes: ApplicationNote[]) => void;
 }
 
 export default function PhaseColumn({
@@ -31,9 +33,13 @@ export default function PhaseColumn({
   statusOptions,
   footer,
   renderActions,
+  onNotesChange,
 }: PhaseColumnProps) {
-  const [selectedApplicant, setSelectedApplicant] =
-    useState<Application | null>(null);
+  // Track the id rather than the applicant so the modal reflects note edits as they are saved.
+  const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(
+    null
+  );
+  const selectedApplicant = apps.find((app) => app._id === selectedApplicantId);
 
   return (
     <div className="border-2 border-black p-3 flex h-screen flex-col">
@@ -139,6 +145,19 @@ export default function PhaseColumn({
               >
                 was waitlisted: {app.wasWaitlisted ? 'yes' : 'no'}
               </p>
+              {app.notes && app.notes.length > 0 && (
+                <div className="border border-black p-1">
+                  <p className="text-[10px] font-semibold uppercase">
+                    latest note
+                  </p>
+                  <p className="line-clamp-2 text-xs">
+                    {sortNotesByNewest(app.notes)[0].body}
+                  </p>
+                  {app.notes.length > 1 && (
+                    <p className="text-[10px]">+{app.notes.length - 1} more</p>
+                  )}
+                </div>
+              )}
               {renderActions && (
                 <div className="mt-1 flex flex-wrap gap-2">
                   {renderActions(app)}
@@ -147,7 +166,7 @@ export default function PhaseColumn({
               <button
                 type="button"
                 className="mt-1 border border-black px-2 py-1 text-[10px] uppercase"
-                onClick={() => setSelectedApplicant(app)}
+                onClick={() => setSelectedApplicantId(app._id)}
               >
                 view all details
               </button>
@@ -161,7 +180,8 @@ export default function PhaseColumn({
       {selectedApplicant && (
         <ApplicantDetailsModal
           applicant={selectedApplicant}
-          onClose={() => setSelectedApplicant(null)}
+          onClose={() => setSelectedApplicantId(null)}
+          onNotesChange={onNotesChange}
         />
       )}
     </div>
