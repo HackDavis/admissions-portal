@@ -17,6 +17,7 @@ import {
 } from 'recharts';
 
 import useStats from '../_hooks/useStats';
+import Link from 'next/link';
 
 type Scope = 'all' | 'processed' | 'hypothetic';
 
@@ -165,7 +166,7 @@ export default function StatsView() {
   }, [scope, stats]);
 
   return (
-    <section className="mb-6 border-2 border-black p-4">
+    <section className="mb-6 p-4">
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h2 className="text-sm font-semibold uppercase">Stats</h2>
 
@@ -197,7 +198,7 @@ export default function StatsView() {
       {!loading && error && <p className="text-xs">{error}</p>}
 
       {!loading && !error && selectedScopeStats && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-8">
           <ChartCard title="Year Distribution">
             <BarChartBlock data={yearData} />
           </ChartCard>
@@ -223,6 +224,12 @@ export default function StatsView() {
           </ChartCard>
         </div>
       )}
+      <Link
+        href="/admin"
+        className="special-button px-2 py-1 text-sm text-center"
+      >
+        back
+      </Link>
     </section>
   );
 }
