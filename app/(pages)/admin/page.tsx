@@ -62,9 +62,9 @@ export default function AdminPage() {
         onProcessedStatusChange={setProcessedStatus}
         onUpdateStatus={updateApplicantStatus}
       />
-      <div className="mt-8">
+      {/* <div className="mt-8">
         <StatsView />
-      </div>
+      </div> */}
     </div>
   );
 }
