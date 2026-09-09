@@ -55,6 +55,10 @@ export default function ApplicationsGrid({
   const [checkedTentativeApplicants, setTentativeCheckedApplicants] = useState<
     Application[]
   >([]);
+  const [checkedProcessedApplicants, setProcessedCheckedApplicants] = useState<
+    Application[]
+  >([]);
+
   return (
     <section className="space-y-3">
       <h2 className="pb-2 font-medium">applications</h2>
@@ -135,6 +139,8 @@ export default function ApplicationsGrid({
                 isLoading={isLoading}
                 statusFilter={processedStatus}
                 statusOptions={PROCESSED_STATUSES}
+                selectedApplicants={checkedProcessedApplicants}
+                setSelectedApplicants={setProcessedCheckedApplicants}
                 onStatusChange={onProcessedStatusChange}
                 renderActions={() => null}
               />
