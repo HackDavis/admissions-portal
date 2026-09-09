@@ -40,7 +40,7 @@ export interface Application {
   processedAt?: Date | string;
 }
 
-// Used for Mailchimp and Tito CSV exports
+// Used for CSV exports
 export interface ApplicationCondensed {
   _id: string;
   firstName: string;
