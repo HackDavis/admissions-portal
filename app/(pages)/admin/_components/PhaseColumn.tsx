@@ -16,6 +16,8 @@ interface PhaseColumnProps {
   isLoading: boolean;
   statusFilter?: StatusFilter;
   statusOptions?: readonly Status[];
+  selectedApplicants: Application[];
+  setSelectedApplicants: Dispatch<SetStateAction<Application[]>>;
   onStatusChange?: (value: StatusFilter) => void;
   footer?: React.ReactNode;
   renderActions?: (app: Application) => React.ReactNode;
@@ -28,12 +30,27 @@ export default function PhaseColumn({
   label,
   onStatusChange,
   statusFilter,
+  selectedApplicants,
+  setSelectedApplicants,
   statusOptions,
   footer,
   renderActions,
 }: PhaseColumnProps) {
   const [selectedApplicant, setSelectedApplicant] =
     useState<Application | null>(null);
+  const updateSelectedApplicants = (applicant: Application) => {
+    setSelectedApplicants((currentApplicants) => {
+      const isSelected = currentApplicants.some(
+        (selected) => selected._id === applicant._id
+      );
+
+      const nextApplicants = isSelected
+        ? currentApplicants.filter((selected) => selected._id !== applicant._id)
+        : [...currentApplicants, applicant];
+
+      return nextApplicants;
+    });
+  };
 
   return (
     <div className="border-2 border-black p-3 flex h-screen flex-col">
