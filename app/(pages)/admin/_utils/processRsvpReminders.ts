@@ -1,6 +1,7 @@
 'use client';
 
 import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
+import { downloadCSV } from './downloadCSV';
 
 export async function processRsvpReminders(rsvpListSlug: string) {
   try {
@@ -39,17 +40,9 @@ export async function processRsvpReminders(rsvpListSlug: string) {
       const csvString = [headers.join(','), ...rows].join('\n');
 
       // Trigger Download
-      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
       const timestamp = new Date().toISOString();
       const filename = `rsvp_reminders_${timestamp}.csv`;
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(url), 0);
+      downloadCSV(csvString, filename);
     }
 
     const results: string[] = [];
