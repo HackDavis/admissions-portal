@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Application } from '@/app/_types/application';
+import { Application, ApplicationNote } from '@/app/_types/application';
 import {
   Phase,
   Status,
@@ -144,12 +144,28 @@ export default function useApplications() {
     [loadPhase]
   );
 
+  const applyNotesUpdate = useCallback(
+    (appId: string, notes: ApplicationNote[]) => {
+      setAppsByPhase((prev) => {
+        const next = {} as Record<Phase, Application[]>;
+        for (const phase of PHASES) {
+          next[phase.id] = prev[phase.id].map((app) =>
+            app._id === appId ? { ...app, notes } : app
+          );
+        }
+        return next;
+      });
+    },
+    []
+  );
+
   const totalCount = useMemo(
     () => PHASES.reduce((sum, ph) => sum + appsByPhase[ph.id].length, 0),
     [appsByPhase]
   );
 
   return {
+    applyNotesUpdate,
     appsByPhase,
     error,
     loading,

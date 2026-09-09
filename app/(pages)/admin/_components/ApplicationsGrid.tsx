@@ -1,6 +1,6 @@
 'use client';
 
-import { Application } from '@/app/_types/application';
+import { Application, ApplicationNote } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import {
   PHASES,
@@ -30,6 +30,7 @@ interface ApplicationsGridProps {
       batchNumber?: number;
     }
   ) => void;
+  onNotesChange: (applicationId: string, notes: ApplicationNote[]) => void;
 }
 
 export default function ApplicationsGrid({
@@ -39,6 +40,7 @@ export default function ApplicationsGrid({
   onProcessedStatusChange,
   onTentativeStatusChange,
   onUpdateStatus,
+  onNotesChange,
   processedStatus,
   tentativeStatus,
   unseenStatus,
@@ -63,6 +65,7 @@ export default function ApplicationsGrid({
                 statusFilter={tentativeStatus}
                 statusOptions={TENTATIVE_STATUSES}
                 onStatusChange={onTentativeStatusChange}
+                onNotesChange={onNotesChange}
                 renderActions={(app) => (
                   <button
                     type="button"
@@ -103,6 +106,7 @@ export default function ApplicationsGrid({
                 statusFilter={processedStatus}
                 statusOptions={PROCESSED_STATUSES}
                 onStatusChange={onProcessedStatusChange}
+                onNotesChange={onNotesChange}
                 renderActions={() => null}
               />
             );
@@ -118,6 +122,7 @@ export default function ApplicationsGrid({
               statusFilter={unseenStatus}
               statusOptions={UNSEEN_STATUSES}
               onStatusChange={onUnseenStatusChange}
+              onNotesChange={onNotesChange}
               renderActions={(app) =>
                 app.status === 'waitlisted' ? (
                   <>

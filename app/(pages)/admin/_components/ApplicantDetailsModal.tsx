@@ -1,10 +1,12 @@
 'use client';
 
-import { Application } from '@/app/_types/application';
+import { Application, ApplicationNote } from '@/app/_types/application';
+import ApplicantNotes from './ApplicantNotes';
 
 interface ApplicantDetailsModalProps {
   applicant: Application;
   onClose: () => void;
+  onNotesChange: (applicationId: string, notes: ApplicationNote[]) => void;
 }
 
 function formatValue(value: unknown) {
@@ -33,6 +35,7 @@ export const getSafeUrl = (url: unknown): string | null => {
 export default function ApplicantDetailsModal({
   applicant,
   onClose,
+  onNotesChange,
 }: ApplicantDetailsModalProps) {
   const rows = [
     { label: 'id', value: applicant._id },
@@ -132,6 +135,12 @@ export default function ApplicantDetailsModal({
             </div>
           ))}
         </div>
+
+        <ApplicantNotes
+          applicationId={applicant._id}
+          notes={applicant.notes ?? []}
+          onNotesChange={(notes) => onNotesChange(applicant._id, notes)}
+        />
       </div>
     </div>
   );
