@@ -28,14 +28,14 @@ interface ApplicationsGridProps {
 }
 
 const WAITLISTED_TENTATIVE_STATUSES: Status[] = [
-    'tentatively_waitlist_accepted',
-    'tentatively_waitlist_rejected',
-]
+  'tentatively_waitlist_accepted',
+  'tentatively_waitlist_rejected',
+];
 
 const WAITLISTED_PROCESSED_STATUSES: Status[] = [
-    'waitlist_accepted',
-    'waitlist_rejected',
-]
+  'waitlist_accepted',
+  'waitlist_rejected',
+];
 
 export default function AutoWaitlistApplications({
   appsByPhase,
@@ -46,7 +46,7 @@ export default function AutoWaitlistApplications({
   onUpdateStatus,
   processedStatus,
   tentativeStatus,
-  unseenStatus, 
+  unseenStatus,
 }: ApplicationsGridProps) {
   return (
     <section className="space-y-3">
@@ -58,7 +58,9 @@ export default function AutoWaitlistApplications({
           const isLoading = loading[phase.id];
 
           if (phase.id === 'tentative') {
-            const filteredApps = appsByPhase.tentative.filter((app) => WAITLISTED_TENTATIVE_STATUSES.includes(app.status))
+            const filteredApps = appsByPhase.tentative.filter((app) =>
+              WAITLISTED_TENTATIVE_STATUSES.includes(app.status)
+            );
             return (
               <PhaseColumn
                 key={phase.id}
@@ -99,7 +101,9 @@ export default function AutoWaitlistApplications({
           }
 
           if (phase.id === 'processed') {
-            const filteredApps = appsByPhase.processed.filter((app) => WAITLISTED_PROCESSED_STATUSES.includes(app.status))
+            const filteredApps = appsByPhase.processed.filter((app) =>
+              WAITLISTED_PROCESSED_STATUSES.includes(app.status)
+            );
             return (
               <PhaseColumn
                 key={phase.id}
@@ -125,42 +129,42 @@ export default function AutoWaitlistApplications({
               statusFilter={unseenStatus}
               statusOptions={['waitlisted']}
               onStatusChange={onUnseenStatusChange}
-              renderActions={(app) =>
-                  <>
-                    <button
-                      type="button"
-                      className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
-                      onClick={() =>
-                        onUpdateStatus(
-                          app._id,
-                          'tentatively_waitlist_accepted',
-                          'unseen',
-                          {
-                            refreshPhase: 'tentative',
-                          }
-                        )
-                      }
-                    >
-                      accept
-                    </button>
-                    <button
-                      type="button"
-                      className="border-2 border-red-800 bg-red-200 px-3 py-2 text-[11px] font-bold uppercase text-red-900"
-                      onClick={() =>
-                        onUpdateStatus(
-                          app._id,
-                          'tentatively_waitlist_rejected',
-                          'unseen',
-                          {
-                            refreshPhase: 'tentative',
-                          }
-                        )
-                      }
-                    >
-                      FINAL REJECT
-                    </button>
-                  </>
-              }
+              renderActions={(app) => (
+                <>
+                  <button
+                    type="button"
+                    className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
+                    onClick={() =>
+                      onUpdateStatus(
+                        app._id,
+                        'tentatively_waitlist_accepted',
+                        'unseen',
+                        {
+                          refreshPhase: 'tentative',
+                        }
+                      )
+                    }
+                  >
+                    accept
+                  </button>
+                  <button
+                    type="button"
+                    className="border-2 border-red-800 bg-red-200 px-3 py-2 text-[11px] font-bold uppercase text-red-900"
+                    onClick={() =>
+                      onUpdateStatus(
+                        app._id,
+                        'tentatively_waitlist_rejected',
+                        'unseen',
+                        {
+                          refreshPhase: 'tentative',
+                        }
+                      )
+                    }
+                  >
+                    FINAL REJECT
+                  </button>
+                </>
+              )}
             />
           );
         })}

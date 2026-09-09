@@ -1,6 +1,5 @@
-import StatsView from "./StatsView";
-import Link from "next/link";
+import StatsView from './StatsView';
 
 export default function StatsPage() {
-    return <StatsView />;
+  return <StatsView />;
 }
