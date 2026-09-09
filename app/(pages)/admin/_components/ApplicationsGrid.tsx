@@ -52,6 +52,9 @@ export default function ApplicationsGrid({
 }: ApplicationsGridProps) {
   const [checkedProcessingApplicants, setProcessingCheckedApplicants] =
     useState<Application[]>([]);
+  const [checkedTentativeApplicants, setTentativeCheckedApplicants] = useState<
+    Application[]
+  >([]);
   return (
     <section className="space-y-3">
       <h2 className="pb-2 font-medium">applications</h2>
@@ -71,6 +74,8 @@ export default function ApplicationsGrid({
                 isLoading={isLoading}
                 statusFilter={tentativeStatus}
                 statusOptions={TENTATIVE_STATUSES}
+                selectedApplicants={checkedTentativeApplicants}
+                setSelectedApplicants={setTentativeCheckedApplicants}
                 onStatusChange={onTentativeStatusChange}
                 renderActions={(app) => (
                   <button
@@ -92,10 +97,29 @@ export default function ApplicationsGrid({
                   </button>
                 )}
                 footer={
-                  <FinalizeButton
-                    apps={apps}
-                    onFinalizeStatus={onUpdateStatus}
-                  />
+                  <div className="flex flex-col items-center gap-2">
+                    <FinalizeButton
+                      apps={apps}
+                      onFinalizeStatus={onUpdateStatus}
+                    />
+                    <p className="text-xs">
+                      Selected: {checkedTentativeApplicants.length}
+                    </p>
+                    <div className="flex flex-row items-center gap-2">
+                      <SelectAllButton
+                        selectedApplicantsCount={
+                          checkedTentativeApplicants.length
+                        }
+                        apps={apps}
+                        setSelectedApplicants={setTentativeCheckedApplicants}
+                      />
+                      <UndoSelectedButton
+                        selectedApplicants={checkedTentativeApplicants}
+                        setSelectedApplicants={setTentativeCheckedApplicants}
+                        onUpdateStatus={onUpdateStatus}
+                      />
+                    </div>
+                  </div>
                 }
               />
             );
