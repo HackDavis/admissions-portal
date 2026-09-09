@@ -6,8 +6,8 @@ import AdminHeader from './_components/AdminHeader';
 import ApplicationsGrid from './_components/ApplicationsGrid';
 import FiltersBar from './_components/FiltersBar';
 import ProgressBar from './_components/ProgressBar';
-import StatsView from './_components/StatsView';
 import useApplications from './_hooks/useApplications';
+import AutoWaitlistApplications from './_components/AutoWaitlistApplications';
 
 export default function AdminPage() {
   const handleLogout = () => {
@@ -63,7 +63,17 @@ export default function AdminPage() {
         onUpdateStatus={updateApplicantStatus}
       />
       <div className="mt-8">
-        <StatsView />
+        <AutoWaitlistApplications
+          appsByPhase={appsByPhase}
+          loading={loading}
+          unseenStatus={unseenStatus}
+          tentativeStatus={tentativeStatus}
+          processedStatus={processedStatus}
+          onUnseenStatusChange={setUnseenStatus}
+          onTentativeStatusChange={setTentativeStatus}
+          onProcessedStatusChange={setProcessedStatus}
+          onUpdateStatus={updateApplicantStatus}
+        />
       </div>
     </div>
   );
