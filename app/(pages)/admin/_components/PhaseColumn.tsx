@@ -94,6 +94,18 @@ export default function PhaseColumn({
             >
               <div className="flex flex-row justify-between">
                 <p className="text-xs">id: {app._id}</p>
+                <input
+                  type="checkbox"
+                  checked={selectedApplicants.some(
+                    (selected) => selected._id === app._id
+                  )}
+                  onChange={() => updateSelectedApplicants(app)}
+                />
+              </div>
+              <div className="flex flex-row justify-between">
+                <p className="text-xs">
+                  name: {app.firstName ?? '-'} {app.lastName ?? ''}
+                </p>
                 <div className="flex flex-row gap-2">
                   <a
                     href={getSafeUrl(app.linkedin) ?? undefined}
@@ -128,9 +140,6 @@ export default function PhaseColumn({
                   )}
                 </div>
               </div>
-              <p className="text-xs">
-                name: {app.firstName ?? '-'} {app.lastName ?? ''}
-              </p>
               <p className="text-xs">email: {app.email}</p>
               <p className="text-xs">
                 ucd: {app.isUCDavisStudent ? 'yes' : 'no'}
