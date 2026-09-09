@@ -6,7 +6,7 @@ import { exportAcceptedApplicants } from '../_utils/exportAcceptedApplicants';
 type ExportState =
   | { kind: 'idle' }
   | { kind: 'loading' }
-  | { kind: 'success', count: number }
+  | { kind: 'success'; count: number }
   | { kind: 'empty' }
   | { kind: 'error'; message: string };
 
@@ -22,8 +22,8 @@ export function ExportAcceptedButton() {
       console.error('Error exporting accepted applicants:', err);
       setState({
         kind: 'error',
-        message: err?.message ?? 'Export failed.'
-      })
+        message: err?.message ?? 'Export failed.',
+      });
     }
   }
 
@@ -48,9 +48,7 @@ export function ExportAcceptedButton() {
         </p>
       )}
       {state.kind === 'error' && (
-        <p className="text-[11px] text-red-500">
-          {state.message}
-        </p>
+        <p className="text-[11px] text-red-500">{state.message}</p>
       )}
     </div>
   );
