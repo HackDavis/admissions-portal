@@ -9,7 +9,7 @@ const ACCEPTED_STATUSES: Status[] = ['accepted', 'waitlist_accepted'];
 
 const ACCEPTED_MAP: Record<string, string> = {
   accepted: 'Accepted',
-  waitlisted_accepted: 'Waitlist Accepted',
+  waitlist_accepted: 'Waitlist Accepted',
 };
 
 const HEADERS = ['Email', 'First Name', 'Last Name', 'Status'];

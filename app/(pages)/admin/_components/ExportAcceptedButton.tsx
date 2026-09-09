@@ -27,14 +27,16 @@ export function ExportAcceptedButton() {
     }
   }
 
-  const disabled = state.kind === 'loading' || state.kind === 'empty';
+  const disabled = state.kind === 'loading';
 
   return (
     <div className="flex flex-col items-start gap-1">
       <button
         onClick={handleExport}
         disabled={disabled}
-        className="special-button px-2 py-1 text-xs disabeled:opacity-50 disabled"
+        className={`special-button px-2 py-1 text-xs ${
+          disabled ? 'opacity-50 cursor-not-allowed' : ''
+        }`}
       >
         {state.kind === 'loading' ? 'exporting...' : 'export accepted (csv)'}
       </button>

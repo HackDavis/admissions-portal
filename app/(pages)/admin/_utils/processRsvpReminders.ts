@@ -40,7 +40,7 @@ export async function processRsvpReminders(rsvpListSlug: string) {
       const csvString = [headers.join(','), ...rows].join('\n');
 
       // Trigger Download
-      const timestamp = new Date().toISOString();
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = `rsvp_reminders_${timestamp}.csv`;
       downloadCSV(csvString, filename);
     }
