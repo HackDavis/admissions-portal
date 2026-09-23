@@ -83,9 +83,20 @@ export const UpdateApplicationNote = async (
   try {
     const trimmed = validateBody(body);
 
+    // Checked up front because an unchanged body reports modifiedCount 0, which
+    // is indistinguishable from a missing or unauthored note after the write.
+    const existingNotes = await getNotes(id);
+    const isAuthor = existingNotes.some(
+      (note) => note._id === noteId && note.authorId === authorId
+    );
+
+    if (!isAuthor) {
+      throw new NotFoundError('Note not found, or you are not its author.');
+    }
+
     const db = await getDatabase();
     // Matching on authorId keeps a note editable only by whoever wrote it.
-    const result = await db.collection('applications').updateOne(
+    await db.collection('applications').updateOne(
       applicationFilter(id),
       {
         $set: {
@@ -95,14 +106,6 @@ export const UpdateApplicationNote = async (
       },
       { arrayFilters: [{ 'note._id': noteId, 'note.authorId': authorId }] }
     );
-
-    if (result.matchedCount === 0) {
-      throw new NotFoundError(`Application with id: ${id} not found.`);
-    }
-
-    if (result.modifiedCount === 0) {
-      throw new NotFoundError('Note not found, or you are not its author.');
-    }
 
     return { ok: true, body: await getNotes(id), error: null };
   } catch (e) {

@@ -35,33 +35,41 @@ export default function ApplicantNotes({
     setPending(true);
     setError(null);
 
-    const res = await addApplicationNote(applicationId, draft);
+    try {
+      const res = await addApplicationNote(applicationId, draft);
 
-    if (res.ok && res.body) {
-      onNotesChange(res.body);
-      setDraft('');
-    } else {
-      setError(res.error ?? 'Failed to add note.');
+      if (res.ok && res.body) {
+        onNotesChange(res.body);
+        setDraft('');
+      } else {
+        setError(res.error ?? 'Failed to add note.');
+      }
+    } catch {
+      setError('Failed to add note.');
+    } finally {
+      setPending(false);
     }
-
-    setPending(false);
   };
 
   const handleSaveEdit = async (noteId: string) => {
     setPending(true);
     setError(null);
 
-    const res = await updateApplicationNote(applicationId, noteId, editDraft);
+    try {
+      const res = await updateApplicationNote(applicationId, noteId, editDraft);
 
-    if (res.ok && res.body) {
-      onNotesChange(res.body);
-      setEditingId(null);
-      setEditDraft('');
-    } else {
-      setError(res.error ?? 'Failed to update note.');
+      if (res.ok && res.body) {
+        onNotesChange(res.body);
+        setEditingId(null);
+        setEditDraft('');
+      } else {
+        setError(res.error ?? 'Failed to update note.');
+      }
+    } catch {
+      setError('Failed to update note.');
+    } finally {
+      setPending(false);
     }
-
-    setPending(false);
   };
 
   const startEditing = (note: ApplicationNote) => {
@@ -84,6 +92,7 @@ export default function ApplicantNotes({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="add a note..."
+          aria-label="Add an internal note"
           rows={2}
           className="border border-black p-1 text-xs"
         />
@@ -115,6 +124,7 @@ export default function ApplicantNotes({
                   <textarea
                     value={editDraft}
                     onChange={(e) => setEditDraft(e.target.value)}
+                    aria-label="Edit internal note"
                     rows={2}
                     className="border border-black p-1 text-xs"
                   />
