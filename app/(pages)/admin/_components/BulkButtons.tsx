@@ -67,9 +67,14 @@ export function TentativelyAcceptedSelectedButton({
   const tentativelyAcceptedSelectedApplicants = () => {
     if (count > 0) {
       for (const applicant of selectedApplicants) {
-        onUpdateStatus(applicant._id, 'tentatively_accepted', 'unseen', {
-          refreshPhase: 'tentative',
-        });
+        onUpdateStatus(
+          applicant._id,
+          applicant.status === 'waitlisted'
+            ? 'tentatively_waitlist_accepted'
+            : 'tentatively_accepted',
+          'unseen',
+          { refreshPhase: 'tentative' }
+        );
       }
       setSaveSelected(selectedApplicants);
       setSelectedApplicants?.([]);
@@ -79,7 +84,10 @@ export function TentativelyAcceptedSelectedButton({
     }
   };
 
+  // count = # of applicants selected for tentative apps (middle col)
   useEffect(() => {
+    if (count === 0) return;
+
     const timeout = setTimeout(() => {
       setCount(0);
     }, 3000);
