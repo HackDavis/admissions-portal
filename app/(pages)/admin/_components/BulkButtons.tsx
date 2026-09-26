@@ -1,22 +1,28 @@
 import { Dispatch, SetStateAction } from 'react';
 import { Phase, Status } from '@/app/_types/applicationFilters';
-import { Application } from '@/app/_types/application';
-import { useState, useEffect } from 'react';
+import {
+  Application,
+  ApplicationStatusUpdateResult,
+} from '@/app/_types/application';
+import { useState, useEffect, useRef } from 'react';
 import BulkModal from './BulkModal';
 
 interface SelectAllButtonProps {
-  selectedApplicantsCount: number;
+  selectedApplicants: Application[];
   apps: Application[];
   setSelectedApplicants: Dispatch<SetStateAction<Application[]>>;
 }
 
 export function SelectAllButton({
-  selectedApplicantsCount,
+  selectedApplicants,
   apps,
   setSelectedApplicants,
 }: SelectAllButtonProps) {
+  const selectedIds = new Set(selectedApplicants.map((app) => app._id));
+  const allSelected =
+    apps.length > 0 && apps.every((app) => selectedIds.has(app._id));
   const selectAllApplicants = () => {
-    if (selectedApplicantsCount === apps.length) {
+    if (allSelected) {
       setSelectedApplicants([]);
     } else {
       setSelectedApplicants(apps);
@@ -33,7 +39,7 @@ export function SelectAllButton({
     >
       {apps.length < 1
         ? 'nothing to select'
-        : selectedApplicantsCount === apps.length
+        : allSelected
         ? 'deselect all'
         : 'select all'}
     </button>
@@ -52,193 +58,143 @@ interface ActionButtonProps {
       refreshPhase?: Phase;
       batchNumber?: number;
     }
-  ) => void;
+  ) => Promise<ApplicationStatusUpdateResult>;
 }
 
-export function TentativelyAcceptedSelectedButton({
+type BulkAction = 'accept' | 'waitlist' | 'undo';
+
+function BulkActionButton({
   selectedApplicants,
   setSelectedApplicants,
   onUpdateStatus,
-}: ActionButtonProps) {
-  const [count, setCount] = useState<number>(0);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [saveSelected, setSaveSelected] = useState<Application[]>([]);
+  action,
+}: ActionButtonProps & { action: BulkAction }) {
+  const [confirmed, setConfirmed] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const processing = useRef(false);
+  const [showModal, setShowModal] = useState(false);
+  const [results, setResults] = useState<Application[]>([]);
+  const [failures, setFailures] = useState<
+    { applicant: Application; error: string }[]
+  >([]);
 
-  const tentativelyAcceptedSelectedApplicants = () => {
-    if (count > 0) {
-      for (const applicant of selectedApplicants) {
-        onUpdateStatus(
-          applicant._id,
-          applicant.status === 'waitlisted'
-            ? 'tentatively_waitlist_accepted'
-            : 'tentatively_accepted',
-          'unseen',
-          { refreshPhase: 'tentative' }
-        );
-      }
-      setSaveSelected(selectedApplicants);
-      setSelectedApplicants?.([]);
-      setShowModal(true);
-    } else {
-      setCount(1);
+  useEffect(() => {
+    if (!confirmed) return;
+    const timeout = setTimeout(() => setConfirmed(false), 3000);
+    return () => clearTimeout(timeout);
+  }, [confirmed]);
+
+  const runAction = async () => {
+    if (processing.current || selectedApplicants.length === 0) return;
+    if (!confirmed) {
+      setConfirmed(true);
+      return;
+    }
+
+    processing.current = true;
+    setConfirmed(false);
+    setIsProcessing(true);
+    setResults([]);
+    setFailures([]);
+    setShowModal(true);
+    const applicants = [...selectedApplicants];
+    try {
+      const outcomes = await Promise.all(
+        applicants.map(async (applicant) => {
+          try {
+            const nextStatus =
+              action === 'undo'
+                ? applicant.wasWaitlisted
+                  ? 'waitlisted'
+                  : 'pending'
+                : action === 'waitlist'
+                ? 'tentatively_waitlisted'
+                : applicant.status === 'waitlisted'
+                ? 'tentatively_waitlist_accepted'
+                : 'tentatively_accepted';
+            const result = await onUpdateStatus(
+              applicant._id,
+              nextStatus,
+              action === 'undo' ? 'tentative' : 'unseen',
+              action === 'undo'
+                ? {
+                    wasWaitlisted: applicant.wasWaitlisted,
+                    refreshPhase: 'unseen',
+                  }
+                : { refreshPhase: 'tentative' }
+            );
+            return { applicant, result };
+          } catch (error) {
+            return {
+              applicant,
+              result: {
+                ok: false as const,
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : 'Failed to update applicant',
+              },
+            };
+          }
+        })
+      );
+      const succeeded = outcomes
+        .filter(({ result }) => result.ok)
+        .map(({ applicant }) => applicant);
+      setResults(succeeded);
+      setFailures(
+        outcomes.flatMap(({ applicant, result }) =>
+          result.ok ? [] : [{ applicant, error: result.error }]
+        )
+      );
+      const succeededIds = new Set(succeeded.map((applicant) => applicant._id));
+      setSelectedApplicants?.((current) =>
+        current.filter((applicant) => !succeededIds.has(applicant._id))
+      );
+    } finally {
+      processing.current = false;
+      setIsProcessing(false);
     }
   };
-
-  // count = # of applicants selected for tentative apps (middle col)
-  useEffect(() => {
-    if (count === 0) return;
-
-    const timeout = setTimeout(() => {
-      setCount(0);
-    }, 3000);
-
-    return () => clearTimeout(timeout);
-  }, [count]);
 
   return (
     <div>
       <button
         type="button"
         className={`special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase ${
-          count > 0 ? 'bg-black text-white' : ''
+          confirmed ? 'bg-black text-white' : ''
         }`}
-        title="tentatively accept selected applications"
-        onClick={tentativelyAcceptedSelectedApplicants}
-        disabled={selectedApplicants.length < 1}
+        onClick={runAction}
+        disabled={isProcessing || selectedApplicants.length < 1}
       >
-        {count > 0
+        {isProcessing
+          ? 'processing...'
+          : confirmed
           ? 'u sure?'
           : selectedApplicants.length < 1
-          ? 'nothing to accept'
-          : 'accept selected'}
+          ? `nothing to ${action}`
+          : `${action} selected`}
       </button>
       <BulkModal
         isOpen={showModal}
-        action="accept"
-        results={saveSelected}
+        isProcessing={isProcessing}
+        action={action}
+        results={results}
+        failures={failures}
         onClose={() => setShowModal(false)}
       />
     </div>
   );
 }
 
-export function TentativelyWaitlistedSelectedButton({
-  selectedApplicants,
-  setSelectedApplicants,
-  onUpdateStatus,
-}: ActionButtonProps) {
-  const [count, setCount] = useState<number>(0);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [saveSelected, setSaveSelected] = useState<Application[]>([]);
-
-  const tentativelyWaitlistedSelectedApplicants = () => {
-    if (count > 0) {
-      for (const applicant of selectedApplicants) {
-        onUpdateStatus(applicant._id, 'tentatively_waitlisted', 'unseen', {
-          refreshPhase: 'tentative',
-        });
-      }
-      setSaveSelected(selectedApplicants);
-      setSelectedApplicants?.([]);
-      setShowModal(true);
-    } else {
-      setCount(1);
-    }
-  };
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setCount(0);
-    }, 3000);
-
-    return () => clearTimeout(timeout);
-  }, [count]);
-
-  return (
-    <div>
-      <button
-        type="button"
-        className={`special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase ${
-          count > 0 ? 'bg-black text-white' : ''
-        }`}
-        title="tentatively waitlist selected applications"
-        onClick={tentativelyWaitlistedSelectedApplicants}
-        disabled={selectedApplicants.length < 1}
-      >
-        {count > 0
-          ? 'u sure?'
-          : selectedApplicants.length < 1
-          ? 'nothing to waitlist'
-          : 'waitlist selected'}
-      </button>
-      <BulkModal
-        isOpen={showModal}
-        action="waitlist"
-        results={saveSelected}
-        onClose={() => setShowModal(false)}
-      />
-    </div>
-  );
+export function TentativelyAcceptedSelectedButton(props: ActionButtonProps) {
+  return <BulkActionButton {...props} action="accept" />;
 }
 
-export function UndoSelectedButton({
-  selectedApplicants,
-  setSelectedApplicants,
-  onUpdateStatus,
-}: ActionButtonProps) {
-  const [count, setCount] = useState<number>(0);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [saveSelected, setSaveSelected] = useState<Application[]>([]);
+export function TentativelyWaitlistedSelectedButton(props: ActionButtonProps) {
+  return <BulkActionButton {...props} action="waitlist" />;
+}
 
-  const undoSelected = () => {
-    if (count > 0) {
-      for (const applicant of selectedApplicants) {
-        onUpdateStatus(
-          applicant._id,
-          applicant.wasWaitlisted ? 'waitlisted' : 'pending',
-          'tentative',
-          { wasWaitlisted: applicant.wasWaitlisted, refreshPhase: 'unseen' }
-        );
-      }
-      setSaveSelected(selectedApplicants);
-      setSelectedApplicants?.([]);
-      setShowModal(true);
-    } else {
-      setCount(1);
-    }
-  };
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setCount(0);
-    }, 3000);
-
-    return () => clearTimeout(timeout);
-  }, [count]);
-
-  return (
-    <div>
-      <button
-        type="button"
-        className={`special-button border-2 border-black px-3 py-1 text-xs font-medium uppercase ${
-          count > 0 ? 'bg-black text-white' : ''
-        }`}
-        title="undo selected applications"
-        onClick={undoSelected}
-        disabled={selectedApplicants.length < 1}
-      >
-        {count > 0
-          ? 'u sure?'
-          : selectedApplicants.length < 1
-          ? 'nothing to undo'
-          : 'undo selected'}
-      </button>
-      <BulkModal
-        isOpen={showModal}
-        action="undo"
-        results={saveSelected}
-        onClose={() => setShowModal(false)}
-      />
-    </div>
-  );
+export function UndoSelectedButton(props: ActionButtonProps) {
+  return <BulkActionButton {...props} action="undo" />;
 }

@@ -1,6 +1,9 @@
 'use client';
 
-import { Application } from '@/app/_types/application';
+import {
+  Application,
+  ApplicationStatusUpdateResult,
+} from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import {
   PHASES,
@@ -10,7 +13,7 @@ import {
 } from '@/app/_types/applicationFilters';
 import FinalizeButton from './FinalizeButton';
 import PhaseColumn from './PhaseColumn';
-import { useState } from 'react';
+import useApplicantSelection from '../_hooks/useApplicantSelection';
 import {
   SelectAllButton,
   TentativelyAcceptedSelectedButton,
@@ -36,7 +39,7 @@ interface ApplicationsGridProps {
       refreshPhase?: Phase;
       batchNumber?: number;
     }
-  ) => void;
+  ) => Promise<ApplicationStatusUpdateResult>;
 }
 
 export default function ApplicationsGrid({
@@ -51,13 +54,19 @@ export default function ApplicationsGrid({
   unseenStatus,
 }: ApplicationsGridProps) {
   const [checkedProcessingApplicants, setProcessingCheckedApplicants] =
-    useState<Application[]>([]);
-  const [checkedTentativeApplicants, setTentativeCheckedApplicants] = useState<
-    Application[]
-  >([]);
-  const [checkedProcessedApplicants, setProcessedCheckedApplicants] = useState<
-    Application[]
-  >([]);
+    useApplicantSelection(appsByPhase.unseen, loading.unseen, unseenStatus);
+  const [checkedTentativeApplicants, setTentativeCheckedApplicants] =
+    useApplicantSelection(
+      appsByPhase.tentative,
+      loading.tentative,
+      tentativeStatus
+    );
+  const [checkedProcessedApplicants, setProcessedCheckedApplicants] =
+    useApplicantSelection(
+      appsByPhase.processed,
+      loading.processed,
+      processedStatus
+    );
 
   return (
     <section className="space-y-3">
@@ -111,9 +120,7 @@ export default function ApplicationsGrid({
                     </p>
                     <div className="flex flex-row items-center gap-2">
                       <SelectAllButton
-                        selectedApplicantsCount={
-                          checkedTentativeApplicants.length
-                        }
+                        selectedApplicants={checkedTentativeApplicants}
                         apps={apps}
                         setSelectedApplicants={setTentativeCheckedApplicants}
                       />
@@ -240,9 +247,7 @@ export default function ApplicationsGrid({
                   <div className="flex flex-row items-center gap-2">
                     <SelectAllButton
                       apps={apps}
-                      selectedApplicantsCount={
-                        checkedProcessingApplicants.length
-                      }
+                      selectedApplicants={checkedProcessingApplicants}
                       setSelectedApplicants={setProcessingCheckedApplicants}
                     />
                     <TentativelyAcceptedSelectedButton
