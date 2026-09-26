@@ -70,6 +70,12 @@ function BulkActionButton({
   action,
 }: ActionButtonProps & { action: BulkAction }) {
   const [confirmed, setConfirmed] = useState(false);
+  const selectionKey = JSON.stringify(
+    selectedApplicants.map((applicant) => applicant._id).sort()
+  );
+  useEffect(() => {
+    setConfirmed(false);
+  }, [selectionKey]);
   const [isProcessing, setIsProcessing] = useState(false);
   const processing = useRef(false);
   const [showModal, setShowModal] = useState(false);

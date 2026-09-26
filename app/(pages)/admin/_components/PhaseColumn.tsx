@@ -16,21 +16,21 @@ interface PhaseColumnProps {
   isLoading: boolean;
   statusFilter?: StatusFilter;
   statusOptions?: readonly Status[];
-  selectedApplicants: Application[];
-  setSelectedApplicants: Dispatch<SetStateAction<Application[]>>;
+  selectedApplicants?: Application[];
+  setSelectedApplicants?: Dispatch<SetStateAction<Application[]>>;
   onStatusChange?: (value: StatusFilter) => void;
   footer?: React.ReactNode;
   renderActions?: (app: Application) => React.ReactNode;
 }
 
 export default function PhaseColumn({
-  phase: _,
+  phase,
   apps,
   isLoading,
   label,
   onStatusChange,
   statusFilter,
-  selectedApplicants,
+  selectedApplicants = [],
   setSelectedApplicants,
   statusOptions,
   footer,
@@ -39,7 +39,7 @@ export default function PhaseColumn({
   const [selectedApplicant, setSelectedApplicant] =
     useState<Application | null>(null);
   const updateSelectedApplicants = (applicant: Application) => {
-    setSelectedApplicants((currentApplicants) => {
+    setSelectedApplicants?.((currentApplicants) => {
       const isSelected = currentApplicants.some(
         (selected) => selected._id === applicant._id
       );
@@ -94,13 +94,19 @@ export default function PhaseColumn({
             >
               <div className="flex flex-row justify-between">
                 <p className="text-xs">id: {app._id}</p>
-                <input
-                  type="checkbox"
-                  checked={selectedApplicants.some(
-                    (selected) => selected._id === app._id
-                  )}
-                  onChange={() => updateSelectedApplicants(app)}
-                />
+                {phase !== 'processed' && setSelectedApplicants && (
+                  <input
+                    type="checkbox"
+                    aria-label={`Select ${
+                      [app.firstName, app.lastName].filter(Boolean).join(' ') ||
+                      'applicant'
+                    } (${app.email || app._id})`}
+                    checked={selectedApplicants.some(
+                      (selected) => selected._id === app._id
+                    )}
+                    onChange={() => updateSelectedApplicants(app)}
+                  />
+                )}
               </div>
               <div className="flex flex-row justify-between">
                 <p className="text-xs">

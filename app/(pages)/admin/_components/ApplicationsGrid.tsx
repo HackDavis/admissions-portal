@@ -61,12 +61,6 @@ export default function ApplicationsGrid({
       loading.tentative,
       tentativeStatus
     );
-  const [checkedProcessedApplicants, setProcessedCheckedApplicants] =
-    useApplicantSelection(
-      appsByPhase.processed,
-      loading.processed,
-      processedStatus
-    );
 
   return (
     <section className="space-y-3">
@@ -146,8 +140,6 @@ export default function ApplicationsGrid({
                 isLoading={isLoading}
                 statusFilter={processedStatus}
                 statusOptions={PROCESSED_STATUSES}
-                selectedApplicants={checkedProcessedApplicants}
-                setSelectedApplicants={setProcessedCheckedApplicants}
                 onStatusChange={onProcessedStatusChange}
                 renderActions={() => null}
               />

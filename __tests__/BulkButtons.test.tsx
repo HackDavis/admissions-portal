@@ -117,3 +117,34 @@ it.each([
     expect(screen.getByRole('button', { name: 'Close' })).toBeEnabled();
   }
 );
+
+it.each([
+  ['accept', TentativelyAcceptedSelectedButton],
+  ['waitlist', TentativelyWaitlistedSelectedButton],
+  ['undo', UndoSelectedButton],
+] as const)(
+  'resets %s confirmation when selection changes',
+  (action, Button) => {
+    const onUpdateStatus = jest.fn();
+    const first = { _id: 'first', status: 'pending' } as Application;
+    const second = { _id: 'second', status: 'pending' } as Application;
+    const { rerender } = render(
+      <Button selectedApplicants={[first]} onUpdateStatus={onUpdateStatus} />
+    );
+    fireEvent.click(screen.getByRole('button', { name: `${action} selected` }));
+    expect(screen.getByRole('button', { name: 'u sure?' })).toBeInTheDocument();
+    rerender(
+      <Button
+        selectedApplicants={[{ ...first }]}
+        onUpdateStatus={onUpdateStatus}
+      />
+    );
+    expect(screen.getByRole('button', { name: 'u sure?' })).toBeInTheDocument();
+    rerender(
+      <Button selectedApplicants={[second]} onUpdateStatus={onUpdateStatus} />
+    );
+    fireEvent.click(screen.getByRole('button', { name: `${action} selected` }));
+    expect(onUpdateStatus).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'u sure?' })).toBeInTheDocument();
+  }
+);
