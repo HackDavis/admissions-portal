@@ -1,7 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Application } from '@/app/_types/application';
+import {
+  Application,
+  ApplicationStatusUpdateResult,
+} from '@/app/_types/application';
 import {
   Phase,
   Status,
@@ -106,7 +109,7 @@ export default function useApplications() {
         refreshPhase?: Phase;
         batchNumber?: number;
       }
-    ) => {
+    ): Promise<ApplicationStatusUpdateResult> => {
       setError(null);
 
       const payload: ApplicationUpdatePayload = {
@@ -139,7 +142,12 @@ export default function useApplications() {
         );
       } catch (err: any) {
         setError(err.message);
+        return {
+          ok: false,
+          error: err.message ?? 'Failed to update applicant',
+        };
       }
+      return { ok: true };
     },
     [loadPhase]
   );

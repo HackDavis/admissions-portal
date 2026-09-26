@@ -1,6 +1,9 @@
 'use client';
 
-import { Application } from '@/app/_types/application';
+import {
+  Application,
+  ApplicationStatusUpdateResult,
+} from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import {
   PHASES,
@@ -10,6 +13,13 @@ import {
 } from '@/app/_types/applicationFilters';
 import FinalizeButton from './FinalizeButton';
 import PhaseColumn from './PhaseColumn';
+import useApplicantSelection from '../_hooks/useApplicantSelection';
+import {
+  SelectAllButton,
+  TentativelyAcceptedSelectedButton,
+  TentativelyWaitlistedSelectedButton,
+  UndoSelectedButton,
+} from './BulkButtons';
 
 interface ApplicationsGridProps {
   appsByPhase: Record<Phase, Application[]>;
@@ -29,7 +39,7 @@ interface ApplicationsGridProps {
       refreshPhase?: Phase;
       batchNumber?: number;
     }
-  ) => void;
+  ) => Promise<ApplicationStatusUpdateResult>;
 }
 
 export default function ApplicationsGrid({
@@ -43,6 +53,15 @@ export default function ApplicationsGrid({
   tentativeStatus,
   unseenStatus,
 }: ApplicationsGridProps) {
+  const [checkedProcessingApplicants, setProcessingCheckedApplicants] =
+    useApplicantSelection(appsByPhase.unseen, loading.unseen, unseenStatus);
+  const [checkedTentativeApplicants, setTentativeCheckedApplicants] =
+    useApplicantSelection(
+      appsByPhase.tentative,
+      loading.tentative,
+      tentativeStatus
+    );
+
   return (
     <section className="space-y-3">
       <h2 className="pb-2 font-medium">applications</h2>
@@ -62,6 +81,8 @@ export default function ApplicationsGrid({
                 isLoading={isLoading}
                 statusFilter={tentativeStatus}
                 statusOptions={TENTATIVE_STATUSES}
+                selectedApplicants={checkedTentativeApplicants}
+                setSelectedApplicants={setTentativeCheckedApplicants}
                 onStatusChange={onTentativeStatusChange}
                 renderActions={(app) => (
                   <button
@@ -83,10 +104,27 @@ export default function ApplicationsGrid({
                   </button>
                 )}
                 footer={
-                  <FinalizeButton
-                    apps={apps}
-                    onFinalizeStatus={onUpdateStatus}
-                  />
+                  <div className="flex flex-col items-center gap-2">
+                    <FinalizeButton
+                      apps={apps}
+                      onFinalizeStatus={onUpdateStatus}
+                    />
+                    <p className="text-xs">
+                      Selected: {checkedTentativeApplicants.length}
+                    </p>
+                    <div className="flex flex-row items-center gap-2">
+                      <SelectAllButton
+                        selectedApplicants={checkedTentativeApplicants}
+                        apps={apps}
+                        setSelectedApplicants={setTentativeCheckedApplicants}
+                      />
+                      <UndoSelectedButton
+                        selectedApplicants={checkedTentativeApplicants}
+                        setSelectedApplicants={setTentativeCheckedApplicants}
+                        onUpdateStatus={onUpdateStatus}
+                      />
+                    </div>
+                  </div>
                 }
               />
             );
@@ -117,6 +155,8 @@ export default function ApplicationsGrid({
               isLoading={isLoading}
               statusFilter={unseenStatus}
               statusOptions={UNSEEN_STATUSES}
+              selectedApplicants={checkedProcessingApplicants}
+              setSelectedApplicants={setProcessingCheckedApplicants}
               onStatusChange={onUnseenStatusChange}
               renderActions={(app) =>
                 app.status === 'waitlisted' ? (
@@ -190,6 +230,30 @@ export default function ApplicationsGrid({
                     </button>
                   </>
                 )
+              }
+              footer={
+                <div className="flex flex-col items-center gap-2">
+                  <p className="text-xs">
+                    Selected: {checkedProcessingApplicants.length}
+                  </p>
+                  <div className="flex flex-row items-center gap-2">
+                    <SelectAllButton
+                      apps={apps}
+                      selectedApplicants={checkedProcessingApplicants}
+                      setSelectedApplicants={setProcessingCheckedApplicants}
+                    />
+                    <TentativelyAcceptedSelectedButton
+                      selectedApplicants={checkedProcessingApplicants}
+                      setSelectedApplicants={setProcessingCheckedApplicants}
+                      onUpdateStatus={onUpdateStatus}
+                    />
+                    <TentativelyWaitlistedSelectedButton
+                      selectedApplicants={checkedProcessingApplicants}
+                      setSelectedApplicants={setProcessingCheckedApplicants}
+                      onUpdateStatus={onUpdateStatus}
+                    />
+                  </div>
+                </div>
               }
             />
           );
