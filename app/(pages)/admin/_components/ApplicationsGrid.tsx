@@ -3,6 +3,7 @@
 import {
   Application,
   ApplicationStatusUpdateResult,
+  ApplicationNote,
 } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import { PHASES } from '@/app/_types/applicationFilters';
@@ -35,6 +36,7 @@ interface ApplicationsGridProps {
       batchNumber?: number;
     }
   ) => Promise<ApplicationStatusUpdateResult>;
+  onNotesChange: (applicationId: string, notes: ApplicationNote[]) => void;
 }
 
 export default function ApplicationsGrid({
@@ -44,6 +46,7 @@ export default function ApplicationsGrid({
   onProcessedStatusChange,
   onTentativeStatusChange,
   onUpdateStatus,
+  onNotesChange,
   processedStatus,
   tentativeStatus,
   unseenStatus,
@@ -83,6 +86,7 @@ export default function ApplicationsGrid({
                 selectedApplicants={checkedTentativeApplicants}
                 setSelectedApplicants={setTentativeCheckedApplicants}
                 onStatusChange={onTentativeStatusChange}
+                onNotesChange={onNotesChange}
                 renderActions={(app) => (
                   <button
                     type="button"
@@ -144,6 +148,7 @@ export default function ApplicationsGrid({
                   'waitlist_rejected',
                 ]}
                 onStatusChange={onProcessedStatusChange}
+                onNotesChange={onNotesChange}
                 renderActions={() => null}
               />
             );
@@ -161,6 +166,7 @@ export default function ApplicationsGrid({
               selectedApplicants={checkedProcessingApplicants}
               setSelectedApplicants={setProcessingCheckedApplicants}
               onStatusChange={onUnseenStatusChange}
+              onNotesChange={onNotesChange}
               renderActions={(app) =>
                 app.status === 'waitlisted' ? (
                   <>

@@ -18,6 +18,7 @@ export default function AdminPage() {
   };
 
   const {
+    applyNotesUpdate,
     appsByPhase,
     error,
     loading,
@@ -79,10 +80,12 @@ export default function AdminPage() {
         onTentativeStatusChange={setTentativeStatus}
         onProcessedStatusChange={setProcessedStatus}
         onUpdateStatus={updateApplicantStatus}
+        onNotesChange={applyNotesUpdate}
       />
       <div className="mt-8">
         <AutoWaitlistApplications
           pools={pools}
+          onNotesChange={applyNotesUpdate}
           isLoading={Object.values(loading).some(Boolean)}
           onUpdateStatus={updateApplicantStatus}
         />

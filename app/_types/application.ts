@@ -1,5 +1,14 @@
 import { Status } from './applicationFilters';
 
+export interface ApplicationNote {
+  _id: string;
+  body: string;
+  authorId: string;
+  authorEmail: string;
+  createdAt: Date | string;
+  updatedAt?: Date | string;
+}
+
 export type WaitlistPool =
   | 'probable_accept'
   | 'probably_waitlist'
@@ -46,6 +55,7 @@ export interface Application {
   submittedAt: Date | string;
   reviewedAt?: Date | string;
   processedAt?: Date | string;
+  notes?: ApplicationNote[];
 }
 
 // Used for CSV exports

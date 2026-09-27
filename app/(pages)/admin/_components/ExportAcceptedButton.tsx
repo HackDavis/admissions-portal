@@ -18,7 +18,7 @@ export function ExportAcceptedButton({
 }: {
   rejectedWaitlisted?: boolean;
 }) {
-  const label = rejectedWaitlisted ? 'rejected / waitlisted' : 'accepted';
+  const label = rejectedWaitlisted ? 'rejected/waitlisted' : 'accepted';
   const [state, setState] = useState<ExportState>({ kind: 'idle' });
 
   async function handleExport() {
