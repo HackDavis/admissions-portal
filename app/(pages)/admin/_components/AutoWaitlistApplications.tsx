@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type {
   Application,
+  ApplicationNote,
   ApplicationStatusUpdateResult,
   WaitlistPool,
 } from '@/app/_types/application';
@@ -13,6 +14,7 @@ import PhaseColumn from './PhaseColumn';
 interface Props {
   pools: Record<WaitlistPool, Application[]>;
   isLoading: boolean;
+  onNotesChange: (applicationId: string, notes: ApplicationNote[]) => void;
   onUpdateStatus: (
     id: string,
     status: Status,
@@ -44,6 +46,7 @@ export default function AutoWaitlistApplications({
   pools,
   isLoading,
   onUpdateStatus,
+  onNotesChange,
 }: Props) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
@@ -102,6 +105,7 @@ export default function AutoWaitlistApplications({
               phase="unseen"
               label={label}
               apps={pools[id]}
+              onNotesChange={onNotesChange}
               isLoading={isLoading}
               renderActions={(app) => (
                 <>

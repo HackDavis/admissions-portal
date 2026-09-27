@@ -3,7 +3,7 @@
 import {
   Application,
   ApplicationStatusUpdateResult,
-  ApplicationNote
+  ApplicationNote,
 } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import { PHASES } from '@/app/_types/applicationFilters';
@@ -36,7 +36,6 @@ interface ApplicationsGridProps {
       batchNumber?: number;
     }
   ) => Promise<ApplicationStatusUpdateResult>;
-  ) => void;
   onNotesChange: (applicationId: string, notes: ApplicationNote[]) => void;
 }
 

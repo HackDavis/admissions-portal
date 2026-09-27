@@ -85,6 +85,7 @@ export default function AdminPage() {
       <div className="mt-8">
         <AutoWaitlistApplications
           pools={pools}
+          onNotesChange={applyNotesUpdate}
           isLoading={Object.values(loading).some(Boolean)}
           onUpdateStatus={updateApplicantStatus}
         />

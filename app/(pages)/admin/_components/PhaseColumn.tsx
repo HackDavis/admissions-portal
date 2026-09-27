@@ -39,8 +39,6 @@ export default function PhaseColumn({
   renderActions,
   onNotesChange,
 }: PhaseColumnProps) {
-  const [selectedApplicant, setSelectedApplicant] =
-    useState<Application | null>(null);
   const updateSelectedApplicants = (applicant: Application) => {
     setSelectedApplicants?.((currentApplicants) => {
       const isSelected = currentApplicants.some(

@@ -4,6 +4,11 @@ import { render, screen } from '@testing-library/react';
 import PhaseColumn from '../app/(pages)/admin/_components/PhaseColumn';
 import { Application } from '../app/_types/application';
 
+jest.mock('@actions/applications/applicationNotes', () => ({
+  addApplicationNote: jest.fn(),
+  updateApplicationNote: jest.fn(),
+}));
+
 const applicant = {
   _id: 'one',
   firstName: 'Ada',
@@ -19,6 +24,7 @@ it('labels selectable applicants and removes checkboxes from processed cards', (
     label: 'Applications',
     selectedApplicants: [],
     setSelectedApplicants: jest.fn(),
+    onNotesChange: jest.fn(),
   };
   const { rerender } = render(<PhaseColumn {...props} phase="unseen" />);
   expect(
