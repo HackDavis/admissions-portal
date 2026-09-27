@@ -128,3 +128,24 @@ test('uses RSVP reminder path without Tito fetch', async () => {
   expect(mockedGetForReminder).toHaveBeenCalled();
   expect(mockedGetUnredeemed).not.toHaveBeenCalled();
 });
+
+test('only processes the supplied applicant IDs', async () => {
+  mockedGetByStatuses.mockResolvedValue([
+    ...baseApplicants,
+    { ...baseApplicants[0], _id: '2', email: 'outside@example.com' },
+  ]);
+  const res = await prepareMailchimpInvites('tentatively_waitlisted', {
+    applicantIds: ['1'],
+  });
+  expect(res.ids).toEqual(['1']);
+  expect(mockedReserveKeys).toHaveBeenCalledWith(1);
+  expect(mockedAxiosCreate.mock.results[0].value.put).toHaveBeenCalledTimes(1);
+});
+
+test('an empty applicant scope processes nobody', async () => {
+  const res = await prepareMailchimpInvites('tentatively_waitlisted', {
+    applicantIds: [],
+  });
+  expect(res.ids).toEqual([]);
+  expect(mockedAxiosCreate).not.toHaveBeenCalled();
+});

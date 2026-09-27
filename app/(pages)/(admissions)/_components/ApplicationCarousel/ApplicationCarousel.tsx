@@ -1,5 +1,6 @@
 'use client';
 
+import { automaticWaitlistReasons } from '../../../../_utils/waitlist';
 import React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import AutoHeight from 'embla-carousel-auto-height';
@@ -144,16 +145,9 @@ export default function ApplicationCarousel() {
           formData.university === 'Other'
             ? customUniversity
             : formData.university,
-        status:
-          formData.isOver18 !== true ||
-          [
-            'Graduate University (Masters, Professional, Doctoral, etc)',
-            'Code School / Bootcamp',
-            'Other Vocational / Trade Program or Apprenticeship',
-            'Post Doctorate',
-          ].includes(formData.levelOfStudy)
-            ? 'tentatively_waitlisted'
-            : 'pending',
+        status: automaticWaitlistReasons(formData).length
+          ? 'waitlisted'
+          : 'pending',
       };
       //submit application
       const ok = await submit(payload);

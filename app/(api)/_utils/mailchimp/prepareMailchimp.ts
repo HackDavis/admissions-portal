@@ -84,6 +84,7 @@ export async function prepareMailchimpInvites(
     | 'tentatively_waitlist_rejected'
     | 'rsvp_reminder',
   options?: {
+    applicantIds?: string[];
     titoInviteMap?: Record<string, string>;
     rsvpListSlug?: string;
   }
@@ -119,6 +120,11 @@ export async function prepareMailchimpInvites(
       dbApplicants = await getApplicationsForRsvpReminder(rsvpSlug);
     } else {
       dbApplicants = await getApplicationsByStatuses(targetStatus);
+    }
+
+    if (options?.applicantIds !== undefined) {
+      const applicantIds = new Set(options.applicantIds);
+      dbApplicants = dbApplicants.filter((app) => applicantIds.has(app._id));
     }
 
     const seenEmails = new Set<string>();

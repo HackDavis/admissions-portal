@@ -134,6 +134,9 @@ export function useFinalizeApps(
         titoInviteMapRecord: Record<string, string>
       ): Promise<boolean> => {
         const res = await prepareMailchimpInvites(status, {
+          applicantIds: apps
+            .filter((app) => app.status === status)
+            .map((app) => app._id),
           titoInviteMap: titoInviteMapRecord,
           rsvpListSlug: selectedRsvpList,
         });

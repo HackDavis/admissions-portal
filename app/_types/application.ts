@@ -1,6 +1,14 @@
 import { Status } from './applicationFilters';
 
+export type WaitlistPool =
+  | 'probable_accept'
+  | 'probably_waitlist'
+  | 'automatic';
+
 export interface Application {
+  decisionSource?: 'automatic' | 'manual';
+  automaticReasons?: string[];
+  waitlistPool?: WaitlistPool;
   _id: string;
   email: string; // required by mlh
   firstName: string; // required by mlh
@@ -50,6 +58,7 @@ export interface ApplicationCondensed {
 }
 
 export interface ApplicationUpdatePayload {
+  waitlistPool?: WaitlistPool;
   status: Status;
   batchNumber?: number;
   wasWaitlisted?: boolean;

@@ -5,12 +5,7 @@ import {
   ApplicationStatusUpdateResult,
 } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
-import {
-  PHASES,
-  PROCESSED_STATUSES,
-  TENTATIVE_STATUSES,
-  UNSEEN_STATUSES,
-} from '@/app/_types/applicationFilters';
+import { PHASES } from '@/app/_types/applicationFilters';
 import FinalizeButton from './FinalizeButton';
 import PhaseColumn from './PhaseColumn';
 import useApplicantSelection from '../_hooks/useApplicantSelection';
@@ -80,7 +75,11 @@ export default function ApplicationsGrid({
                 apps={apps}
                 isLoading={isLoading}
                 statusFilter={tentativeStatus}
-                statusOptions={TENTATIVE_STATUSES}
+                statusOptions={[
+                  'tentatively_accepted',
+                  'tentatively_waitlist_accepted',
+                  'tentatively_waitlist_rejected',
+                ]}
                 selectedApplicants={checkedTentativeApplicants}
                 setSelectedApplicants={setTentativeCheckedApplicants}
                 onStatusChange={onTentativeStatusChange}
@@ -139,7 +138,11 @@ export default function ApplicationsGrid({
                 apps={apps}
                 isLoading={isLoading}
                 statusFilter={processedStatus}
-                statusOptions={PROCESSED_STATUSES}
+                statusOptions={[
+                  'accepted',
+                  'waitlist_accepted',
+                  'waitlist_rejected',
+                ]}
                 onStatusChange={onProcessedStatusChange}
                 renderActions={() => null}
               />
@@ -154,7 +157,7 @@ export default function ApplicationsGrid({
               apps={apps}
               isLoading={isLoading}
               statusFilter={unseenStatus}
-              statusOptions={UNSEEN_STATUSES}
+              statusOptions={['pending']}
               selectedApplicants={checkedProcessingApplicants}
               setSelectedApplicants={setProcessingCheckedApplicants}
               onStatusChange={onUnseenStatusChange}

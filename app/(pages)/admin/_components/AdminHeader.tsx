@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { TitoRsvpModal } from '../_components/TitoRsvpModal';
 import { MailchimpApiStatusModal } from './MailchimpApiStatusModal';
+import Link from 'next/link';
 import { ExportAcceptedButton } from './ExportAcceptedButton';
 
 interface AdminHeaderProps {
@@ -28,6 +29,21 @@ export default function AdminHeader({
         </p>
       </div>
 
+      <div className="flex flex-row gap-2">
+        <button
+          onClick={setIsPopupOpen.bind(null, true)}
+          className="special-button px-2 py-1 text-xs"
+        >
+          process rsvp reminders
+        </button>
+
+        <Link
+          href="/admin/stats"
+          className="special-button px-2 py-1 text-xs text-center"
+        >
+          stats
+        </Link>
+      </div>
       <div className="flex items-start gap-2">
         <button
           onClick={setIsPopupOpen.bind(null, true)}

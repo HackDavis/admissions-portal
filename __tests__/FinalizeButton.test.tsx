@@ -160,6 +160,12 @@ test('processes all applicants and passes Tito map to Mailchimp', async () => {
     (c: any[]) => c[0] === 'tentatively_accepted'
   );
   expect(acceptedCall).toBeDefined();
+  for (const [status, options] of mockedPrepareMailchimpInvites.mock.calls) {
+    expect(options.applicantIds).toEqual(
+      baseApps.filter((app) => app.status === status).map((app) => app._id)
+    );
+  }
+
   expect(acceptedCall![1]).toEqual(
     expect.objectContaining({
       rsvpListSlug: 'rsvp-1',
