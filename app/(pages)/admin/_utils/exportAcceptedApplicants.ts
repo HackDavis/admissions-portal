@@ -7,7 +7,9 @@ import { csvField, downloadCSV } from './downloadCSV';
 
 const ACCEPTED_STATUSES: Status[] = ['accepted', 'waitlist_accepted'];
 
-const ACCEPTED_MAP: Record<string, string> = {
+const STATUS_LABELS: Record<string, string> = {
+  waitlisted: 'Waitlisted',
+  waitlist_rejected: 'Rejected',
   accepted: 'Accepted',
   waitlist_accepted: 'Waitlist Accepted',
 };
@@ -20,7 +22,7 @@ export function buildAcceptedCSV(applicants: ApplicationCondensed[]): string {
       app.email,
       app.firstName,
       app.lastName,
-      ACCEPTED_MAP[app.status] ?? app.status,
+      STATUS_LABELS[app.status] ?? app.status,
     ]
       .map(csvField)
       .join(',')
@@ -30,14 +32,28 @@ export function buildAcceptedCSV(applicants: ApplicationCondensed[]): string {
 }
 
 export async function exportAcceptedApplicants(): Promise<number> {
-  const applicants = await getApplicationsByStatuses(ACCEPTED_STATUSES);
+  return exportApplicants(ACCEPTED_STATUSES, 'accepted');
+}
+
+export async function exportRejectedWaitlistedApplicants(): Promise<number> {
+  return exportApplicants(
+    ['waitlisted', 'waitlist_rejected'],
+    'rejected_waitlisted'
+  );
+}
+
+async function exportApplicants(
+  statuses: Status[],
+  category: string
+): Promise<number> {
+  const applicants = await getApplicationsByStatuses(statuses);
 
   if (applicants.length === 0) return 0;
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   downloadCSV(
     buildAcceptedCSV(applicants),
-    `accepted_applicants_${timestamp}.csv`
+    `${category}_applicants_${timestamp}.csv`
   );
 
   return applicants.length;
