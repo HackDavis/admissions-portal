@@ -28,8 +28,10 @@ export function getWaitlistPool(app: Application): WaitlistPool | null {
     [
       'tentatively_accepted',
       'tentatively_waitlist_accepted',
+      'tentatively_waitlist_rejected',
       'accepted',
       'waitlist_accepted',
+      'waitlist_rejected',
     ].includes(app.status)
   )
     return null;
@@ -45,14 +47,7 @@ export function getWaitlistPool(app: Application): WaitlistPool | null {
   if (app.status === 'pending') {
     return null;
   }
-  if (
-    [
-      'waitlisted',
-      'tentatively_waitlisted',
-      'tentatively_waitlist_rejected',
-      'waitlist_rejected',
-    ].includes(app.status)
-  ) {
+  if (['waitlisted', 'tentatively_waitlisted'].includes(app.status)) {
     return (
       app.waitlistPool ??
       (app.decisionSource === 'automatic' ? 'automatic' : 'probably_waitlist')

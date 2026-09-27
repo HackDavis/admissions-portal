@@ -78,6 +78,7 @@ export default function ApplicationsGrid({
                 statusOptions={[
                   'tentatively_accepted',
                   'tentatively_waitlist_accepted',
+                  'tentatively_waitlist_rejected',
                 ]}
                 selectedApplicants={checkedTentativeApplicants}
                 setSelectedApplicants={setTentativeCheckedApplicants}
@@ -137,7 +138,11 @@ export default function ApplicationsGrid({
                 apps={apps}
                 isLoading={isLoading}
                 statusFilter={processedStatus}
-                statusOptions={['accepted', 'waitlist_accepted']}
+                statusOptions={[
+                  'accepted',
+                  'waitlist_accepted',
+                  'waitlist_rejected',
+                ]}
                 onStatusChange={onProcessedStatusChange}
                 renderActions={() => null}
               />

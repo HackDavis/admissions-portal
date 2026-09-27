@@ -152,28 +152,17 @@ export default function AutoWaitlistApplications({
                       type="button"
                       className="border border-green-700 bg-green-100 px-2 py-1 text-xs"
                       onClick={() =>
-                        decide(app, 'tentatively_waitlist_accepted')
+                        decide(
+                          app,
+                          id === 'probable_accept'
+                            ? 'tentatively_waitlist_accepted'
+                            : 'tentatively_waitlist_rejected'
+                        )
                       }
                     >
-                      Accept for finalization
+                      Move to tentative
                     </button>
                   )}
-                  {id === 'probably_waitlist' &&
-                    app.status !== 'waitlist_rejected' && (
-                      <button
-                        type="button"
-                        className="border border-red-700 bg-red-100 px-2 py-1 text-xs"
-                        onClick={() =>
-                          decide(
-                            app,
-                            'tentatively_waitlist_rejected',
-                            'probably_waitlist'
-                          )
-                        }
-                      >
-                        Reject for finalization
-                      </button>
-                    )}
                 </>
               )}
             />
