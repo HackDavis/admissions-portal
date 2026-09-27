@@ -167,7 +167,13 @@ export default function StatsView() {
 
   return (
     <section className="mb-6 p-4">
-      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <Link
+        href="/admin"
+        className="special-button px-2 py-1 text-sm text-center mb-10"
+      >
+        back
+      </Link>
+      <div className="mt-11 mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h2 className="text-sm font-semibold uppercase">Stats</h2>
 
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -224,12 +230,6 @@ export default function StatsView() {
           </ChartCard>
         </div>
       )}
-      <Link
-        href="/admin"
-        className="special-button px-2 py-1 text-sm text-center"
-      >
-        back
-      </Link>
     </section>
   );
 }

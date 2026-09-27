@@ -28,7 +28,7 @@ export default function AdminHeader({
         </p>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-row gap-2">
         <button
           onClick={setIsPopupOpen.bind(null, true)}
           className="special-button px-2 py-1 text-xs"
