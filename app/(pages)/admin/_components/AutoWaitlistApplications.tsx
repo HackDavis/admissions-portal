@@ -8,7 +8,6 @@ import type {
 } from '@/app/_types/application';
 import type { Phase, Status } from '@/app/_types/applicationFilters';
 import { automaticWaitlistReasons } from '../../../_utils/waitlist';
-import FinalizeButton from './FinalizeButton';
 import PhaseColumn from './PhaseColumn';
 
 interface Props {
@@ -121,7 +120,9 @@ export default function AutoWaitlistApplications({
                       onClick={() =>
                         decide(
                           app,
-                          app.status === 'pending' ? 'waitlisted' : app.status,
+                          app.status === 'tentatively_waitlisted'
+                            ? app.status
+                            : 'waitlisted',
                           'probable_accept'
                         )
                       }
@@ -136,7 +137,9 @@ export default function AutoWaitlistApplications({
                       onClick={() =>
                         decide(
                           app,
-                          app.status === 'pending' ? 'waitlisted' : app.status,
+                          app.status === 'tentatively_waitlisted'
+                            ? app.status
+                            : 'waitlisted',
                           'probably_waitlist'
                         )
                       }
@@ -173,16 +176,6 @@ export default function AutoWaitlistApplications({
                     )}
                 </>
               )}
-              footer={
-                id !== 'automatic' ? (
-                  <FinalizeButton
-                    apps={pools[id].filter((app) =>
-                      app.status.startsWith('tentatively_')
-                    )}
-                    onFinalizeStatus={onUpdateStatus}
-                  />
-                ) : undefined
-              }
             />
           </div>
         ))}
