@@ -3,7 +3,7 @@
 import type { ApplicationCondensed } from '@/app/_types/application';
 import type { Status } from '@/app/_types/applicationFilters';
 import { getApplicationsByStatuses } from '@utils/getFilteredApplications';
-import { downloadCSV } from './downloadCSV';
+import { csvField, downloadCSV } from './downloadCSV';
 
 const ACCEPTED_STATUSES: Status[] = ['accepted', 'waitlist_accepted'];
 
@@ -14,8 +14,6 @@ const ACCEPTED_MAP: Record<string, string> = {
 
 const HEADERS = ['Email', 'First Name', 'Last Name', 'Status'];
 
-const quote = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-
 export function buildAcceptedCSV(applicants: ApplicationCondensed[]): string {
   const rows = applicants.map((app) =>
     [
@@ -24,11 +22,11 @@ export function buildAcceptedCSV(applicants: ApplicationCondensed[]): string {
       app.lastName,
       ACCEPTED_MAP[app.status] ?? app.status,
     ]
-      .map(quote)
+      .map(csvField)
       .join(',')
   );
 
-  return [HEADERS.map(quote).join(','), ...rows].join('\n');
+  return [HEADERS.map(csvField).join(','), ...rows].join('\n');
 }
 
 export async function exportAcceptedApplicants(): Promise<number> {

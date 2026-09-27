@@ -1,7 +1,7 @@
 'use client';
 
 import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
-import { downloadCSV } from './downloadCSV';
+import { csvField, downloadCSV } from './downloadCSV';
 
 export async function processRsvpReminders(rsvpListSlug: string) {
   try {
@@ -32,9 +32,7 @@ export async function processRsvpReminders(rsvpListSlug: string) {
             : 'Unknown Error';
         }
 
-        return [app.email, result, errorDetail]
-          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
-          .join(',');
+        return [app.email, result, errorDetail].map(csvField).join(',');
       });
 
       const csvString = [headers.join(','), ...rows].join('\n');
