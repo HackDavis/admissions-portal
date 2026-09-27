@@ -56,3 +56,6 @@ export interface ApplicationUpdatePayload {
   reviewedAt?: Date | string;
   processedAt?: Date | string;
 }
+export type ApplicationStatusUpdateResult =
+  | { ok: true }
+  | { ok: false; error: string };
