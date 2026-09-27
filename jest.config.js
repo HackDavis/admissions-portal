@@ -35,6 +35,7 @@ const config = {
     '^@datalib/(.*)$': '<rootDir>/app/(api)/_datalib/$1',
     '^@typeDefs/(.*)$': '<rootDir>/app/_types/$1',
     '^@app/_types/(.*)$': '<rootDir>/app/_types/$1',
+    '^@/app/_types/(.*)$': '<rootDir>/app/_types/$1',
     '^@/auth$': '<rootDir>/auth.ts',
     '^@public/(.*)$': '<rootDir>/public/$1',
     '\\.(css|scss|sass)$': 'identity-obj-proxy',
