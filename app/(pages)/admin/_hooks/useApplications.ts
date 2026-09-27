@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Application,
   ApplicationStatusUpdateResult,
+  WaitlistPool,
 } from '@/app/_types/application';
 import {
   Phase,
@@ -37,32 +38,14 @@ export default function useApplications() {
     processed: [],
   });
 
-  const getStatusForPhase = useCallback(
-    (phase: Phase) => {
-      if (phase === 'unseen') {
-        return unseenStatus === 'all' ? null : unseenStatus;
-      }
-      if (phase === 'tentative') {
-        return tentativeStatus === 'all' ? null : tentativeStatus;
-      }
-      if (phase === 'processed') {
-        return processedStatus === 'all' ? null : processedStatus;
-      }
-      return null;
-    },
-    [processedStatus, tentativeStatus, unseenStatus]
-  );
-
   const loadPhase = useCallback(
     async (phase: Phase) => {
       let cancelled = false;
       setError(null);
       setLoading((p) => ({ ...p, [phase]: true }));
       try {
-        const status = getStatusForPhase(phase);
-
         //action call to get applications
-        const res = await getAdminApplications({ phase, ucd, status });
+        const res = await getAdminApplications({ phase, ucd });
 
         if (!cancelled) {
           if (res.ok && Array.isArray(res.body)) {
@@ -84,7 +67,7 @@ export default function useApplications() {
         cancelled = true;
       };
     },
-    [getStatusForPhase, ucd]
+    [ucd]
   );
 
   useEffect(() => {
@@ -108,12 +91,16 @@ export default function useApplications() {
         wasWaitlisted?: boolean;
         refreshPhase?: Phase;
         batchNumber?: number;
+        waitlistPool?: WaitlistPool;
       }
     ): Promise<ApplicationStatusUpdateResult> => {
       setError(null);
 
       const payload: ApplicationUpdatePayload = {
         status: nextStatus,
+        ...(options?.waitlistPool
+          ? { waitlistPool: options.waitlistPool }
+          : {}),
       };
 
       if (options?.batchNumber) {

@@ -5,12 +5,7 @@ import {
   ApplicationStatusUpdateResult,
 } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
-import {
-  PHASES,
-  PROCESSED_STATUSES,
-  TENTATIVE_STATUSES,
-  UNSEEN_STATUSES,
-} from '@/app/_types/applicationFilters';
+import { PHASES } from '@/app/_types/applicationFilters';
 import FinalizeButton from './FinalizeButton';
 import PhaseColumn from './PhaseColumn';
 import useApplicantSelection from '../_hooks/useApplicantSelection';
@@ -80,7 +75,10 @@ export default function ApplicationsGrid({
                 apps={apps}
                 isLoading={isLoading}
                 statusFilter={tentativeStatus}
-                statusOptions={TENTATIVE_STATUSES}
+                statusOptions={[
+                  'tentatively_accepted',
+                  'tentatively_waitlist_accepted',
+                ]}
                 selectedApplicants={checkedTentativeApplicants}
                 setSelectedApplicants={setTentativeCheckedApplicants}
                 onStatusChange={onTentativeStatusChange}
@@ -139,7 +137,7 @@ export default function ApplicationsGrid({
                 apps={apps}
                 isLoading={isLoading}
                 statusFilter={processedStatus}
-                statusOptions={PROCESSED_STATUSES}
+                statusOptions={['accepted', 'waitlist_accepted']}
                 onStatusChange={onProcessedStatusChange}
                 renderActions={() => null}
               />
@@ -154,7 +152,7 @@ export default function ApplicationsGrid({
               apps={apps}
               isLoading={isLoading}
               statusFilter={unseenStatus}
-              statusOptions={UNSEEN_STATUSES}
+              statusOptions={['pending']}
               selectedApplicants={checkedProcessingApplicants}
               setSelectedApplicants={setProcessingCheckedApplicants}
               onStatusChange={onUnseenStatusChange}
@@ -216,14 +214,9 @@ export default function ApplicationsGrid({
                       type="button"
                       className="border border-yellow-700 bg-yellow-100 px-2 py-1 text-[10px] font-semibold uppercase text-yellow-800"
                       onClick={() =>
-                        onUpdateStatus(
-                          app._id,
-                          'tentatively_waitlisted',
-                          'unseen',
-                          {
-                            refreshPhase: 'tentative',
-                          }
-                        )
+                        onUpdateStatus(app._id, 'waitlisted', 'unseen', {
+                          refreshPhase: 'unseen',
+                        })
                       }
                     >
                       waitlist

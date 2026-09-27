@@ -1,174 +1,192 @@
 'use client';
 
-import { Application } from '@/app/_types/application';
-import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
-import { PHASES } from '@/app/_types/applicationFilters';
+import { useState } from 'react';
+import type {
+  Application,
+  ApplicationStatusUpdateResult,
+  WaitlistPool,
+} from '@/app/_types/application';
+import type { Phase, Status } from '@/app/_types/applicationFilters';
+import { automaticWaitlistReasons } from '../../../_utils/waitlist';
 import FinalizeButton from './FinalizeButton';
 import PhaseColumn from './PhaseColumn';
 
-interface ApplicationsGridProps {
-  appsByPhase: Record<Phase, Application[]>;
-  loading: Record<Phase, boolean>;
-  unseenStatus: StatusFilter;
-  tentativeStatus: StatusFilter;
-  processedStatus: StatusFilter;
-  onUnseenStatusChange: (value: StatusFilter) => void;
-  onTentativeStatusChange: (value: StatusFilter) => void;
-  onProcessedStatusChange: (value: StatusFilter) => void;
+interface Props {
+  pools: Record<WaitlistPool, Application[]>;
+  isLoading: boolean;
   onUpdateStatus: (
-    appId: string,
-    nextStatus: Status,
-    fromPhase: Phase,
+    id: string,
+    status: Status,
+    phase: Phase,
     options?: {
       wasWaitlisted?: boolean;
       refreshPhase?: Phase;
-      batchNumber?: number;
+      waitlistPool?: WaitlistPool;
     }
-  ) => void;
+  ) => Promise<ApplicationStatusUpdateResult>;
 }
 
-const WAITLISTED_TENTATIVE_STATUSES: Status[] = [
-  'tentatively_waitlist_accepted',
-  'tentatively_waitlist_rejected',
-];
+const columns = [
+  { id: 'probable_accept', label: 'Manual waitlist — probable accept' },
+  {
+    id: 'probably_waitlist',
+    label: 'Manual waitlist — probably waitlist / reject',
+  },
+  { id: 'automatic', label: 'Automatic waitlist — needs review' },
+] as const;
 
-const WAITLISTED_PROCESSED_STATUSES: Status[] = [
-  'waitlist_accepted',
-  'waitlist_rejected',
-];
+function phaseOf(app: Application): Phase {
+  if (app.status.startsWith('tentatively_')) return 'tentative';
+  if (app.status === 'waitlist_rejected') return 'processed';
+  return 'unseen';
+}
 
 export default function AutoWaitlistApplications({
-  appsByPhase,
-  loading,
-  onUnseenStatusChange,
-  onProcessedStatusChange,
-  onTentativeStatusChange,
+  pools,
+  isLoading,
   onUpdateStatus,
-  processedStatus,
-  tentativeStatus,
-  unseenStatus,
-}: ApplicationsGridProps) {
+}: Props) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
+  async function decide(app: Application, status: Status, pool?: WaitlistPool) {
+    setBusy(true);
+    setMessage('');
+    try {
+      const result = await onUpdateStatus(app._id, status, phaseOf(app), {
+        wasWaitlisted: true,
+        refreshPhase: status.startsWith('tentatively_')
+          ? 'tentative'
+          : status === 'waitlist_rejected'
+          ? 'processed'
+          : 'unseen',
+        ...(pool ? { waitlistPool: pool } : {}),
+      });
+      if (!result.ok) setMessage(result.error);
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : 'Could not save decision.'
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
-    <section className="space-y-3">
-      <h2 className="pb-2 font-medium">auto waitlisted applications</h2>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        {PHASES.map((phase) => {
-          const apps = appsByPhase[phase.id];
-          const isLoading = loading[phase.id];
-
-          if (phase.id === 'tentative') {
-            const filteredApps = appsByPhase.tentative.filter((app) =>
-              WAITLISTED_TENTATIVE_STATUSES.includes(app.status)
-            );
-            return (
-              <PhaseColumn
-                key={phase.id}
-                phase={phase.id}
-                label={phase.label}
-                apps={filteredApps}
-                isLoading={isLoading}
-                statusFilter={tentativeStatus}
-                statusOptions={WAITLISTED_TENTATIVE_STATUSES}
-                onStatusChange={onTentativeStatusChange}
-                renderActions={(app) => (
-                  <button
-                    type="button"
-                    className="border border-red-700 bg-red-100 px-2 py-1 text-[10px] font-semibold uppercase text-red-800"
-                    onClick={() =>
-                      onUpdateStatus(
-                        app._id,
-                        app.wasWaitlisted ? 'waitlisted' : 'pending',
-                        'tentative',
-                        {
-                          wasWaitlisted: app.wasWaitlisted,
-                          refreshPhase: 'unseen',
-                        }
-                      )
-                    }
-                  >
-                    undo selection
-                  </button>
-                )}
-                footer={
-                  <FinalizeButton
-                    apps={filteredApps}
-                    onFinalizeStatus={onUpdateStatus}
-                  />
-                }
-              />
-            );
-          }
-
-          if (phase.id === 'processed') {
-            const filteredApps = appsByPhase.processed.filter((app) =>
-              WAITLISTED_PROCESSED_STATUSES.includes(app.status)
-            );
-            return (
-              <PhaseColumn
-                key={phase.id}
-                phase={phase.id}
-                label={phase.label}
-                apps={filteredApps}
-                isLoading={isLoading}
-                statusFilter={processedStatus}
-                statusOptions={WAITLISTED_PROCESSED_STATUSES}
-                onStatusChange={onProcessedStatusChange}
-                renderActions={() => null}
-              />
-            );
-          }
-
-          return (
+    <section
+      className="space-y-3 border-t-4 border-black pt-6"
+      aria-label="Waitlist pools"
+    >
+      <h2 className="font-medium">Waitlist Pools</h2>
+      {message && (
+        <p
+          role="status"
+          className="whitespace-pre-wrap border border-black p-2 text-xs"
+        >
+          {message}
+        </p>
+      )}
+      <fieldset
+        disabled={busy || isLoading}
+        className="grid min-w-0 gap-4 md:grid-cols-3 disabled:opacity-70"
+      >
+        <legend className="sr-only">Review waitlisted applicants</legend>
+        {columns.map(({ id, label }) => (
+          <div
+            key={id}
+            className={
+              id === 'automatic'
+                ? 'border-t-4 border-dashed border-gray-500 pt-4 md:border-l-4 md:border-t-0 md:pl-4 md:pt-0'
+                : ''
+            }
+          >
             <PhaseColumn
-              key={phase.id}
-              phase={phase.id}
-              label={phase.label}
-              apps={apps.filter((app) => app.status == 'waitlisted')}
+              phase="unseen"
+              label={label}
+              apps={pools[id]}
               isLoading={isLoading}
-              statusFilter={unseenStatus}
-              statusOptions={['waitlisted']}
-              onStatusChange={onUnseenStatusChange}
               renderActions={(app) => (
                 <>
-                  <button
-                    type="button"
-                    className="border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-semibold uppercase text-green-800"
-                    onClick={() =>
-                      onUpdateStatus(
-                        app._id,
-                        'tentatively_waitlist_accepted',
-                        'unseen',
-                        {
-                          refreshPhase: 'tentative',
+                  {id === 'automatic' && (
+                    <p className="w-full text-xs text-amber-800">
+                      Flagged:{' '}
+                      {(
+                        app.automaticReasons ?? automaticWaitlistReasons(app)
+                      ).join('; ')}
+                    </p>
+                  )}
+                  {id !== 'probable_accept' && (
+                    <button
+                      type="button"
+                      className="special-button px-2 py-1 text-xs"
+                      onClick={() =>
+                        decide(
+                          app,
+                          app.status === 'pending' ? 'waitlisted' : app.status,
+                          'probable_accept'
+                        )
+                      }
+                    >
+                      Move to probable accept
+                    </button>
+                  )}
+                  {id !== 'probably_waitlist' && (
+                    <button
+                      type="button"
+                      className="special-button px-2 py-1 text-xs"
+                      onClick={() =>
+                        decide(
+                          app,
+                          app.status === 'pending' ? 'waitlisted' : app.status,
+                          'probably_waitlist'
+                        )
+                      }
+                    >
+                      Move to probably waitlist / reject
+                    </button>
+                  )}
+                  {id !== 'automatic' && (
+                    <button
+                      type="button"
+                      className="border border-green-700 bg-green-100 px-2 py-1 text-xs"
+                      onClick={() =>
+                        decide(app, 'tentatively_waitlist_accepted')
+                      }
+                    >
+                      Accept for finalization
+                    </button>
+                  )}
+                  {id === 'probably_waitlist' &&
+                    app.status !== 'waitlist_rejected' && (
+                      <button
+                        type="button"
+                        className="border border-red-700 bg-red-100 px-2 py-1 text-xs"
+                        onClick={() =>
+                          decide(
+                            app,
+                            'tentatively_waitlist_rejected',
+                            'probably_waitlist'
+                          )
                         }
-                      )
-                    }
-                  >
-                    accept
-                  </button>
-                  <button
-                    type="button"
-                    className="border-2 border-red-800 bg-red-200 px-3 py-2 text-[11px] font-bold uppercase text-red-900"
-                    onClick={() =>
-                      onUpdateStatus(
-                        app._id,
-                        'tentatively_waitlist_rejected',
-                        'unseen',
-                        {
-                          refreshPhase: 'tentative',
-                        }
-                      )
-                    }
-                  >
-                    FINAL REJECT
-                  </button>
+                      >
+                        Reject for finalization
+                      </button>
+                    )}
                 </>
               )}
+              footer={
+                id !== 'automatic' ? (
+                  <FinalizeButton
+                    apps={pools[id].filter((app) =>
+                      app.status.startsWith('tentatively_')
+                    )}
+                    onFinalizeStatus={onUpdateStatus}
+                  />
+                ) : undefined
+              }
             />
-          );
-        })}
-      </div>
+          </div>
+        ))}
+      </fieldset>
     </section>
   );
 }

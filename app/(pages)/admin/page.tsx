@@ -7,6 +7,9 @@ import ApplicationsGrid from './_components/ApplicationsGrid';
 import FiltersBar from './_components/FiltersBar';
 import ProgressBar from './_components/ProgressBar';
 import useApplications from './_hooks/useApplications';
+import { partitionWaitlist } from '../../_utils/waitlist';
+import { Phase, PHASES } from '../../_types/applicationFilters';
+import { Application } from '../../_types/application';
 import AutoWaitlistApplications from './_components/AutoWaitlistApplications';
 
 export default function AdminPage() {
@@ -29,6 +32,21 @@ export default function AdminPage() {
     ucd,
     updateApplicantStatus,
   } = useApplications();
+  const allApps = PHASES.flatMap(({ id }) => appsByPhase[id]);
+  const { pools } = partitionWaitlist(allApps);
+  const filters = {
+    unseen: unseenStatus,
+    tentative: tentativeStatus,
+    processed: processedStatus,
+  };
+  const regularApps = Object.fromEntries(
+    PHASES.map(({ id }) => [
+      id,
+      partitionWaitlist(appsByPhase[id]).regular.filter(
+        (app) => filters[id] === 'all' || app.status === filters[id]
+      ),
+    ])
+  ) as Record<Phase, Application[]>;
   const processedCount = appsByPhase.processed.length;
   const tentativeCount = appsByPhase.tentative.length;
 
@@ -52,7 +70,7 @@ export default function AdminPage() {
       )}
 
       <ApplicationsGrid
-        appsByPhase={appsByPhase}
+        appsByPhase={regularApps}
         loading={loading}
         unseenStatus={unseenStatus}
         tentativeStatus={tentativeStatus}
@@ -64,14 +82,8 @@ export default function AdminPage() {
       />
       <div className="mt-8">
         <AutoWaitlistApplications
-          appsByPhase={appsByPhase}
-          loading={loading}
-          unseenStatus={unseenStatus}
-          tentativeStatus={tentativeStatus}
-          processedStatus={processedStatus}
-          onUnseenStatusChange={setUnseenStatus}
-          onTentativeStatusChange={setTentativeStatus}
-          onProcessedStatusChange={setProcessedStatus}
+          pools={pools}
+          isLoading={Object.values(loading).some(Boolean)}
           onUpdateStatus={updateApplicantStatus}
         />
       </div>
