@@ -6,6 +6,7 @@ import {
   HttpError,
   NotFoundError,
   NoContentError,
+  BadRequestError,
   DuplicateError,
 } from '@utils/response/Errors';
 import { ApplicationUpdatePayload } from '@/app/_types/application';
@@ -27,6 +28,22 @@ export const UpdateApplication = async (
     // empty
     if (isBodyEmpty(body)) {
       throw new NoContentError();
+    }
+
+    const allowedFields = new Set<keyof ApplicationUpdatePayload>([
+      'status',
+      'waitlistPool',
+      'batchNumber',
+      'wasWaitlisted',
+      'reviewedAt',
+      'processedAt',
+    ]);
+    if (
+      Object.keys(body).some(
+        (key) => !allowedFields.has(key as keyof ApplicationUpdatePayload)
+      )
+    ) {
+      throw new BadRequestError('Unsupported application update field.');
     }
 
     const updateData: ApplicationUpdatePayload & {

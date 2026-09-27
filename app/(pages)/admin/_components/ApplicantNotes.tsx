@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
-import { ApplicationNote } from "@/app/_types/application";
+import { ApplicationNote } from '@/app/_types/application';
 import {
   addApplicationNote,
   updateApplicationNote,
-} from "@actions/applications/applicationNotes";
-import { formatNoteTimestamp, sortNotesByNewest } from "../_utils/notes";
+} from '@actions/applications/applicationNotes';
+import { formatNoteTimestamp, sortNotesByNewest } from '../_utils/notes';
 
 interface ApplicantNotesProps {
   applicationId: string;
@@ -22,9 +22,9 @@ export default function ApplicantNotes({
   onNotesChange,
 }: ApplicantNotesProps) {
   const { data: session } = useSession();
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editDraft, setEditDraft] = useState("");
+  const [editDraft, setEditDraft] = useState('');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,12 +40,12 @@ export default function ApplicantNotes({
 
       if (res.ok && res.body) {
         onNotesChange(res.body);
-        setDraft("");
+        setDraft('');
       } else {
-        setError(res.error ?? "Failed to add note.");
+        setError(res.error ?? 'Failed to add note.');
       }
     } catch {
-      setError("Failed to add note.");
+      setError('Failed to add note.');
     } finally {
       setPending(false);
     }
@@ -61,12 +61,12 @@ export default function ApplicantNotes({
       if (res.ok && res.body) {
         onNotesChange(res.body);
         setEditingId(null);
-        setEditDraft("");
+        setEditDraft('');
       } else {
-        setError(res.error ?? "Failed to update note.");
+        setError(res.error ?? 'Failed to update note.');
       }
     } catch {
-      setError("Failed to update note.");
+      setError('Failed to update note.');
     } finally {
       setPending(false);
     }
@@ -93,17 +93,19 @@ export default function ApplicantNotes({
           onChange={(e) => setDraft(e.target.value)}
           placeholder="add a note..."
           aria-label="Add an internal note"
+          maxLength={2000}
           rows={2}
           className="border border-black p-1 text-xs"
         />
 
+        <p className="text-[10px]">{draft.length}/2000 characters</p>
         <button
           type="button"
           onClick={handleAdd}
           disabled={pending || !draft.trim()}
           className="self-start border border-black px-2 py-1 text-[10px] uppercase disabled:opacity-40"
         >
-          {pending ? "saving..." : "add note"}
+          {pending ? 'saving...' : 'add note'}
         </button>
       </div>
 
@@ -117,7 +119,7 @@ export default function ApplicantNotes({
             <li key={note._id} className="border border-black p-2">
               <p className="text-[10px] font-semibold uppercase">
                 {note.authorEmail} · {formatNoteTimestamp(note.createdAt)}
-                {note.updatedAt ? " (edited)" : ""}
+                {note.updatedAt ? ' (edited)' : ''}
               </p>
 
               {editingId === note._id ? (
@@ -126,10 +128,14 @@ export default function ApplicantNotes({
                     value={editDraft}
                     onChange={(e) => setEditDraft(e.target.value)}
                     aria-label="Edit internal note"
+                    maxLength={2000}
                     rows={2}
                     className="border border-black p-1 text-xs"
                   />
 
+                  <p className="text-[10px]">
+                    {editDraft.length}/2000 characters
+                  </p>
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -170,8 +176,6 @@ export default function ApplicantNotes({
           ))}
         </ul>
       )}
-
-
     </section>
   );
 }
