@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { TitoRsvpModal } from '../_components/TitoRsvpModal';
 import { MailchimpApiStatusModal } from './MailchimpApiStatusModal';
+import Link from 'next/link';
+import { ExportAcceptedButton } from './ExportAcceptedButton';
 
 interface AdminHeaderProps {
   totalCount: number;
@@ -27,12 +29,23 @@ export default function AdminHeader({
         </p>
       </div>
 
-      <button
-        onClick={setIsPopupOpen.bind(null, true)}
-        className="special-button px-2 py-1 text-xs"
-      >
-        process rsvp reminders
-      </button>
+      <div className="flex flex-wrap items-start gap-2">
+        <Link
+          href="/admin/stats"
+          className="special-button px-2 py-1 text-xs text-center"
+        >
+          stats
+        </Link>
+        <button
+          onClick={setIsPopupOpen.bind(null, true)}
+          className="special-button px-2 py-1 text-xs"
+        >
+          process rsvp reminders
+        </button>
+
+        <ExportAcceptedButton />
+        <ExportAcceptedButton rejectedWaitlisted />
+      </div>
 
       <MailchimpApiStatusModal />
 

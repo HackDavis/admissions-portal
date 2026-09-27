@@ -35,7 +35,7 @@ export default function FinalizeButton({
         onClick={actions.handleFinalize}
         disabled={state.isProcessing || apps.length === 0 || apps.length > 110}
       >
-        {apps.length > 110 ? 'batch size limit: 110' : 'finalize'}
+        {apps.length > 110 ? 'batch size limit: 110' : 'finalize everything'}
       </button>
 
       {/* Tito Configuration & Processing Modal */}

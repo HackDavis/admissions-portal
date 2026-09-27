@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 
 import { Application, ApplicationNote } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
@@ -17,6 +17,8 @@ interface PhaseColumnProps {
   isLoading: boolean;
   statusFilter?: StatusFilter;
   statusOptions?: readonly Status[];
+  selectedApplicants?: Application[];
+  setSelectedApplicants?: Dispatch<SetStateAction<Application[]>>;
   onStatusChange?: (value: StatusFilter) => void;
   footer?: React.ReactNode;
   renderActions?: (app: Application) => React.ReactNode;
@@ -24,17 +26,34 @@ interface PhaseColumnProps {
 }
 
 export default function PhaseColumn({
-  phase: _,
+  phase,
   apps,
   isLoading,
   label,
   onStatusChange,
   statusFilter,
+  selectedApplicants = [],
+  setSelectedApplicants,
   statusOptions,
   footer,
   renderActions,
   onNotesChange,
 }: PhaseColumnProps) {
+  const [selectedApplicant, setSelectedApplicant] =
+    useState<Application | null>(null);
+  const updateSelectedApplicants = (applicant: Application) => {
+    setSelectedApplicants?.((currentApplicants) => {
+      const isSelected = currentApplicants.some(
+        (selected) => selected._id === applicant._id
+      );
+
+      const nextApplicants = isSelected
+        ? currentApplicants.filter((selected) => selected._id !== applicant._id)
+        : [...currentApplicants, applicant];
+
+      return nextApplicants;
+    });
+  };
   // Track the id rather than the applicant so the modal reflects note edits as they are saved.
   const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(
     null
@@ -83,6 +102,24 @@ export default function PhaseColumn({
             >
               <div className="flex flex-row justify-between">
                 <p className="text-xs">id: {app._id}</p>
+                {phase !== 'processed' && setSelectedApplicants && (
+                  <input
+                    type="checkbox"
+                    aria-label={`Select ${
+                      [app.firstName, app.lastName].filter(Boolean).join(' ') ||
+                      'applicant'
+                    } (${app.email || app._id})`}
+                    checked={selectedApplicants.some(
+                      (selected) => selected._id === app._id
+                    )}
+                    onChange={() => updateSelectedApplicants(app)}
+                  />
+                )}
+              </div>
+              <div className="flex flex-row justify-between">
+                <p className="text-xs">
+                  name: {app.firstName ?? '-'} {app.lastName ?? ''}
+                </p>
                 <div className="flex flex-row gap-2">
                   <a
                     href={getSafeUrl(app.linkedin) ?? undefined}
@@ -117,9 +154,6 @@ export default function PhaseColumn({
                   )}
                 </div>
               </div>
-              <p className="text-xs">
-                name: {app.firstName ?? '-'} {app.lastName ?? ''}
-              </p>
               <p className="text-xs">email: {app.email}</p>
               <p className="text-xs">
                 ucd: {app.isUCDavisStudent ? 'yes' : 'no'}

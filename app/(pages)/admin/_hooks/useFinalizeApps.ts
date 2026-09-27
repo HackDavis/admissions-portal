@@ -9,6 +9,7 @@ import {
 } from '@typeDefs/applicationFilters';
 import { RsvpList, Release } from '@/app/_types/tito';
 import { generateComprehensiveCSV } from '../_utils/generateComprehensiveCSV';
+import { downloadCSV } from '../_utils/downloadCSV';
 import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
 import { useMailchimp } from '../_hooks/useMailchimp';
 import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
@@ -133,6 +134,9 @@ export function useFinalizeApps(
         titoInviteMapRecord: Record<string, string>
       ): Promise<boolean> => {
         const res = await prepareMailchimpInvites(status, {
+          applicantIds: apps
+            .filter((app) => app.status === status)
+            .map((app) => app._id),
           titoInviteMap: titoInviteMapRecord,
           rsvpListSlug: selectedRsvpList,
         });
@@ -306,14 +310,9 @@ export function useFinalizeApps(
         mailchimpErrorMap
       );
 
-      const blob = new Blob([csvData], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const download = `applicants_finalized_${new Date().toISOString()}.csv`;
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = download;
-      a.click();
-      URL.revokeObjectURL(url);
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const download = `applicants_finalized_${timestamp}.csv`;
+      downloadCSV(csvData, download);
 
       const totalErrors = titoFailures.length + mailchimpFailures.length;
       setProcessingResults({

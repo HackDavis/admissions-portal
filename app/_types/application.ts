@@ -9,7 +9,15 @@ export interface ApplicationNote {
   updatedAt?: Date | string;
 }
 
+export type WaitlistPool =
+  | 'probable_accept'
+  | 'probably_waitlist'
+  | 'automatic';
+
 export interface Application {
+  decisionSource?: 'automatic' | 'manual';
+  automaticReasons?: string[];
+  waitlistPool?: WaitlistPool;
   _id: string;
   email: string; // required by mlh
   firstName: string; // required by mlh
@@ -50,7 +58,7 @@ export interface Application {
   notes?: ApplicationNote[];
 }
 
-// Used for Mailchimp and Tito CSV exports
+// Used for CSV exports
 export interface ApplicationCondensed {
   _id: string;
   firstName: string;
@@ -60,9 +68,13 @@ export interface ApplicationCondensed {
 }
 
 export interface ApplicationUpdatePayload {
+  waitlistPool?: WaitlistPool;
   status: Status;
   batchNumber?: number;
   wasWaitlisted?: boolean;
   reviewedAt?: Date | string;
   processedAt?: Date | string;
 }
+export type ApplicationStatusUpdateResult =
+  | { ok: true }
+  | { ok: false; error: string };

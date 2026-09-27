@@ -29,7 +29,21 @@ export const UpdateApplication = async (
       throw new NoContentError();
     }
 
-    const updateData = { ...body };
+    const updateData: ApplicationUpdatePayload & {
+      decisionSource?: 'manual';
+    } = { ...body };
+    if (
+      body.waitlistPool &&
+      !['probable_accept', 'probably_waitlist'].includes(body.waitlistPool)
+    ) {
+      throw new Error('Choose a manual waitlist pool.');
+    }
+    if (body.status) updateData.decisionSource = 'manual';
+    if (['waitlisted', 'waitlist_rejected'].includes(body.status)) {
+      updateData.waitlistPool = body.waitlistPool ?? 'probably_waitlist';
+      updateData.wasWaitlisted = true;
+      updateData.reviewedAt = new Date();
+    }
 
     if (updateData.status && !ALL_STATUSES.includes(updateData.status)) {
       throw new Error(`Invalid status: "${updateData.status}".`);
@@ -51,7 +65,7 @@ export const UpdateApplication = async (
     const db = await getDatabase();
 
     // Only check duplicates if updating email
-    const object_id = new ObjectId(id);
+    const object_id = ObjectId.isValid(id) ? new ObjectId(id) : id;
     if (parsedBody.email) {
       const hasDuplicate = await db.collection('applications').findOne({
         $and: [{ _id: { $ne: object_id } }, { email: parsedBody.email }],
@@ -67,6 +81,14 @@ export const UpdateApplication = async (
       ? { $or: [{ _id: new ObjectId(id) }, { _id: id }] }
       : { _id: id };
 
+    const current = await db.collection('applications').findOne(filter);
+    if (
+      !body.waitlistPool &&
+      current?.waitlistPool === 'probable_accept' &&
+      body.status === 'waitlisted'
+    ) {
+      parsedBody.waitlistPool = 'probable_accept';
+    }
     const result = await db
       .collection('applications')
       .updateOne(filter, { $set: parsedBody });

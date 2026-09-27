@@ -1,15 +1,21 @@
 'use client';
 
-import { Application, ApplicationNote } from '@/app/_types/application';
-import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import {
-  PHASES,
-  PROCESSED_STATUSES,
-  TENTATIVE_STATUSES,
-  UNSEEN_STATUSES,
-} from '@/app/_types/applicationFilters';
+  Application,
+  ApplicationStatusUpdateResult,
+  ApplicationNote
+} from '@/app/_types/application';
+import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
+import { PHASES } from '@/app/_types/applicationFilters';
 import FinalizeButton from './FinalizeButton';
 import PhaseColumn from './PhaseColumn';
+import useApplicantSelection from '../_hooks/useApplicantSelection';
+import {
+  SelectAllButton,
+  TentativelyAcceptedSelectedButton,
+  TentativelyWaitlistedSelectedButton,
+  UndoSelectedButton,
+} from './BulkButtons';
 
 interface ApplicationsGridProps {
   appsByPhase: Record<Phase, Application[]>;
@@ -29,6 +35,7 @@ interface ApplicationsGridProps {
       refreshPhase?: Phase;
       batchNumber?: number;
     }
+  ) => Promise<ApplicationStatusUpdateResult>;
   ) => void;
   onNotesChange: (applicationId: string, notes: ApplicationNote[]) => void;
 }
@@ -45,6 +52,15 @@ export default function ApplicationsGrid({
   tentativeStatus,
   unseenStatus,
 }: ApplicationsGridProps) {
+  const [checkedProcessingApplicants, setProcessingCheckedApplicants] =
+    useApplicantSelection(appsByPhase.unseen, loading.unseen, unseenStatus);
+  const [checkedTentativeApplicants, setTentativeCheckedApplicants] =
+    useApplicantSelection(
+      appsByPhase.tentative,
+      loading.tentative,
+      tentativeStatus
+    );
+
   return (
     <section className="space-y-3">
       <h2 className="pb-2 font-medium">applications</h2>
@@ -63,7 +79,13 @@ export default function ApplicationsGrid({
                 apps={apps}
                 isLoading={isLoading}
                 statusFilter={tentativeStatus}
-                statusOptions={TENTATIVE_STATUSES}
+                statusOptions={[
+                  'tentatively_accepted',
+                  'tentatively_waitlist_accepted',
+                  'tentatively_waitlist_rejected',
+                ]}
+                selectedApplicants={checkedTentativeApplicants}
+                setSelectedApplicants={setTentativeCheckedApplicants}
                 onStatusChange={onTentativeStatusChange}
                 onNotesChange={onNotesChange}
                 renderActions={(app) => (
@@ -86,10 +108,27 @@ export default function ApplicationsGrid({
                   </button>
                 )}
                 footer={
-                  <FinalizeButton
-                    apps={apps}
-                    onFinalizeStatus={onUpdateStatus}
-                  />
+                  <div className="flex flex-col items-center gap-2">
+                    <FinalizeButton
+                      apps={apps}
+                      onFinalizeStatus={onUpdateStatus}
+                    />
+                    <p className="text-xs">
+                      Selected: {checkedTentativeApplicants.length}
+                    </p>
+                    <div className="flex flex-row items-center gap-2">
+                      <SelectAllButton
+                        selectedApplicants={checkedTentativeApplicants}
+                        apps={apps}
+                        setSelectedApplicants={setTentativeCheckedApplicants}
+                      />
+                      <UndoSelectedButton
+                        selectedApplicants={checkedTentativeApplicants}
+                        setSelectedApplicants={setTentativeCheckedApplicants}
+                        onUpdateStatus={onUpdateStatus}
+                      />
+                    </div>
+                  </div>
                 }
               />
             );
@@ -104,7 +143,11 @@ export default function ApplicationsGrid({
                 apps={apps}
                 isLoading={isLoading}
                 statusFilter={processedStatus}
-                statusOptions={PROCESSED_STATUSES}
+                statusOptions={[
+                  'accepted',
+                  'waitlist_accepted',
+                  'waitlist_rejected',
+                ]}
                 onStatusChange={onProcessedStatusChange}
                 onNotesChange={onNotesChange}
                 renderActions={() => null}
@@ -120,7 +163,9 @@ export default function ApplicationsGrid({
               apps={apps}
               isLoading={isLoading}
               statusFilter={unseenStatus}
-              statusOptions={UNSEEN_STATUSES}
+              statusOptions={['pending']}
+              selectedApplicants={checkedProcessingApplicants}
+              setSelectedApplicants={setProcessingCheckedApplicants}
               onStatusChange={onUnseenStatusChange}
               onNotesChange={onNotesChange}
               renderActions={(app) =>
@@ -195,6 +240,30 @@ export default function ApplicationsGrid({
                     </button>
                   </>
                 )
+              }
+              footer={
+                <div className="flex flex-col items-center gap-2">
+                  <p className="text-xs">
+                    Selected: {checkedProcessingApplicants.length}
+                  </p>
+                  <div className="flex flex-row items-center gap-2">
+                    <SelectAllButton
+                      apps={apps}
+                      selectedApplicants={checkedProcessingApplicants}
+                      setSelectedApplicants={setProcessingCheckedApplicants}
+                    />
+                    <TentativelyAcceptedSelectedButton
+                      selectedApplicants={checkedProcessingApplicants}
+                      setSelectedApplicants={setProcessingCheckedApplicants}
+                      onUpdateStatus={onUpdateStatus}
+                    />
+                    <TentativelyWaitlistedSelectedButton
+                      selectedApplicants={checkedProcessingApplicants}
+                      setSelectedApplicants={setProcessingCheckedApplicants}
+                      onUpdateStatus={onUpdateStatus}
+                    />
+                  </div>
+                </div>
               }
             />
           );
