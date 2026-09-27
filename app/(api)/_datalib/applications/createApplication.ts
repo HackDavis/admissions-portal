@@ -33,6 +33,7 @@ export const CreateApplication = async (body: object) => {
     const automaticReasons = automaticWaitlistReasons(parsedBody);
     const submission = { ...parsedBody };
     for (const key of [
+      'notes',
       'decisionSource',
       'waitlistPool',
       'reviewedAt',
