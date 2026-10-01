@@ -42,6 +42,11 @@ export function TitoRsvpModal({ isOpen, onClose }: TitoRsvpModalProps) {
         .then((res) => {
           if (res.ok && res.body) {
             setRsvpLists(res.body);
+            setSelectedRsvpSlug(
+              res.body.find((list) =>
+                list.title.toLowerCase().includes('hacker')
+              )?.slug ?? ''
+            );
           } else {
             setError('Failed to load RSVP lists. Please try again.');
           }
