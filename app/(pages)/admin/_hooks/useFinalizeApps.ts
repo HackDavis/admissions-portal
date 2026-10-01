@@ -78,10 +78,15 @@ export function useFinalizeApps(
       setRsvpLists(rsvpListsRes.body);
       setReleases(releasesRes.body);
 
-      // Auto-select first RSVP list if available
-      if (rsvpListsRes.body.length > 0) {
-        setSelectedRsvpList(rsvpListsRes.body[0].slug);
-      }
+      // Prefer hacker options regardless of the order returned by Tito.
+      const hackerRsvpList = rsvpListsRes.body.find((list) =>
+        list.title.toLowerCase().includes('hacker')
+      );
+      setSelectedRsvpList(hackerRsvpList?.slug ?? '');
+      const hackerRelease = releasesRes.body.find((release) =>
+        release.title.toLowerCase().includes('hacker')
+      );
+      setSelectedReleases(hackerRelease ? [hackerRelease.id] : []);
     } catch (err: any) {
       console.error(err);
       alert(`Failed to load Tito data: ${err.message ?? err}`);

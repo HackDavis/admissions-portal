@@ -72,7 +72,7 @@ const baseApps: Application[] = [
 function setupMocks() {
   mockedGetRsvpLists.mockResolvedValue({
     ok: true,
-    body: [{ id: 'list-1', slug: 'rsvp-1', title: 'RSVP 1' }],
+    body: [{ id: 'list-1', slug: 'rsvp-1', title: 'Hackers RSVP' }],
     error: null,
   });
 
