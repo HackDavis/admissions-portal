@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import { automaticWaitlistReasons } from '../../../_utils/waitlist';
 
 import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
 import isBodyEmpty from '@utils/request/isBodyEmpty';
@@ -29,8 +30,28 @@ export const CreateApplication = async (body: object) => {
       throw new DuplicateError('Duplicate Error: applicant already submitted.');
     }
 
+    const automaticReasons = automaticWaitlistReasons(parsedBody);
+    const submission = { ...parsedBody };
+    for (const key of [
+      'notes',
+      'decisionSource',
+      'waitlistPool',
+      'reviewedAt',
+      'processedAt',
+      'batchNumber',
+    ])
+      delete submission[key];
     const parsedBodyWithTimestamp = {
-      ...parsedBody,
+      ...submission,
+      status: automaticReasons.length ? 'waitlisted' : 'pending',
+      wasWaitlisted: automaticReasons.length > 0,
+      ...(automaticReasons.length
+        ? {
+            decisionSource: 'automatic',
+            waitlistPool: 'automatic',
+          }
+        : {}),
+      automaticReasons,
       submittedAt: new Date(),
     };
 

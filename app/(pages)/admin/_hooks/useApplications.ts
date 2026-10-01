@@ -1,7 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Application } from '@/app/_types/application';
+import {
+  Application,
+  ApplicationStatusUpdateResult,
+  WaitlistPool,
+  ApplicationNote,
+} from '@/app/_types/application';
 import {
   Phase,
   Status,
@@ -34,32 +39,14 @@ export default function useApplications() {
     processed: [],
   });
 
-  const getStatusForPhase = useCallback(
-    (phase: Phase) => {
-      if (phase === 'unseen') {
-        return unseenStatus === 'all' ? null : unseenStatus;
-      }
-      if (phase === 'tentative') {
-        return tentativeStatus === 'all' ? null : tentativeStatus;
-      }
-      if (phase === 'processed') {
-        return processedStatus === 'all' ? null : processedStatus;
-      }
-      return null;
-    },
-    [processedStatus, tentativeStatus, unseenStatus]
-  );
-
   const loadPhase = useCallback(
     async (phase: Phase) => {
       let cancelled = false;
       setError(null);
       setLoading((p) => ({ ...p, [phase]: true }));
       try {
-        const status = getStatusForPhase(phase);
-
         //action call to get applications
-        const res = await getAdminApplications({ phase, ucd, status });
+        const res = await getAdminApplications({ phase, ucd });
 
         if (!cancelled) {
           if (res.ok && Array.isArray(res.body)) {
@@ -81,7 +68,7 @@ export default function useApplications() {
         cancelled = true;
       };
     },
-    [getStatusForPhase, ucd]
+    [ucd]
   );
 
   useEffect(() => {
@@ -105,12 +92,16 @@ export default function useApplications() {
         wasWaitlisted?: boolean;
         refreshPhase?: Phase;
         batchNumber?: number;
+        waitlistPool?: WaitlistPool;
       }
-    ) => {
+    ): Promise<ApplicationStatusUpdateResult> => {
       setError(null);
 
       const payload: ApplicationUpdatePayload = {
         status: nextStatus,
+        ...(options?.waitlistPool
+          ? { waitlistPool: options.waitlistPool }
+          : {}),
       };
 
       if (options?.batchNumber) {
@@ -139,9 +130,29 @@ export default function useApplications() {
         );
       } catch (err: any) {
         setError(err.message);
+        return {
+          ok: false,
+          error: err.message ?? 'Failed to update applicant',
+        };
       }
+      return { ok: true };
     },
     [loadPhase]
+  );
+
+  const applyNotesUpdate = useCallback(
+    (appId: string, notes: ApplicationNote[]) => {
+      setAppsByPhase((prev) => {
+        const next = {} as Record<Phase, Application[]>;
+        for (const phase of PHASES) {
+          next[phase.id] = prev[phase.id].map((app) =>
+            app._id === appId ? { ...app, notes } : app
+          );
+        }
+        return next;
+      });
+    },
+    []
   );
 
   const totalCount = useMemo(
@@ -150,6 +161,7 @@ export default function useApplications() {
   );
 
   return {
+    applyNotesUpdate,
     appsByPhase,
     error,
     loading,

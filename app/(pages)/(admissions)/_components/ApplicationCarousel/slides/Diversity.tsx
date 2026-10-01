@@ -3,24 +3,9 @@
 import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { useEnterKey } from '../../../_hooks/useEnterKey';
+import { GENDER_OPTIONS, RACE_OPTIONS } from '@app/_data/applicationOptions';
 
-export const GENDER_OPTIONS = [
-  'Woman',
-  'Man',
-  'Transgender',
-  'Non-Binary or Non-Conforming',
-  'Prefer not to answer',
-  'Other',
-];
-export const RACE_OPTIONS = [
-  'American Indian or Alaska Native',
-  'Asian or Pacific Islander',
-  'Black or African American',
-  'Hispanic or Latinx or Chicanx',
-  'White or Caucasian',
-  'Prefer not to answer',
-  'Other',
-];
+export { GENDER_OPTIONS, RACE_OPTIONS };
 
 interface DiversityProps {
   formData: any;

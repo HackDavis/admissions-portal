@@ -1,14 +1,12 @@
 import { faker } from '@faker-js/faker';
 import data from '../app/_data/db_validation_data.json' with { type: 'json' };
 import {
-  GENDER_OPTIONS,
-  RACE_OPTIONS,
-} from '../app/(pages)/(admissions)/_components/ApplicationCarousel/slides/Diversity.tsx';
-import {
   COLLEGE_OPTIONS,
+  DIETARY_OPTIONS,
+  GENDER_OPTIONS,
   LEVEL_OF_STUDY_OPTIONS,
-} from '../app/(pages)/(admissions)/_components/ApplicationCarousel/slides/KeepGoing.tsx';
-import { DIETARY_OPTIONS } from '../app/(pages)/(admissions)/_components/ApplicationCarousel/slides/NearlySet.tsx';
+  RACE_OPTIONS,
+} from '../app/_data/applicationOptions.ts';
 
 const years = [...new Set(data.years)];
 const shirtSizes = [...new Set(data.shirtSizes)];

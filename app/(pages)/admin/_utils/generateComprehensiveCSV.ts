@@ -1,4 +1,5 @@
 import { Application } from '@/app/_types/application';
+import { csvField } from './downloadCSV';
 
 // Generate comprehensive CSV with all applicant data
 export const generateComprehensiveCSV = (
@@ -100,7 +101,7 @@ export const generateComprehensiveCSV = (
       success,
       notes,
     ]
-      .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+      .map(csvField)
       .join(',');
   });
 
