@@ -44,7 +44,7 @@ const formatDay = (date: string) =>
     timeZone: 'UTC',
   });
 
-export function StatsView() {
+export default function StatsView() {
   const { error, loading, refreshStats, stats } = useStats();
   const [scope, setScope] = useState<Scope>('all');
 
