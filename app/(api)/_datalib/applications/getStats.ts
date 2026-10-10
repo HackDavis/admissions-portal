@@ -17,6 +17,7 @@ import {
   StemCounts,
   YearDistribution,
   PendingWaitlistedCounts,
+  SubmissionDayCount,
 } from '@/app/_types/stats';
 
 type ScopeKey = 'all' | 'processed' | 'hypothetic';
@@ -27,6 +28,7 @@ type AdminStatsRecord = {
   gender?: string[];
   major?: string;
   status?: string;
+  submittedAt?: Date;
 };
 
 // TODO: Make a more robust STEM classification system
@@ -131,6 +133,33 @@ function isStemMajor(major: string): boolean | null {
   return STEM_KEYWORDS.some((keyword) => normalized.includes(keyword));
 }
 
+function toDayKey(date: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Los_Angeles',
+  }).format(date);
+}
+
+function buildSubmissionCounts(
+  submissions: Map<string, number>
+): SubmissionDayCount[] {
+  const sortedDays = [...submissions.keys()].sort();
+  const submissionCounts: SubmissionDayCount[] = [];
+
+  if (sortedDays.length > 0) {
+    const day = new Date(`${sortedDays[0]}T00:00:00Z`);
+    const last = new Date(`${sortedDays[sortedDays.length - 1]}T00:00:00Z`);
+
+    while (day <= last) {
+      const date = day.toISOString().slice(0, 10);
+      submissionCounts.push({ date, count: submissions.get(date) ?? 0 });
+
+      day.setUTCDate(day.getUTCDate() + 1);
+    }
+  }
+
+  return submissionCounts;
+}
+
 function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
   const yearDistribution = createDefaultYearDistribution();
   const firstTimeHackers: FirstTimeHackerCounts = {
@@ -145,6 +174,7 @@ function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
     nonStem: 0,
     unknown: 0,
   };
+  const submissionsAccumulator = new Map<string, number>();
 
   for (const record of records) {
     const year = (record.year ?? '').trim();
@@ -176,11 +206,23 @@ function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
     if (stemClassification === true) stemVsNonStem.stem += 1;
     else if (stemClassification === false) stemVsNonStem.nonStem += 1;
     else stemVsNonStem.unknown += 1;
+
+    if (record.submittedAt) {
+      const day = toDayKey(record.submittedAt);
+      submissionsAccumulator.set(
+        day,
+        (submissionsAccumulator.get(day) ?? 0) + 1
+      );
+    }
   }
 
   const majorCounts: MajorCount[] = [...majorAccumulator.entries()]
     .map(([major, count]) => ({ major, count }))
     .sort((a, b) => b.count - a.count || a.major.localeCompare(b.major));
+
+  const submissionCounts: SubmissionDayCount[] = buildSubmissionCounts(
+    submissionsAccumulator
+  );
 
   return {
     totalApplicants: records.length,
@@ -189,6 +231,7 @@ function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
     gender,
     majorCounts,
     stemVsNonStem,
+    submissionCounts,
   };
 }
 
@@ -240,6 +283,7 @@ async function fetchScopeRecords(scope: ScopeKey) {
         gender: 1,
         major: 1,
         status: 1,
+        submittedAt: 1,
       },
     })
     .toArray();

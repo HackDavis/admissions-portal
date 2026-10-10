@@ -34,6 +34,11 @@ export type StemCounts = {
   unknown: number;
 };
 
+export type SubmissionDayCount = {
+  date: string;
+  count: number;
+};
+
 export type ScopeStats = {
   totalApplicants: number;
   yearDistribution: YearDistribution;
@@ -41,6 +46,7 @@ export type ScopeStats = {
   gender: GenderCounts;
   majorCounts: MajorCount[];
   stemVsNonStem: StemCounts;
+  submissionCounts: SubmissionDayCount[];
 };
 
 export type AcceptanceRatio = {
