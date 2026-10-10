@@ -1,4 +1,4 @@
-import StatsView from './StatsView';
+import { StatsView } from './StatsView';
 
 export default function StatsPage() {
   return <StatsView />;

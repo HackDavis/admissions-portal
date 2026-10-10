@@ -37,14 +37,14 @@ const SCOPE_OPTIONS: Array<{ label: string; value: Scope }> = [
 
 const PIE_COLORS = ['#1d4ed8', '#db2777', '#059669', '#9333ea', '#6b7280'];
 
-const formatDay = (date: string) => 
+const formatDay = (date: string) =>
   new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     timeZone: 'UTC',
   });
 
-export default function StatsView() {
+export function StatsView() {
   const { error, loading, refreshStats, stats } = useStats();
   const [scope, setScope] = useState<Scope>('all');
 
@@ -308,11 +308,7 @@ function BarChartBlock({
   );
 }
 
-function LineChartBlock({
-  data,
-}: {
-  data: SubmissionDayCount[];
-}) {
+function LineChartBlock({ data }: { data: SubmissionDayCount[] }) {
   if (!data.length || data.every((item) => item.count === 0)) {
     return <p className="text-xs text-gray-600">No data.</p>;
   }
