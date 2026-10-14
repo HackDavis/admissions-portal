@@ -5,6 +5,9 @@ import Link from 'next/link';
 import PhoneInput from 'react-phone-number-input/input';
 
 import useCreateLateAcceptance from '../_hooks/useCreateLateAcceptance';
+import { MultiSelectGroup } from '@pages/(admissions)/_components/ApplicationCarousel/_components/MultiSelectGroup';
+import { SearchableSelect } from '@pages/(admissions)/_components/ApplicationCarousel/_components/SearchableSelect';
+import { YesNoGroup } from '@pages/(admissions)/_components/ApplicationCarousel/_components/YesNoGroup';
 import { Application } from '@/app/_types/application';
 import {
   COLLEGE_OPTIONS,
@@ -27,118 +30,226 @@ import { fetchMajors } from '@utils/fetch/fetchMajors';
 import { fetchMinors } from '@utils/fetch/fetchMinors';
 import { fetchUniversityNames } from '@utils/fetch/fetchUniversityNames';
 
-type YesNo = boolean | null;
+type FormState = Record<string, string | string[] | boolean | null>;
 
-interface FormState {
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  age: string;
-  isOver18: YesNo;
-  isUCDavisStudent: YesNo;
-  university: string;
-  countryOfResidence: string;
-  levelOfStudy: string;
-  major: string;
-  minorOrDoubleMajor: string;
-  college: string[];
-  year: string;
-  shirtSize: string;
-  dietaryRestrictions: string[];
-  gender: string[];
-  race: string[];
-  attendedHackDavis: YesNo;
-  firstHackathon: YesNo;
-  linkedin: string;
-  githubOrPortfolio: string;
-  connectWithSponsors: YesNo;
-  resume: string;
-  connectWithHackDavis: YesNo;
-  connectWithMLH: YesNo;
-  mlhCodeOfConduct: boolean;
-  eventLogisticsInformation: boolean;
-}
-
-const INITIAL_STATE: FormState = {
-  email: '',
-  firstName: '',
-  lastName: '',
-  phone: '',
-  age: '',
-  isOver18: null,
-  isUCDavisStudent: null,
-  university: '',
-  countryOfResidence: 'United States of America',
-  levelOfStudy: '',
-  major: '',
-  minorOrDoubleMajor: '',
-  college: [],
-  year: '',
-  shirtSize: '',
-  dietaryRestrictions: [],
-  gender: [],
-  race: [],
-  attendedHackDavis: null,
-  firstHackathon: null,
-  linkedin: 'https://www.linkedin.com/in/',
-  githubOrPortfolio: '',
-  connectWithSponsors: null,
-  resume: '',
-  connectWithHackDavis: null,
-  connectWithMLH: null,
-  mlhCodeOfConduct: false,
-  eventLogisticsInformation: false,
+const MLH_CODE = 'MLH Code of Conduct';
+const MLH_LOGISTICS = 'Event Logistics Information';
+const LISTS = {
+  universities: fetchUniversityNames,
+  countries: fetchCountryNames,
+  majors: fetchMajors,
+  minors: fetchMinors,
 };
+
+type FieldConfig = {
+  key: string;
+  label: string | ((form: FormState) => string);
+  show?: (form: FormState) => boolean;
+  disabled?: (form: FormState) => boolean;
+} & (
+  | { kind: 'text'; type?: 'email' | 'url' }
+  | { kind: 'phone' | 'age' | 'yesno' }
+  | { kind: 'select' | 'multi'; options: string[] }
+  | { kind: 'search'; list: keyof typeof LISTS; pinned?: string[] }
+);
+
+const isUCDavis = (form: FormState) =>
+  form.isUCDavisStudent === true || form.university === UC_DAVIS;
+
+const SECTIONS: { title: string; fields: FieldConfig[] }[] = [
+  {
+    title: 'Contact',
+    fields: [
+      { key: 'email', label: 'Email', kind: 'text', type: 'email' },
+      { key: 'firstName', label: 'First name', kind: 'text' },
+      { key: 'lastName', label: 'Last name', kind: 'text' },
+      { key: 'phone', label: 'Phone', kind: 'phone' },
+    ],
+  },
+  {
+    title: 'Eligibility & school',
+    fields: [
+      { key: 'age', label: 'Age', kind: 'age' },
+      {
+        key: 'isOver18',
+        label: 'Over 18?',
+        kind: 'yesno',
+        disabled: (form) => Number(form.age) >= 18,
+      },
+      { key: 'isUCDavisStudent', label: 'UC Davis student?', kind: 'yesno' },
+      {
+        key: 'university',
+        label: 'University',
+        kind: 'search',
+        list: 'universities',
+        pinned: ['Other'],
+        disabled: (form) => form.isUCDavisStudent === true,
+      },
+      {
+        key: 'customUniversity',
+        label: 'University name',
+        kind: 'text',
+        show: (form) => form.university === 'Other',
+      },
+      {
+        key: 'countryOfResidence',
+        label: 'Country of residence',
+        kind: 'search',
+        list: 'countries',
+      },
+      {
+        key: 'levelOfStudy',
+        label: 'Level of study',
+        kind: 'select',
+        options: LEVEL_OF_STUDY_OPTIONS,
+      },
+      {
+        key: 'major',
+        label: 'Major',
+        kind: 'search',
+        list: 'majors',
+        pinned: ['Not on this list'],
+      },
+      {
+        key: 'minorOrDoubleMajor',
+        label: 'Minor or double major (optional)',
+        kind: 'search',
+        list: 'minors',
+        pinned: ['Not on this list'],
+      },
+      {
+        key: 'college',
+        label: 'College',
+        kind: 'multi',
+        options: COLLEGE_OPTIONS,
+        show: isUCDavis,
+      },
+      { key: 'year', label: 'Year', kind: 'select', options: YEAR_OPTIONS },
+    ],
+  },
+  {
+    title: 'Event details',
+    fields: [
+      {
+        key: 'shirtSize',
+        label: 'Shirt size',
+        kind: 'select',
+        options: SHIRT_SIZE_OPTIONS,
+      },
+      {
+        key: 'dietaryRestrictions',
+        label: 'Dietary restrictions',
+        kind: 'multi',
+        options: DIETARY_OPTIONS,
+      },
+      {
+        key: 'attendedHackDavis',
+        label: 'Attended HackDavis before?',
+        kind: 'yesno',
+      },
+      { key: 'firstHackathon', label: 'First hackathon?', kind: 'yesno' },
+      {
+        key: 'gender',
+        label: 'Gender (optional)',
+        kind: 'multi',
+        options: GENDER_OPTIONS,
+      },
+      {
+        key: 'race',
+        label: 'Race (optional)',
+        kind: 'multi',
+        options: RACE_OPTIONS,
+      },
+    ],
+  },
+  {
+    title: 'Links & consent',
+    fields: [
+      { key: 'linkedin', label: 'LinkedIn', kind: 'text', type: 'url' },
+      {
+        key: 'githubOrPortfolio',
+        label: 'GitHub or portfolio (optional)',
+        kind: 'text',
+        type: 'url',
+      },
+      {
+        key: 'connectWithSponsors',
+        label: 'Connect with sponsors?',
+        kind: 'yesno',
+      },
+      {
+        key: 'resume',
+        label: (form) =>
+          `Resume link${form.connectWithSponsors ? '' : ' (optional)'}`,
+        kind: 'text',
+        type: 'url',
+      },
+      {
+        key: 'connectWithHackDavis',
+        label: 'Connect with HackDavis?',
+        kind: 'yesno',
+      },
+      { key: 'connectWithMLH', label: 'Connect with MLH?', kind: 'yesno' },
+      {
+        key: 'mlhAgreements',
+        label: 'MLH agreements',
+        kind: 'multi',
+        options: [MLH_CODE, MLH_LOGISTICS],
+      },
+    ],
+  },
+];
+
+// Every field starts empty: '' for text, [] for multi-selects, null for yes/no.
+const INITIAL_STATE: FormState = Object.fromEntries(
+  SECTIONS.flatMap((s) => s.fields).map((f) => [
+    f.key,
+    f.kind === 'multi' ? [] : f.kind === 'yesno' ? null : '',
+  ])
+);
+INITIAL_STATE.countryOfResidence = 'United States of America';
+INITIAL_STATE.linkedin = 'https://www.linkedin.com/in/';
 
 // Converts form state into the payload the server action receives. Nullable
 // yes/no answers are passed through so validation can flag them.
 function toInput(form: FormState): LateAcceptanceInput {
-  const trimmed = (value: string) => value.trim();
-  const optional = (value: string) => trimmed(value) || undefined;
-  const isUCDavis =
-    form.isUCDavisStudent === true || trimmed(form.university) === UC_DAVIS;
+  const text = (key: string) => String(form[key] ?? '').trim();
+  const optional = (key: string) => text(key) || undefined;
+  const mlh = form.mlhAgreements as string[];
+  const { customUniversity: _, ...fields } = form;
 
   return {
-    email: trimmed(form.email),
-    firstName: trimmed(form.firstName),
-    lastName: trimmed(form.lastName),
-    phone: form.phone,
-    age: form.age === '' ? (undefined as unknown as number) : Number(form.age),
-    isOver18: form.isOver18 as boolean,
-    isUCDavisStudent: form.isUCDavisStudent as boolean,
-    university: trimmed(form.university),
-    countryOfResidence: trimmed(form.countryOfResidence),
-    levelOfStudy: form.levelOfStudy,
-    major: trimmed(form.major),
-    minorOrDoubleMajor: optional(form.minorOrDoubleMajor),
-    college: isUCDavis ? form.college : [],
-    year: form.year as Application['year'],
-    shirtSize: form.shirtSize as Application['shirtSize'],
-    dietaryRestrictions: form.dietaryRestrictions,
-    gender: form.gender,
-    race: form.race,
-    attendedHackDavis: form.attendedHackDavis as boolean,
-    firstHackathon: form.firstHackathon as boolean,
-    linkedin: trimmed(form.linkedin),
-    githubOrPortfolio: optional(form.githubOrPortfolio),
-    connectWithSponsors: form.connectWithSponsors as boolean,
-    resume: optional(form.resume),
-    connectWithHackDavis: form.connectWithHackDavis as boolean,
-    connectWithMLH: form.connectWithMLH as boolean,
+    ...fields,
+    email: text('email'),
+    firstName: text('firstName'),
+    lastName: text('lastName'),
+    age: form.age === '' ? undefined : Number(form.age),
+    university:
+      form.university === 'Other'
+        ? text('customUniversity')
+        : text('university'),
+    minorOrDoubleMajor: optional('minorOrDoubleMajor'),
+    college: isUCDavis(form) ? form.college : [],
+    linkedin: text('linkedin'),
+    githubOrPortfolio: optional('githubOrPortfolio'),
+    resume: optional('resume'),
     mlhAgreements: {
-      mlhCodeOfConduct: form.mlhCodeOfConduct,
-      eventLogisticsInformation: form.eventLogisticsInformation,
+      mlhCodeOfConduct: mlh.includes(MLH_CODE),
+      eventLogisticsInformation: mlh.includes(MLH_LOGISTICS),
     },
-  };
+  } as unknown as LateAcceptanceInput;
 }
 
-function useOptionList(load: () => Promise<string[]>) {
-  const [options, setOptions] = useState<string[]>([]);
+function useLists() {
+  const [lists, setLists] = useState<Record<string, string[]>>({});
   useEffect(() => {
-    load().then(setOptions);
-  }, [load]);
-  return options;
+    for (const [name, load] of Object.entries(LISTS)) {
+      load().then((options) =>
+        setLists((current) => ({ ...current, [name]: [...new Set(options)] }))
+      );
+    }
+  }, []);
+  return lists;
 }
 
 const inputClass =
@@ -152,41 +263,34 @@ export default function LateAcceptanceForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [created, setCreated] = useState<Application | null>(null);
   const { submit, loading } = useCreateLateAcceptance();
-
-  const universities = useOptionList(fetchUniversityNames);
-  const countries = useOptionList(fetchCountryNames);
-  const majors = useOptionList(fetchMajors);
-  const minors = useOptionList(fetchMinors);
-
-  const ageNumber = form.age === '' ? null : Number(form.age);
-  const ageForcesOver18 = ageNumber !== null && ageNumber >= 18;
-  const isUCDavis =
-    form.isUCDavisStudent === true || form.university.trim() === UC_DAVIS;
+  const lists = useLists();
 
   // Client errors only show after the first submit attempt, then update live.
-  const errors: LateAcceptanceFieldErrors = {
+  const errors: Record<string, string | undefined> = {
     ...serverFieldErrors,
     ...(attempted ? validateLateAcceptance(toInput(form)) : {}),
   };
 
-  function update<K extends keyof FormState>(key: K, value: FormState[K]) {
+  function update(key: string, value: FormState[string]) {
     setForm((current) => {
       const next = { ...current, [key]: value };
       if (key === 'age') {
-        const age = value === '' ? null : Number(value);
-        if (age !== null && age >= 18) next.isOver18 = true;
+        if (Number(value) >= 18) next.isOver18 = true;
         else if (current.isOver18 === true) next.isOver18 = null;
       }
       if (key === 'isUCDavisStudent' && value === true) {
         next.university = UC_DAVIS;
       }
+      if (key === 'dietaryRestrictions') {
+        const selected = value as string[];
+        if (selected.includes('None') && selected.length > 1)
+          next.dietaryRestrictions = ['None'];
+      }
       return next;
     });
-    setServerFieldErrors((current) => {
-      if (!(key in current)) return current;
-      const { [key as keyof LateAcceptanceFieldErrors]: _, ...rest } = current;
-      return rest;
-    });
+    setServerFieldErrors(
+      ({ [key as keyof LateAcceptanceInput]: _, ...rest }) => rest
+    );
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -215,6 +319,85 @@ export default function LateAcceptanceForm() {
     setServerFieldErrors({});
     setSubmitError(null);
     setCreated(null);
+  }
+
+  function renderInput(field: FieldConfig) {
+    const value = form[field.key];
+    const disabled = field.disabled?.(form);
+    const onChange = (next: FormState[string]) => update(field.key, next);
+
+    switch (field.kind) {
+      case 'text':
+        return (
+          <input
+            type={field.type ?? 'text'}
+            className={inputClass}
+            value={value as string}
+            disabled={disabled}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        );
+      case 'age':
+        return (
+          <input
+            inputMode="numeric"
+            className={inputClass}
+            value={value as string}
+            onChange={(e) =>
+              onChange(e.target.value.replace(/\D/g, '').slice(0, 2))
+            }
+          />
+        );
+      case 'phone':
+        return (
+          <PhoneInput
+            defaultCountry="US"
+            className={inputClass}
+            value={value as string}
+            onChange={(next) => onChange(next ?? '')}
+          />
+        );
+      case 'select':
+        return (
+          <select
+            className={inputClass}
+            value={value as string}
+            onChange={(e) => onChange(e.target.value)}
+          >
+            <option value="">Select...</option>
+            {field.options.map((option) => (
+              <option key={option}>{option}</option>
+            ))}
+          </select>
+        );
+      case 'search':
+        return (
+          <SearchableSelect
+            placeholder="Select..."
+            value={value as string}
+            options={lists[field.list] ?? []}
+            pinnedOptions={field.pinned}
+            disabled={disabled}
+            onChange={onChange}
+          />
+        );
+      case 'yesno':
+        return (
+          <YesNoGroup
+            value={value as boolean | null}
+            disabled={disabled}
+            onChange={onChange}
+          />
+        );
+      case 'multi':
+        return (
+          <MultiSelectGroup
+            options={field.options}
+            value={value as string[]}
+            onChange={onChange}
+          />
+        );
+    }
   }
 
   if (created) {
@@ -248,261 +431,34 @@ export default function LateAcceptanceForm() {
     );
   }
 
-  const isDuplicate = submitError === DUPLICATE_APPLICATION_ERROR;
-
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
-      <Section title="Contact">
-        <Field label="Email" error={errors.email}>
-          <input
-            type="email"
-            className={inputClass}
-            value={form.email}
-            onChange={(e) => update('email', e.target.value)}
-          />
-        </Field>
-        <Field label="First name" error={errors.firstName}>
-          <input
-            className={inputClass}
-            value={form.firstName}
-            onChange={(e) => update('firstName', e.target.value)}
-          />
-        </Field>
-        <Field label="Last name" error={errors.lastName}>
-          <input
-            className={inputClass}
-            value={form.lastName}
-            onChange={(e) => update('lastName', e.target.value)}
-          />
-        </Field>
-        <Field label="Phone" error={errors.phone}>
-          <PhoneInput
-            defaultCountry="US"
-            className={inputClass}
-            value={form.phone}
-            onChange={(value) => update('phone', value ?? '')}
-          />
-        </Field>
-      </Section>
-
-      <Section title="Eligibility & school">
-        <Field label="Age" error={errors.age}>
-          <input
-            inputMode="numeric"
-            className={inputClass}
-            value={form.age}
-            onChange={(e) =>
-              update('age', e.target.value.replace(/\D/g, '').slice(0, 2))
-            }
-          />
-        </Field>
-        <Field label="Over 18?" error={errors.isOver18}>
-          <YesNo
-            name="isOver18"
-            value={form.isOver18}
-            disabled={ageForcesOver18}
-            onChange={(value) => update('isOver18', value)}
-          />
-        </Field>
-        <Field label="UC Davis student?" error={errors.isUCDavisStudent}>
-          <YesNo
-            name="isUCDavisStudent"
-            value={form.isUCDavisStudent}
-            onChange={(value) => update('isUCDavisStudent', value)}
-          />
-        </Field>
-        <Field label="University" error={errors.university}>
-          <ListInput
-            id="universities"
-            options={universities}
-            value={form.university}
-            disabled={form.isUCDavisStudent === true}
-            onChange={(value) => update('university', value)}
-          />
-        </Field>
-        <Field label="Country of residence" error={errors.countryOfResidence}>
-          <ListInput
-            id="countries"
-            options={countries}
-            value={form.countryOfResidence}
-            onChange={(value) => update('countryOfResidence', value)}
-          />
-        </Field>
-        <Field label="Level of study" error={errors.levelOfStudy}>
-          <Select
-            options={LEVEL_OF_STUDY_OPTIONS}
-            value={form.levelOfStudy}
-            onChange={(value) => update('levelOfStudy', value)}
-          />
-        </Field>
-        <Field label="Major" error={errors.major}>
-          <ListInput
-            id="majors"
-            options={majors}
-            value={form.major}
-            onChange={(value) => update('major', value)}
-          />
-        </Field>
-        <Field label="Minor or double major (optional)">
-          <ListInput
-            id="minors"
-            options={minors}
-            value={form.minorOrDoubleMajor}
-            onChange={(value) => update('minorOrDoubleMajor', value)}
-          />
-        </Field>
-        {isUCDavis && (
-          <Field label="College" error={errors.college}>
-            <Checkboxes
-              options={COLLEGE_OPTIONS}
-              value={form.college}
-              onChange={(value) => update('college', value)}
-            />
-          </Field>
-        )}
-        <Field label="Year" error={errors.year}>
-          <Select
-            options={YEAR_OPTIONS}
-            value={form.year}
-            onChange={(value) => update('year', value)}
-          />
-        </Field>
-      </Section>
-
-      <Section title="Event details">
-        <Field label="Shirt size" error={errors.shirtSize}>
-          <Select
-            options={SHIRT_SIZE_OPTIONS}
-            value={form.shirtSize}
-            onChange={(value) => update('shirtSize', value)}
-          />
-        </Field>
-        <Field label="Dietary restrictions" error={errors.dietaryRestrictions}>
-          <Checkboxes
-            options={DIETARY_OPTIONS}
-            value={form.dietaryRestrictions}
-            onChange={(value, toggled) =>
-              update(
-                'dietaryRestrictions',
-                toggled === 'None'
-                  ? value.filter((v) => v === 'None')
-                  : value.filter((v) => v !== 'None')
-              )
-            }
-          />
-        </Field>
-        <Field
-          label="Attended HackDavis before?"
-          error={errors.attendedHackDavis}
-        >
-          <YesNo
-            name="attendedHackDavis"
-            value={form.attendedHackDavis}
-            onChange={(value) => update('attendedHackDavis', value)}
-          />
-        </Field>
-        <Field label="First hackathon?" error={errors.firstHackathon}>
-          <YesNo
-            name="firstHackathon"
-            value={form.firstHackathon}
-            onChange={(value) => update('firstHackathon', value)}
-          />
-        </Field>
-        <Field label="Gender (optional)" error={errors.gender}>
-          <Checkboxes
-            options={GENDER_OPTIONS}
-            value={form.gender}
-            onChange={(value) => update('gender', value)}
-          />
-        </Field>
-        <Field label="Race (optional)" error={errors.race}>
-          <Checkboxes
-            options={RACE_OPTIONS}
-            value={form.race}
-            onChange={(value) => update('race', value)}
-          />
-        </Field>
-      </Section>
-
-      <Section title="Links & consent">
-        <Field label="LinkedIn" error={errors.linkedin}>
-          <input
-            type="url"
-            className={inputClass}
-            value={form.linkedin}
-            onChange={(e) => update('linkedin', e.target.value)}
-          />
-        </Field>
-        <Field
-          label="GitHub or portfolio (optional)"
-          error={errors.githubOrPortfolio}
-        >
-          <input
-            type="url"
-            className={inputClass}
-            value={form.githubOrPortfolio}
-            onChange={(e) => update('githubOrPortfolio', e.target.value)}
-          />
-        </Field>
-        <Field
-          label="Connect with sponsors?"
-          error={errors.connectWithSponsors}
-        >
-          <YesNo
-            name="connectWithSponsors"
-            value={form.connectWithSponsors}
-            onChange={(value) => update('connectWithSponsors', value)}
-          />
-        </Field>
-        <Field
-          label={`Resume link${form.connectWithSponsors ? '' : ' (optional)'}`}
-          error={errors.resume}
-        >
-          <input
-            type="url"
-            className={inputClass}
-            value={form.resume}
-            onChange={(e) => update('resume', e.target.value)}
-          />
-        </Field>
-        <Field
-          label="Connect with HackDavis?"
-          error={errors.connectWithHackDavis}
-        >
-          <YesNo
-            name="connectWithHackDavis"
-            value={form.connectWithHackDavis}
-            onChange={(value) => update('connectWithHackDavis', value)}
-          />
-        </Field>
-        <Field label="Connect with MLH?" error={errors.connectWithMLH}>
-          <YesNo
-            name="connectWithMLH"
-            value={form.connectWithMLH}
-            onChange={(value) => update('connectWithMLH', value)}
-          />
-        </Field>
-        <Field label="MLH agreements" error={errors.mlhAgreements}>
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="checkbox"
-              checked={form.mlhCodeOfConduct}
-              onChange={(e) => update('mlhCodeOfConduct', e.target.checked)}
-            />
-            MLH Code of Conduct
-          </label>
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="checkbox"
-              checked={form.eventLogisticsInformation}
-              onChange={(e) =>
-                update('eventLogisticsInformation', e.target.checked)
-              }
-            />
-            Event Logistics Information
-          </label>
-        </Field>
-      </Section>
+      {SECTIONS.map((section) => (
+        <fieldset key={section.title} className="border border-black p-4">
+          <legend className="px-1 text-xs font-semibold uppercase">
+            {section.title}
+          </legend>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {section.fields
+              .filter((field) => field.show?.(form) ?? true)
+              .map((field) => (
+                <div key={field.key} className="flex flex-col gap-1">
+                  <span className="text-xs font-medium">
+                    {typeof field.label === 'function'
+                      ? field.label(form)
+                      : field.label}
+                  </span>
+                  {renderInput(field)}
+                  {errors[field.key] && (
+                    <p className="text-[11px] text-red-600">
+                      {errors[field.key]}
+                    </p>
+                  )}
+                </div>
+              ))}
+          </div>
+        </fieldset>
+      ))}
 
       {submitError && (
         <div
@@ -510,7 +466,7 @@ export default function LateAcceptanceForm() {
           className="border border-red-600 bg-red-50 p-3 text-xs text-red-700"
         >
           <p>{submitError}</p>
-          {isDuplicate && (
+          {submitError === DUPLICATE_APPLICATION_ERROR && (
             <p className="mt-1">
               Their existing application was not changed. Find them in the{' '}
               <Link href="/admin" className="underline">
@@ -534,156 +490,5 @@ export default function LateAcceptanceForm() {
         </button>
       </div>
     </form>
-  );
-}
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <fieldset className="border border-black p-4">
-      <legend className="px-1 text-xs font-semibold uppercase">{title}</legend>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{children}</div>
-    </fieldset>
-  );
-}
-
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium">{label}</span>
-      {children}
-      {error && <p className="text-[11px] text-red-600">{error}</p>}
-    </div>
-  );
-}
-
-function Select({
-  options,
-  value,
-  onChange,
-}: {
-  options: string[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <select
-      className={inputClass}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    >
-      <option value="">Select...</option>
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {option}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-// Free text with suggestions, so admins can enter values missing from the lists.
-function ListInput({
-  id,
-  options,
-  value,
-  disabled,
-  onChange,
-}: {
-  id: string;
-  options: string[];
-  value: string;
-  disabled?: boolean;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <>
-      <input
-        list={`late-acceptance-${id}`}
-        className={inputClass}
-        value={value}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.value)}
-      />
-      <datalist id={`late-acceptance-${id}`}>
-        {options.map((option) => (
-          <option key={option} value={option} />
-        ))}
-      </datalist>
-    </>
-  );
-}
-
-function YesNo({
-  name,
-  value,
-  disabled,
-  onChange,
-}: {
-  name: string;
-  value: YesNo;
-  disabled?: boolean;
-  onChange: (value: boolean) => void;
-}) {
-  return (
-    <div className="flex gap-4 text-xs">
-      {[true, false].map((option) => (
-        <label key={String(option)} className="flex items-center gap-1">
-          <input
-            type="radio"
-            name={name}
-            checked={value === option}
-            disabled={disabled}
-            onChange={() => onChange(option)}
-          />
-          {option ? 'Yes' : 'No'}
-        </label>
-      ))}
-    </div>
-  );
-}
-
-function Checkboxes({
-  options,
-  value,
-  onChange,
-}: {
-  options: string[];
-  value: string[];
-  onChange: (value: string[], toggled: string) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-1 text-xs">
-      {options.map((option) => (
-        <label key={option} className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={value.includes(option)}
-            onChange={(e) =>
-              onChange(
-                e.target.checked
-                  ? [...value, option]
-                  : value.filter((v) => v !== option),
-                option
-              )
-            }
-          />
-          {option}
-        </label>
-      ))}
-    </div>
   );
 }

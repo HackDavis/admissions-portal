@@ -14,35 +14,19 @@ export const SHIRT_SIZE_OPTIONS = validationData.shirtSizes;
 
 // Fields an admin enters by hand. Status, timestamps, and manual-entry
 // metadata are set by the server, so they are not part of the form.
-export type LateAcceptanceInput = Pick<
+export type LateAcceptanceInput = Omit<
   Application,
-  | 'email'
-  | 'firstName'
-  | 'lastName'
-  | 'phone'
-  | 'age'
-  | 'isOver18'
-  | 'isUCDavisStudent'
-  | 'university'
-  | 'countryOfResidence'
-  | 'levelOfStudy'
-  | 'major'
-  | 'minorOrDoubleMajor'
-  | 'college'
-  | 'year'
-  | 'shirtSize'
-  | 'dietaryRestrictions'
-  | 'connectWithSponsors'
-  | 'gender'
-  | 'race'
-  | 'attendedHackDavis'
-  | 'firstHackathon'
-  | 'linkedin'
-  | 'githubOrPortfolio'
-  | 'resume'
-  | 'connectWithHackDavis'
-  | 'connectWithMLH'
-  | 'mlhAgreements'
+  | '_id'
+  | 'status'
+  | 'wasWaitlisted'
+  | 'batchNumber'
+  | 'submittedAt'
+  | 'reviewedAt'
+  | 'processedAt'
+  | 'notes'
+  | 'decisionSource'
+  | 'automaticReasons'
+  | 'waitlistPool'
 >;
 
 export type LateAcceptanceFieldErrors = Partial<
@@ -62,118 +46,109 @@ export type LateAcceptanceResult =
 export const DUPLICATE_APPLICATION_ERROR =
   'An application with this email already exists';
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^\+[1-9]\d{6,14}$/; // E.164, same format the public form stores
-const LINKEDIN_REGEX = /^https?:\/\/(www\.)?linkedin\.com\/in\/.+$/;
+const REQUIRED_TEXT = [
+  'email',
+  'firstName',
+  'lastName',
+  'phone',
+  'university',
+  'countryOfResidence',
+  'major',
+  'linkedin',
+] as const;
+
+const REQUIRED_YES_NO = [
+  'isOver18',
+  'isUCDavisStudent',
+  'attendedHackDavis',
+  'firstHackathon',
+  'connectWithSponsors',
+  'connectWithHackDavis',
+  'connectWithMLH',
+] as const;
+
+const SINGLE_CHOICE = {
+  levelOfStudy: LEVEL_OF_STUDY_OPTIONS,
+  year: YEAR_OPTIONS,
+  shirtSize: SHIRT_SIZE_OPTIONS,
+} as const;
+
+const MULTI_CHOICE = {
+  college: COLLEGE_OPTIONS,
+  dietaryRestrictions: DIETARY_OPTIONS,
+  gender: GENDER_OPTIONS,
+  race: RACE_OPTIONS,
+} as const;
+
+const FORMATS: [keyof LateAcceptanceInput, RegExp, string][] = [
+  ['email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Enter a valid email address.'],
+  // E.164, same format the public form stores
+  ['phone', /^\+[1-9]\d{6,14}$/, 'Enter a valid phone number.'],
+  [
+    'linkedin',
+    /^https?:\/\/(www\.)?linkedin\.com\/in\/.+$/,
+    'Use the format https://www.linkedin.com/in/username.',
+  ],
+  ['githubOrPortfolio', /^\S+\.[a-z]{2,}(\/\S*)?$/i, 'Enter a valid URL.'],
+  ['resume', /^\S+\.[a-z]{2,}(\/\S*)?$/i, 'Enter a valid URL.'],
+];
 
 export function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
-function isValidUrl(value: string) {
-  try {
-    const url = new URL(
-      /^https?:\/\//i.test(value) ? value : `https://${value}`
-    );
-    return /\.[a-z]{2,}$/i.test(url.hostname);
-  } catch {
-    return false;
-  }
-}
-
-const isBool = (value: unknown) => typeof value === 'boolean';
 const isFilled = (value: unknown) =>
   typeof value === 'string' && value.trim().length > 0;
-const allIn = (values: unknown, options: readonly string[]) =>
-  Array.isArray(values) && values.every((v) => options.includes(v));
 
 // Shared by the form and the server action so both enforce the same rules.
 export function validateLateAcceptance(
   input: Partial<LateAcceptanceInput>
 ): LateAcceptanceFieldErrors {
   const errors: LateAcceptanceFieldErrors = {};
-  const yesNo = 'Select yes or no.';
 
-  if (!isFilled(input.email)) errors.email = 'Email is required.';
-  else if (!EMAIL_REGEX.test(normalizeEmail(input.email!)))
-    errors.email = 'Enter a valid email address.';
+  for (const key of REQUIRED_TEXT) {
+    if (!isFilled(input[key])) errors[key] = 'This field is required.';
+  }
+  for (const key of REQUIRED_YES_NO) {
+    if (typeof input[key] !== 'boolean') errors[key] = 'Select yes or no.';
+  }
+  for (const [key, options] of Object.entries(SINGLE_CHOICE)) {
+    const k = key as keyof typeof SINGLE_CHOICE;
+    if (!options.includes(input[k] ?? '')) errors[k] = 'Select an option.';
+  }
+  for (const [key, options] of Object.entries(MULTI_CHOICE)) {
+    const k = key as keyof typeof MULTI_CHOICE;
+    const value = input[k];
+    if (value !== undefined && !value.every((v) => options.includes(v)))
+      errors[k] = 'Select valid options.';
+  }
+  for (const [key, regex, message] of FORMATS) {
+    const value = input[key];
+    if (!errors[key] && isFilled(value) && !regex.test(String(value).trim()))
+      errors[key] = message;
+  }
 
-  if (!isFilled(input.firstName)) errors.firstName = 'First name is required.';
-  if (!isFilled(input.lastName)) errors.lastName = 'Last name is required.';
-
-  if (!isFilled(input.phone)) errors.phone = 'Phone number is required.';
-  else if (!PHONE_REGEX.test(input.phone!))
-    errors.phone = 'Enter a valid phone number.';
-
-  if (typeof input.age !== 'number' || !Number.isInteger(input.age))
-    errors.age = 'Age is required.';
-  else if (input.age < 17 || input.age > 99)
-    errors.age = 'Age must be between 17 and 99.';
-
-  if (!isBool(input.isOver18)) errors.isOver18 = yesNo;
-  else if (typeof input.age === 'number' && input.age >= 18 && !input.isOver18)
+  const { age } = input;
+  if (typeof age !== 'number' || !Number.isInteger(age) || age < 17 || age > 99)
+    errors.age = 'Enter an age between 17 and 99.';
+  else if (age >= 18 && input.isOver18 === false)
     errors.isOver18 = 'Applicants 18 or older must be marked as over 18.';
-
-  if (!isBool(input.isUCDavisStudent)) errors.isUCDavisStudent = yesNo;
-  if (!isFilled(input.university))
-    errors.university = 'University is required.';
-  if (!isFilled(input.countryOfResidence))
-    errors.countryOfResidence = 'Country of residence is required.';
-
-  if (!LEVEL_OF_STUDY_OPTIONS.includes(input.levelOfStudy ?? ''))
-    errors.levelOfStudy = 'Select a level of study.';
-  if (!isFilled(input.major)) errors.major = 'Major is required.';
 
   const isUCDavis =
     input.isUCDavisStudent === true || input.university === UC_DAVIS;
-  if (input.college !== undefined && !allIn(input.college, COLLEGE_OPTIONS))
-    errors.college = 'Select a valid college.';
-  else if (isUCDavis && !input.college?.length)
+  if (isUCDavis && !input.college?.length)
     errors.college = 'Select at least one college for UC Davis students.';
 
-  if (!YEAR_OPTIONS.includes(input.year ?? '')) errors.year = 'Select a year.';
-  if (!SHIRT_SIZE_OPTIONS.includes(input.shirtSize ?? ''))
-    errors.shirtSize = 'Select a shirt size.';
-
-  if (
-    !allIn(input.dietaryRestrictions, DIETARY_OPTIONS) ||
-    !input.dietaryRestrictions?.length
-  )
+  const dietary = input.dietaryRestrictions ?? [];
+  if (!dietary.length)
     errors.dietaryRestrictions = 'Select at least one option (or None).';
-  else if (
-    input.dietaryRestrictions.includes('None') &&
-    input.dietaryRestrictions.length > 1
-  )
+  else if (dietary.includes('None') && dietary.length > 1)
     errors.dietaryRestrictions =
       '"None" cannot be combined with other options.';
 
-  if (input.gender !== undefined && !allIn(input.gender, GENDER_OPTIONS))
-    errors.gender = 'Select valid gender options.';
-  if (input.race !== undefined && !allIn(input.race, RACE_OPTIONS))
-    errors.race = 'Select valid race options.';
-
-  if (!isBool(input.attendedHackDavis)) errors.attendedHackDavis = yesNo;
-  if (!isBool(input.firstHackathon)) errors.firstHackathon = yesNo;
-
-  if (!isFilled(input.linkedin)) errors.linkedin = 'LinkedIn is required.';
-  else if (!LINKEDIN_REGEX.test(input.linkedin!))
-    errors.linkedin = 'Use the format https://www.linkedin.com/in/username.';
-
-  if (
-    isFilled(input.githubOrPortfolio) &&
-    !isValidUrl(input.githubOrPortfolio!)
-  )
-    errors.githubOrPortfolio = 'Enter a valid URL.';
-
-  if (!isBool(input.connectWithSponsors)) errors.connectWithSponsors = yesNo;
-  if (isFilled(input.resume)) {
-    if (!isValidUrl(input.resume!)) errors.resume = 'Enter a valid URL.';
-  } else if (input.connectWithSponsors === true) {
+  if (input.connectWithSponsors === true && !isFilled(input.resume))
     errors.resume = 'A resume link is required to connect with sponsors.';
-  }
 
-  if (!isBool(input.connectWithHackDavis)) errors.connectWithHackDavis = yesNo;
-  if (!isBool(input.connectWithMLH)) errors.connectWithMLH = yesNo;
   if (
     input.mlhAgreements?.mlhCodeOfConduct !== true ||
     input.mlhAgreements?.eventLogisticsInformation !== true
