@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateApplication } from '@datalib/applications/createApplication';
-import { GetRollout } from '@datalib/applications/getRollout';
+import { GetRollout, GetRollback } from '@datalib/applications/getRollout';
 
 export async function POST(request: NextRequest) {
   const start_date = await GetRollout('applications');
-  const end_date = await GetRollout('applications');
+  const end_date = await GetRollback('applications');
 
   if (
     start_date.body == null ||
     end_date.body == null ||
     Date.now() >= start_date.body ||
-    Date.now() >= end_date.body
+    Date.now() <= end_date.body
   ) {
     return NextResponse.json(null, { status: 500 }); 
   }
