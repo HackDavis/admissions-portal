@@ -8,7 +8,7 @@ import Confetti from 'react-confetti';
 
 import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
-import { GetRolloutTime } from '../../_hooks/getRollout';
+import { GetRollbackTime } from '../../_hooks/getRollout';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
 import { sendConfirmationEmail } from '@utils/nodemailer/sendConfirmationEmail';
@@ -57,7 +57,7 @@ function SlideContainer({
 }
 
 export default function ApplicationCarousel() {
-  const dateRes = GetRolloutTime('applications');
+  const dateRes = GetRollbackTime('applications');
   const applicationsClosed = dateRes == 0 ? true : Date.now() >= dateRes; // May 1st, 2026 at 1:00 AM PDT
 
   const [viewportRef, api] = useEmblaCarousel(
