@@ -55,6 +55,10 @@ const STEM_KEYWORDS = [
   'science',
 ] as const;
 
+const pacificDayFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/Los_Angeles',
+});
+
 function getScopeQuery(scope: ScopeKey) {
   if (scope === 'processed') {
     return { status: { $in: [...PROCESSED_STATUSES] } };
@@ -134,9 +138,7 @@ function isStemMajor(major: string): boolean | null {
 }
 
 function toDayKey(date: Date): string {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Los_Angeles',
-  }).format(date);
+  return pacificDayFormatter.format(date);
 }
 
 function buildSubmissionCounts(
