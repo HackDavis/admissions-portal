@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     Date.now() >= start_date.body ||
     Date.now() <= end_date.body
   ) {
-    return NextResponse.json(null, { status: 500 }); 
+    return NextResponse.json(null, { status: 500 });
   }
 
   const body = await request.json();
