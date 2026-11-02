@@ -68,6 +68,18 @@ export async function attachResume(fileId: string) {
   return result.matchedCount === 1;
 }
 
+// Undoes attachResume when the application insert fails & resume is attached
+export async function detachResume(fileId: string) {
+  if (!ObjectId.isValid(fileId)) return;
+
+  await (
+    await getFiles()
+  ).updateOne(
+    { _id: new ObjectId(fileId) },
+    { $set: { 'metadata.attached': false } }
+  );
+}
+
 // Called on resume uploads
 export async function sweepOrphanedResumes() {
   const cutoff = new Date(Date.now() - ORPHAN_MAX_AGE_MS);
