@@ -15,18 +15,20 @@ export function useSubmitApplication() {
       const res = await createApplication(payload);
 
       if (!res.ok) {
-        setError(res.error ?? 'Submission failed');
+        const message = res.error ?? 'Submission failed';
+        setError(message);
         setLoading(false);
-        return false;
+        return { ok: false, error: message };
       }
 
       setLoading(false);
       console.log('Application submitted successfully');
-      return true;
+      return { ok: true, error: null };
     } catch (err: any) {
-      setError('An unexpected error occurred during submission.');
+      const message = 'An unexpected error occurred during submission.';
+      setError(message);
       setLoading(false);
-      return false;
+      return { ok: false, error: message };
     }
   };
 

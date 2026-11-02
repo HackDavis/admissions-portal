@@ -32,6 +32,13 @@ export const getSafeUrl = (url: unknown): string | null => {
   return isSafeProtocol ? trimmed : null; // return null for unsafe URLs
 };
 
+export const getResumeHref = (
+  app: Pick<Application, '_id' | 'resumeFileId' | 'resume'>
+): string | null =>
+  app.resumeFileId
+    ? `/api/applications/${app._id}/resume`
+    : getSafeUrl(app.resume);
+
 export default function ApplicantDetailsModal({
   applicant,
   onClose,
@@ -74,8 +81,8 @@ export default function ApplicantDetailsModal({
     },
     {
       label: 'resume',
-      value: applicant.resume,
-      href: getSafeUrl(applicant.resume),
+      value: applicant.resumeFileId ? 'download pdf' : applicant.resume,
+      href: getResumeHref(applicant),
     },
     { label: 'connect with hackdavis', value: applicant.connectWithHackDavis },
     { label: 'connect with mlh', value: applicant.connectWithMLH },

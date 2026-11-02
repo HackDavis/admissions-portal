@@ -28,7 +28,11 @@ export function ConfirmSubmitModal({
       await onConfirm();
     } catch (err) {
       console.error(err);
-      setError('Something went wrong. Please try again.');
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : 'Something went wrong. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
