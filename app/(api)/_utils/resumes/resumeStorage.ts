@@ -53,6 +53,18 @@ export async function deleteUnattachedResume(fileId: string) {
   return true;
 }
 
+// Only for cleaning up after an application is deleted
+export async function deleteResume(fileId: string) {
+  if (!ObjectId.isValid(fileId)) return false;
+
+  const _id = new ObjectId(fileId);
+  const file = await (await getFiles()).findOne({ _id });
+  if (!file) return false;
+
+  await (await getBucket()).delete(_id);
+  return true;
+}
+
 // False when the file is missing or already attached, so one resume cannot attach to two applications
 export async function attachResume(fileId: string) {
   if (!ObjectId.isValid(fileId)) return false;
