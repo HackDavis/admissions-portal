@@ -1,8 +1,7 @@
 import { GridFSBucket, ObjectId } from 'mongodb';
 import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
 
-// 4 MB; Vercel rejects request bodies over 4.5 MB
-export const RESUME_MAX_BYTES = 4 * 1024 * 1024;
+export { RESUME_MAX_BYTES } from '../../../_utils/resumeLimits';
 
 // 1 day
 const ORPHAN_MAX_AGE_MS = 24 * 60 * 60 * 1000;

@@ -117,7 +117,7 @@ export default function ApplicationCarousel() {
     //ABitMore.tsx
     linkedin: 'https://www.linkedin.com/in/',
     githubOrPortfolio: '',
-    resume: '',
+    resumeFileId: '',
     //FinalStretch.tsx
     connectWithHackDavis: null,
     connectWithMLH: null,

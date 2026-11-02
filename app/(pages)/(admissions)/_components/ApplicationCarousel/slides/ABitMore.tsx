@@ -3,6 +3,7 @@
 import React from 'react';
 import { YesNoGroup } from '../_components/YesNoGroup';
 import { useEnterKey } from '../../../_hooks/useEnterKey';
+import { useResumeUpload } from '../../../_hooks/useResumeUpload';
 import { FaLinkedin } from 'react-icons/fa';
 import { LuLink } from 'react-icons/lu';
 
@@ -55,6 +56,10 @@ export default function ABitMore({
   isActive,
 }: ABitMoreProps) {
   const [submitted, setSubmitted] = React.useState(false);
+  const fileInput = React.useRef<HTMLInputElement>(null);
+  const resume = useResumeUpload((resumeFileId) =>
+    setFormData((prev: any) => ({ ...prev, resumeFileId }))
+  );
 
   const resumeRequired = formData.connectWithSponsors === true;
 
@@ -69,8 +74,8 @@ export default function ABitMore({
     typeof formData.connectWithSponsors === 'boolean' &&
     !!formData.linkedin?.trim() &&
     isLinkedInValid(formData.linkedin) &&
-    (!resumeRequired ||
-      (!!formData.resume?.trim() && isValidUrl(formData.resume))) &&
+    !resume.uploading &&
+    (!resumeRequired || !!formData.resumeFileId) &&
     (!hasGithub || isValidUrl(formData.githubOrPortfolio!));
 
   const handleNext = () => {
@@ -208,38 +213,67 @@ export default function ABitMore({
             </p>
           </div>
 
-          {/* Resume (text box per your note) */}
+          {/* Resume */}
           <div>
             <label className="block text-sm font-semibold text-[#0F2530]">
-              Please enter a publicly accessible link to your resume!
+              Upload your resume as a PDF (max 4 MB)!
               {resumeRequired && '*'}
             </label>
 
-            <textarea
-              value={formData.resume || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, resume: e.target.value })
-              }
-              placeholder="https://drive.google.com/file/d/your-shared-link"
-              className="mt-3 h-28 w-full resize-none rounded-2xl bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530] outline-none"
+            <input
+              ref={fileInput}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = '';
+                if (file) resume.upload(file);
+              }}
             />
 
-            <p
-              className={`mt-2 text-sm font-semibold text-red-400 ${
-                (submitted && resumeRequired && !formData.resume?.trim()) ||
-                (submitted &&
-                  !!formData.resume?.trim() &&
-                  !isValidUrl(formData.resume))
-                  ? ''
-                  : 'invisible'
-              }`}
-            >
+            {resume.filename ? (
+              <div className="mt-3 flex items-center justify-between gap-4 rounded-full bg-[#E5EEF1] px-6 py-4 text-sm text-[#0F2530]">
+                <span className="truncate" title={resume.filename}>
+                  {resume.filename}
+                </span>
+                <button
+                  type="button"
+                  className="shrink-0 font-semibold text-[#005271]"
+                  onClick={resume.remove}
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={resume.uploading}
+                onClick={() => fileInput.current?.click()}
+                aria-label="Choose a PDF resume to upload"
+                className="mt-3 w-full rounded-full bg-[#E5EEF1] px-6 py-4 text-left text-sm text-[#0F2530]"
+              >
+                Choose a PDF...
+              </button>
+            )}
+
+            <div role="status" aria-live="polite" className="mt-2 text-sm">
+              {resume.uploading && <p>Uploading...</p>}
+              {!resume.uploading && resume.error && (
+                <p className="font-semibold text-red-400">
+                  ERROR: {resume.error}
+                </p>
+              )}
               {submitted &&
-              formData.resume?.trim() &&
-              !isValidUrl(formData.resume)
-                ? 'ERROR: Please enter a valid URL.'
-                : 'ERROR: Please enter a link to your resume.'}
-            </p>
+                resumeRequired &&
+                !formData.resumeFileId &&
+                !resume.uploading &&
+                !resume.error && (
+                  <p className="font-semibold text-red-400">
+                    ERROR: Please upload your resume.
+                  </p>
+                )}
+            </div>
           </div>
         </div>
 
