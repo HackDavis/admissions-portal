@@ -8,6 +8,8 @@ import Confetti from 'react-confetti';
 
 import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
+import { useResumeUpload } from '../../_hooks/useResumeUpload';
+import { RESUME_EXPIRED_MESSAGE } from '../../../../_utils/resumeLimits';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
 import { sendConfirmationEmail } from '@utils/nodemailer/sendConfirmationEmail';
@@ -134,6 +136,9 @@ export default function ApplicationCarousel() {
   // console.log('All form fields:', formData);
 
   const { submit } = useSubmitApplication();
+  const resume = useResumeUpload((resumeFileId) =>
+    setFormData((prev) => ({ ...prev, resumeFileId }))
+  );
 
   const handleFinalSubmit = async () => {
     //modify payload to account for custom university
@@ -150,7 +155,13 @@ export default function ApplicationCarousel() {
           : 'pending',
       };
       //submit application
-      const ok = await submit(payload);
+      const { ok, error } = await submit(payload);
+      if (!ok && error === RESUME_EXPIRED_MESSAGE) {
+        // send the applicant back to re-upload (returning normally closes the confirm modal)
+        resume.reset(error);
+        api?.scrollTo(SLIDES.findIndex((s) => s.key === 'a-bit-more'));
+        return;
+      }
       if (ok) {
         // send confirmation email
         const sendEmail = await sendConfirmationEmail({
@@ -166,11 +177,11 @@ export default function ApplicationCarousel() {
         }
         api?.scrollNext(); // move to confirmation page
       } else {
-        throw new Error('Submission failed');
+        throw new Error(error ?? 'Submission failed');
       }
     } catch (err) {
       console.error('Error submitting application: ', err);
-      throw new Error('Submission failed');
+      throw err; // the confirm modal shows the message
     }
   };
 
@@ -245,6 +256,7 @@ export default function ApplicationCarousel() {
       key: 'a-bit-more',
       node: (isActive) => (
         <ABitMore
+          resume={resume}
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}

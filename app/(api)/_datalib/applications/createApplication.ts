@@ -5,6 +5,7 @@ import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
 import isBodyEmpty from '@utils/request/isBodyEmpty';
 import parseAndReplace from '@utils/request/parseAndReplace';
 import { attachResume, detachResume } from '@utils/resumes/resumeStorage';
+import { RESUME_EXPIRED_MESSAGE } from '../../../_utils/resumeLimits';
 import {
   HttpError,
   NoContentError,
@@ -39,9 +40,7 @@ export const CreateApplication = async (body: object) => {
         (await attachResume(parsedBody.resumeFileId));
 
       if (!attached) {
-        throw new BadRequestError(
-          'Your resume upload expired. Please upload it again.'
-        );
+        throw new BadRequestError(RESUME_EXPIRED_MESSAGE);
       }
     }
 

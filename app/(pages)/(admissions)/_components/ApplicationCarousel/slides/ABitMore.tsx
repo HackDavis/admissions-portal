@@ -12,6 +12,7 @@ interface ABitMoreProps {
   setFormData: (data: any) => void;
   onNext?: () => void;
   isActive: boolean;
+  resume: ReturnType<typeof useResumeUpload>;
 }
 
 const normalizeLinkedIn = (url: string): string => {
@@ -54,12 +55,10 @@ export default function ABitMore({
   setFormData,
   onNext,
   isActive,
+  resume,
 }: ABitMoreProps) {
   const [submitted, setSubmitted] = React.useState(false);
   const fileInput = React.useRef<HTMLInputElement>(null);
-  const resume = useResumeUpload((resumeFileId) =>
-    setFormData((prev: any) => ({ ...prev, resumeFileId }))
-  );
 
   const resumeRequired = formData.connectWithSponsors === true;
 

@@ -62,6 +62,14 @@ export function useResumeUpload(onChange: (fileId: string) => void) {
     onChange('');
   };
 
+  // Forget the file without deleting it (it is already gone server-side) and explain why
+  const reset = (message: string) => {
+    setFileId('');
+    setFilename('');
+    setError(message);
+    onChange('');
+  };
+
   return {
     fileId,
     filename,
@@ -69,5 +77,6 @@ export function useResumeUpload(onChange: (fileId: string) => void) {
     error,
     upload,
     remove,
+    reset,
   };
 }
