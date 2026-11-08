@@ -1,6 +1,5 @@
 'use client';
 
-import { automaticWaitlistReasons } from '../../../../_utils/waitlist';
 import React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import AutoHeight from 'embla-carousel-auto-height';
@@ -12,7 +11,6 @@ import { useResumeUpload } from '../../_hooks/useResumeUpload';
 import { RESUME_EXPIRED_MESSAGE } from '../../../../_utils/resumeLimits';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
-import { sendConfirmationEmail } from '@utils/nodemailer/sendConfirmationEmail';
 
 import Email from './slides/Email';
 import Contact from './slides/Contact';
@@ -141,48 +139,25 @@ export default function ApplicationCarousel() {
   );
 
   const handleFinalSubmit = async () => {
-    //modify payload to account for custom university
-    try {
-      const { customUniversity, ...rest } = formData; // remove customUniversity from formData
-      const payload = {
-        ...rest,
-        university:
-          formData.university === 'Other'
-            ? customUniversity
-            : formData.university,
-        status: automaticWaitlistReasons(formData).length
-          ? 'waitlisted'
-          : 'pending',
-      };
-      //submit application
-      const { ok, error } = await submit(payload);
-      if (!ok && error === RESUME_EXPIRED_MESSAGE) {
-        // send the applicant back to re-upload (returning normally closes the confirm modal)
-        resume.reset(error);
-        api?.scrollTo(SLIDES.findIndex((s) => s.key === 'a-bit-more'));
-        return;
-      }
-      if (ok) {
-        // send confirmation email
-        const sendEmail = await sendConfirmationEmail({
-          firstName: formData.firstName,
-          email: formData.email.trim().toLowerCase(),
-        });
-        if (!sendEmail) {
-          // if confirmation email sending fails, alert the user to contact hello@ (but still proceed with application submission)
-          console.error('Failed to send confirmation email:', sendEmail);
-          alert(
-            'Your application has been received, but we failed to send a confirmation email. Please contact us at hello@hackdavis.io to confirm your application submission!'
-          );
-        }
-        api?.scrollNext(); // move to confirmation page
-      } else {
-        throw new Error(error ?? 'Submission failed');
-      }
-    } catch (err) {
-      console.error('Error submitting application: ', err);
-      throw err; // the confirm modal shows the message
+    const { ok, emailSent, error } = await submit(formData);
+
+    if (!ok && error === RESUME_EXPIRED_MESSAGE) {
+      resume.reset(error);
+      api?.scrollTo(SLIDES.findIndex((s) => s.key === 'a-bit-more'));
+      return;
     }
+
+    if (!ok) {
+      throw new Error(error ?? 'Submission failed');
+    }
+
+    if (!emailSent) {
+      alert(
+        'Your application has been received, but we failed to send a confirmation email. Please contact us at hello@hackdavis.io to confirm your application submission!'
+      );
+    }
+
+    api?.scrollNext(); // move to confirmation page
   };
 
   const SLIDES: SlideDef[] = [
