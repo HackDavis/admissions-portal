@@ -36,6 +36,12 @@ export default function AdminHeader({
         >
           stats
         </Link>
+        <Link
+          href="/admin/late-acceptances"
+          className="special-button px-2 py-1 text-xs text-center"
+        >
+          add late acceptance
+        </Link>
         <button
           onClick={setIsPopupOpen.bind(null, true)}
           className="special-button px-2 py-1 text-xs"
