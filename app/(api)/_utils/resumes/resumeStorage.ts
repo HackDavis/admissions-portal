@@ -5,6 +5,7 @@ export { RESUME_MAX_BYTES } from '../../../_utils/resumeLimits';
 
 // 1 day
 const ORPHAN_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const ORPHAN_BATCH_SIZE = 10;
 
 const getBucket = async () =>
   new GridFSBucket(await getDatabase(), { bucketName: 'resumes' });
@@ -44,10 +45,13 @@ export async function deleteUnattachedResume(fileId: string) {
   if (!ObjectId.isValid(fileId)) return false;
 
   const _id = new ObjectId(fileId);
-  const file = await (
+  const claim = await (
     await getFiles()
-  ).findOne({ _id, 'metadata.attached': false });
-  if (!file) return false;
+  ).updateOne(
+    { _id, 'metadata.attached': false, 'metadata.deleting': { $ne: true } },
+    { $set: { 'metadata.deleting': true } }
+  );
+  if (claim.matchedCount !== 1) return false;
 
   await (await getBucket()).delete(_id);
   return true;
@@ -72,7 +76,11 @@ export async function attachResume(fileId: string) {
   const result = await (
     await getFiles()
   ).updateOne(
-    { _id: new ObjectId(fileId), 'metadata.attached': false },
+    {
+      _id: new ObjectId(fileId),
+      'metadata.attached': false,
+      'metadata.deleting': { $ne: true },
+    },
     { $set: { 'metadata.attached': true } }
   );
 
@@ -86,26 +94,39 @@ export async function detachResume(fileId: string) {
   await (
     await getFiles()
   ).updateOne(
-    { _id: new ObjectId(fileId) },
+    { _id: new ObjectId(fileId), 'metadata.deleting': { $ne: true } },
     { $set: { 'metadata.attached': false } }
   );
 }
 
-// Called on resume uploads
+// Bound cleanup to ten files, one deletion at a time, per upload.
 export async function sweepOrphanedResumes() {
   const cutoff = new Date(Date.now() - ORPHAN_MAX_AGE_MS);
-  const orphans = await (
-    await getFiles()
-  )
+  const files = await getFiles();
+  const orphans = await files
     .find({
       'metadata.attached': false,
       'metadata.uploadedAt': { $lt: cutoff },
     })
+    .limit(ORPHAN_BATCH_SIZE)
     .toArray();
 
   const bucket = await getBucket();
-  await Promise.all(
-    orphans.map((file: { _id: ObjectId }) => bucket.delete(file._id))
-  );
-  return orphans.length;
+  let deleted = 0;
+  for (const file of orphans) {
+    // Attachment and deletion compete on the same document atomically.
+    // Keep failed deletions claimed so the next sweep can retry safely.
+    const claim = await files.updateOne(
+      { _id: file._id, 'metadata.attached': false },
+      { $set: { 'metadata.deleting': true } }
+    );
+    if (claim.matchedCount !== 1) continue;
+    try {
+      await bucket.delete(file._id);
+      deleted += 1;
+    } catch (error) {
+      console.error('Failed to delete orphaned resume', error);
+    }
+  }
+  return deleted;
 }

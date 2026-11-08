@@ -56,7 +56,7 @@ describe('GET /api/applications/[id]/resume', () => {
     const disposition = res.headers.get('content-disposition') as string;
     // Quotes and accents in the applicant's filename are percent-encoded, so they cannot break the header
     expect(disposition).toBe(
-      "attachment; filename*=UTF-8''My%20%22R%C3%A9sum%C3%A9%22.pdf"
+      "inline; filename*=UTF-8''My%20%22R%C3%A9sum%C3%A9%22.pdf"
     );
     expect(await res.text()).toBe('%PDF-1.7 hello');
   });

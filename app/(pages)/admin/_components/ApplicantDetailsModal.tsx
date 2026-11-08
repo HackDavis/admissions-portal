@@ -81,7 +81,7 @@ export default function ApplicantDetailsModal({
     },
     {
       label: 'resume',
-      value: applicant.resumeFileId ? 'download pdf' : applicant.resume,
+      value: applicant.resumeFileId ? 'view pdf' : applicant.resume,
       href: getResumeHref(applicant),
     },
     { label: 'connect with hackdavis', value: applicant.connectWithHackDavis },

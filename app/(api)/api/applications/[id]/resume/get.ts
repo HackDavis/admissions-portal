@@ -15,7 +15,7 @@ export async function GET(
     headers: {
       'Content-Type': 'application/pdf',
       // The filename is applicant-supplied: percent-encoding keeps it from breaking the header
-      'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(
+      'Content-Disposition': `inline; filename*=UTF-8''${encodeURIComponent(
         body.filename
       )}`,
       'X-Content-Type-Options': 'nosniff',
