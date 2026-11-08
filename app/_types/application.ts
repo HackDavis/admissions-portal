@@ -43,6 +43,7 @@ export interface Application {
   linkedin: string; // required by mlh
   githubOrPortfolio?: string;
   resume?: string;
+  resumeFileId?: string;
   connectWithHackDavis: boolean;
   connectWithMLH: boolean; // required by mlh
   mlhAgreements: {
@@ -56,6 +57,7 @@ export interface Application {
   reviewedAt?: Date | string;
   processedAt?: Date | string;
   notes?: ApplicationNote[];
+  referralSource?: string;
 }
 
 // Used for CSV exports
@@ -78,3 +80,54 @@ export interface ApplicationUpdatePayload {
 export type ApplicationStatusUpdateResult =
   | { ok: true }
   | { ok: false; error: string };
+
+export type SubmissionStatus = 'idle' | 'loading' | 'success' | 'error';
+
+export interface ApplicationFormData {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  age: number;
+  isOver18: boolean | null;
+  isUCDavisStudent: boolean | null;
+  university: string;
+  countryOfResidence: string;
+  levelOfStudy: string;
+  major: string;
+  minorOrDoubleMajor: string;
+  college: string[];
+  year: number;
+  shirtSize: string;
+  dietaryRestrictions: string[];
+  connectWithSponsors: boolean | null;
+  gender: string[];
+  race: string[];
+  attendedHackDavis: boolean | null;
+  firstHackathon: boolean | null;
+  linkedin: string;
+  githubOrPortfolio: string;
+  resumeFileId: string;
+  connectWithHackDavis: boolean | null;
+  connectWithMLH: boolean | null;
+  mlhAgreements: {
+    mlhCodeOfConduct: boolean | null;
+    eventLogisticsInformation: boolean | null;
+  };
+  status: string;
+  wasWaitlisted: boolean;
+  customUniversity: string;
+}
+
+export type ApplicationSubmissionPayload = Omit<
+  ApplicationFormData,
+  'customUniversity' | 'status'
+> & {
+  status: 'pending' | 'waitlisted';
+};
+
+export interface SubmitResult {
+  ok: boolean;
+  emailSent: boolean;
+  error: string | null;
+}

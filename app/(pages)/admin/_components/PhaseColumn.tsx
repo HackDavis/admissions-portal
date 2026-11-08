@@ -6,7 +6,10 @@ import { Application, ApplicationNote } from '@/app/_types/application';
 import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import { prettyStatus } from '../_utils/format';
 import { sortNotesByNewest } from '../_utils/notes';
-import ApplicantDetailsModal, { getSafeUrl } from './ApplicantDetailsModal';
+import ApplicantDetailsModal, {
+  getResumeHref,
+  getSafeUrl,
+} from './ApplicantDetailsModal';
 import { FaLinkedin, FaRegFileAlt } from 'react-icons/fa';
 import { LuLink } from 'react-icons/lu';
 
@@ -139,9 +142,9 @@ export default function PhaseColumn({
                       <LuLink aria-hidden="true" className="text-md" />
                     </a>
                   )}
-                  {app.resume && (
+                  {getResumeHref(app) && (
                     <a
-                      href={getSafeUrl(app.resume) ?? undefined}
+                      href={getResumeHref(app) ?? undefined}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#005271] hover:opacity-80 transition-opacity"

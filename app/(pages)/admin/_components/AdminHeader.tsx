@@ -51,6 +51,12 @@ export default function AdminHeader({
 
         <ExportAcceptedButton />
         <ExportAcceptedButton rejectedWaitlisted />
+        <Link
+          href="/admin/referral-links"
+          className="special-button px-2 py-1 text-xs text-center"
+        >
+          referral links
+        </Link>
       </div>
 
       <MailchimpApiStatusModal />
