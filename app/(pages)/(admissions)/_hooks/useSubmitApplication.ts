@@ -40,9 +40,10 @@ export function useSubmitApplication() {
       const res = await createApplication(buildPayload(formData));
 
       if (!res.ok) {
-        setError(res.error ?? 'Submission failed');
+        const message = res.error ?? 'Submission failed';
+        setError(message);
         setStatus('error');
-        return { ok: false, emailSent: false };
+        return { ok: false, emailSent: false, error: message };
       }
 
       let emailSent = false;
@@ -58,12 +59,13 @@ export function useSubmitApplication() {
       }
 
       setStatus('success');
-      return { ok: true, emailSent };
+      return { ok: true, emailSent, error: null };
     } catch (err) {
       console.error('Error submitting application: ', err);
-      setError('An unexpected error occurred during submission.');
+      const message = 'An unexpected error occurred during submission.';
+      setError(message);
       setStatus('error');
-      return { ok: false, emailSent: false };
+      return { ok: false, emailSent: false, error: message };
     }
   };
 

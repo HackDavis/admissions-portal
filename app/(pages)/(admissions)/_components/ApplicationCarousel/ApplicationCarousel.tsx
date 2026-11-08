@@ -7,6 +7,8 @@ import Confetti from 'react-confetti';
 
 import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
+import { useResumeUpload } from '../../_hooks/useResumeUpload';
+import { RESUME_EXPIRED_MESSAGE } from '../../../../_utils/resumeLimits';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
 
@@ -115,7 +117,7 @@ export default function ApplicationCarousel() {
     //ABitMore.tsx
     linkedin: 'https://www.linkedin.com/in/',
     githubOrPortfolio: '',
-    resume: '',
+    resumeFileId: '',
     //FinalStretch.tsx
     connectWithHackDavis: null,
     connectWithMLH: null,
@@ -132,12 +134,21 @@ export default function ApplicationCarousel() {
   // console.log('All form fields:', formData);
 
   const { submit } = useSubmitApplication();
+  const resume = useResumeUpload((resumeFileId) =>
+    setFormData((prev) => ({ ...prev, resumeFileId }))
+  );
 
   const handleFinalSubmit = async () => {
-    const { ok, emailSent } = await submit(formData);
+    const { ok, emailSent, error } = await submit(formData);
+
+    if (!ok && error === RESUME_EXPIRED_MESSAGE) {
+      resume.reset(error);
+      api?.scrollTo(SLIDES.findIndex((s) => s.key === 'a-bit-more'));
+      return;
+    }
 
     if (!ok) {
-      throw new Error('Submission failed');
+      throw new Error(error ?? 'Submission failed');
     }
 
     if (!emailSent) {
@@ -220,6 +231,7 @@ export default function ApplicationCarousel() {
       key: 'a-bit-more',
       node: (isActive) => (
         <ABitMore
+          resume={resume}
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}

@@ -42,16 +42,8 @@ export default function MLH({ formData, setFormData, onNext }: any) {
   }, [showConfirm]);
 
   const handleConfirmSubmit = async () => {
-    try {
-      const result = await onNext?.(); // submit application
-      if (result === false) {
-        throw new Error('Submission failed');
-      }
-      setShowConfirm(false);
-    } catch (err) {
-      console.error(err);
-      throw new Error('Submission failed');
-    }
+    await onNext?.(); // submit application; throws with a message the modal displays
+    setShowConfirm(false);
   };
 
   return (

@@ -43,6 +43,7 @@ export interface Application {
   linkedin: string; // required by mlh
   githubOrPortfolio?: string;
   resume?: string;
+  resumeFileId?: string;
   connectWithHackDavis: boolean;
   connectWithMLH: boolean; // required by mlh
   mlhAgreements: {
@@ -105,7 +106,7 @@ export interface ApplicationFormData {
   firstHackathon: boolean | null;
   linkedin: string;
   githubOrPortfolio: string;
-  resume: string;
+  resumeFileId: string;
   connectWithHackDavis: boolean | null;
   connectWithMLH: boolean | null;
   mlhAgreements: {
@@ -127,4 +128,5 @@ export type ApplicationSubmissionPayload = Omit<
 export interface SubmitResult {
   ok: boolean;
   emailSent: boolean;
+  error: string | null;
 }
