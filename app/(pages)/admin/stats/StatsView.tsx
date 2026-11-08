@@ -12,9 +12,12 @@ import {
   Rectangle,
   ResponsiveContainer,
   Tooltip,
+  Line,
+  LineChart,
   XAxis,
   YAxis,
 } from 'recharts';
+import { SubmissionDayCount } from '@/app/_types/stats';
 
 import useStats from '../_hooks/useStats';
 import Link from 'next/link';
@@ -33,6 +36,13 @@ const SCOPE_OPTIONS: Array<{ label: string; value: Scope }> = [
 ];
 
 const PIE_COLORS = ['#1d4ed8', '#db2777', '#059669', '#9333ea', '#6b7280'];
+
+const formatDay = (date: string) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
 
 export default function StatsView() {
   const { error, loading, refreshStats, stats } = useStats();
@@ -204,31 +214,39 @@ export default function StatsView() {
       {!loading && error && <p className="text-xs">{error}</p>}
 
       {!loading && !error && selectedScopeStats && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-8">
-          <ChartCard title="Year Distribution">
-            <BarChartBlock data={yearData} />
-          </ChartCard>
+        <>
+          <div className="mb-4">
+            <ChartCard title="Applications Submitted Per Day">
+              <LineChartBlock data={selectedScopeStats.submissionCounts} />
+            </ChartCard>
+          </div>
 
-          <ChartCard title="First Time Hacker Ratio">
-            <PieChartBlock data={firstTimeData} />
-          </ChartCard>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-8">
+            <ChartCard title="Year Distribution">
+              <BarChartBlock data={yearData} />
+            </ChartCard>
 
-          <ChartCard title="Gender Ratio">
-            <PieChartBlock data={genderData} />
-          </ChartCard>
+            <ChartCard title="First Time Hacker Ratio">
+              <PieChartBlock data={firstTimeData} />
+            </ChartCard>
 
-          <ChartCard title="Majors (Top 10)">
-            <HorizontalBarChartBlock data={majorData} />
-          </ChartCard>
+            <ChartCard title="Gender Ratio">
+              <PieChartBlock data={genderData} />
+            </ChartCard>
 
-          <ChartCard title="STEM vs Non-STEM">
-            <PieChartBlock data={stemData} />
-          </ChartCard>
+            <ChartCard title="Majors (Top 10)">
+              <HorizontalBarChartBlock data={majorData} />
+            </ChartCard>
 
-          <ChartCard title="Acceptance / Rejection Ratio">
-            <PieChartBlock data={acceptanceData} />
-          </ChartCard>
-        </div>
+            <ChartCard title="STEM vs Non-STEM">
+              <PieChartBlock data={stemData} />
+            </ChartCard>
+
+            <ChartCard title="Acceptance / Rejection Ratio">
+              <PieChartBlock data={acceptanceData} />
+            </ChartCard>
+          </div>
+        </>
       )}
     </section>
   );
@@ -290,6 +308,40 @@ function BarChartBlock({
   );
 }
 
+function LineChartBlock({ data }: { data: SubmissionDayCount[] }) {
+  if (!data.length || data.every((item) => item.count === 0)) {
+    return <p className="text-xs text-gray-600">No data.</p>;
+  }
+
+  return (
+    <div className="h-56 w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart
+          data={data}
+          margin={{
+            top: 10,
+            right: 10,
+            left: 0,
+            bottom: 15,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="date"
+            tickFormatter={formatDay}
+            minTickGap={30}
+            height={30}
+            tick={{ fontSize: 11 }}
+          />
+          <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+          <Tooltip labelFormatter={(label) => formatDay(String(label))} />
+          <Line dataKey="count" stroke="#111827" />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 function PieChartBlock({ data }: { data: ChartRow[] }) {
   const filteredData = data.filter((item) => item.value > 0);
 
@@ -300,7 +352,7 @@ function PieChartBlock({ data }: { data: ChartRow[] }) {
   return (
     <div className="h-56 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
+        <PieChart margin={{ top: 30 }}>
           <Pie
             data={filteredData}
             dataKey="value"
