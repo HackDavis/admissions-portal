@@ -115,7 +115,6 @@ export default function StatsView() {
 
   const referralData: ChartRow[] = useMemo(() => {
     if (!selectedScopeStats) return [];
-    
     return selectedScopeStats.referralCounts.map((item) => ({
       name: item.source,
       value: item.count,
