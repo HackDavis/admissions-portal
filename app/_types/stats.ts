@@ -46,6 +46,7 @@ export type ScopeStats = {
   gender: GenderCounts;
   majorCounts: MajorCount[];
   stemVsNonStem: StemCounts;
+  referralCounts: ReferralCount[];
   submissionCounts: SubmissionDayCount[];
 };
 
@@ -70,4 +71,9 @@ export type AdminStats = {
     processed: AcceptanceRatio;
     hypothetic: AcceptanceRatio;
   };
+};
+
+export type ReferralCount = {
+  source: string;
+  count: number;
 };

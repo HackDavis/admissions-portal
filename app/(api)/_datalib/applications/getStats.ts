@@ -17,6 +17,7 @@ import {
   StemCounts,
   YearDistribution,
   PendingWaitlistedCounts,
+  ReferralCount,
   SubmissionDayCount,
 } from '@/app/_types/stats';
 
@@ -28,6 +29,7 @@ type AdminStatsRecord = {
   gender?: string[];
   major?: string;
   status?: string;
+  referralSource?: string;
   submittedAt?: Date;
 };
 
@@ -171,6 +173,7 @@ function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
   };
   const gender = createDefaultGenderCounts();
   const majorAccumulator = new Map<string, number>();
+  const referralAccumulator = new Map<string, number>();
   const stemVsNonStem: StemCounts = {
     stem: 0,
     nonStem: 0,
@@ -204,6 +207,9 @@ function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
     const major = normalizeMajorValue(record.major);
     majorAccumulator.set(major, (majorAccumulator.get(major) ?? 0) + 1);
 
+    const source = record.referralSource?.trim() || 'unattributed';
+    referralAccumulator.set(source, (referralAccumulator.get(source) ?? 0) + 1);
+
     const stemClassification = isStemMajor(major);
     if (stemClassification === true) stemVsNonStem.stem += 1;
     else if (stemClassification === false) stemVsNonStem.nonStem += 1;
@@ -222,6 +228,9 @@ function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
     .map(([major, count]) => ({ major, count }))
     .sort((a, b) => b.count - a.count || a.major.localeCompare(b.major));
 
+  const referralCounts: ReferralCount[] = [...referralAccumulator.entries()]
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count || a.source.localeCompare(b.source));
   const submissionCounts: SubmissionDayCount[] = buildSubmissionCounts(
     submissionsAccumulator
   );
@@ -232,6 +241,7 @@ function computeScopeStats(records: AdminStatsRecord[]): ScopeStats {
     firstTimeHackers,
     gender,
     majorCounts,
+    referralCounts,
     stemVsNonStem,
     submissionCounts,
   };
@@ -285,6 +295,7 @@ async function fetchScopeRecords(scope: ScopeKey) {
         gender: 1,
         major: 1,
         status: 1,
+        referralSource: 1,
         submittedAt: 1,
       },
     })

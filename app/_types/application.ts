@@ -57,6 +57,7 @@ export interface Application {
   reviewedAt?: Date | string;
   processedAt?: Date | string;
   notes?: ApplicationNote[];
+  referralSource?: string;
 }
 
 // Used for CSV exports

@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { Db, ObjectId } from 'mongodb';
 import { automaticWaitlistReasons } from '../../../_utils/waitlist';
 
 import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
@@ -12,6 +12,24 @@ import {
   DuplicateError,
   BadRequestError,
 } from '@utils/response/Errors';
+
+import { cookies } from 'next/headers';
+
+const UNATTRIBUTED = 'unattributed';
+
+async function getReferralSource(db: Db): Promise<string> {
+  try {
+    const code = cookies().get('hd_ref')?.value;
+    if (!code || !/^[0-9]{6}$/.test(code)) {
+      return UNATTRIBUTED;
+    }
+
+    const referral = await db.collection('referrals').findOne({ code });
+    return referral?.name ?? UNATTRIBUTED;
+  } catch {
+    return UNATTRIBUTED;
+  }
+}
 
 export const CreateApplication = async (body: object) => {
   try {
@@ -58,6 +76,7 @@ export const CreateApplication = async (body: object) => {
       delete submission[key];
     const parsedBodyWithTimestamp = {
       ...submission,
+      referralSource: await getReferralSource(db),
       status: automaticReasons.length ? 'waitlisted' : 'pending',
       wasWaitlisted: automaticReasons.length > 0,
       ...(automaticReasons.length

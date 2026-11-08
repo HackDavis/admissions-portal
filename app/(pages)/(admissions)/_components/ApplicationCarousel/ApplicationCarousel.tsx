@@ -85,6 +85,17 @@ export default function ApplicationCarousel() {
     return () => window.removeEventListener('resize', update);
   }, []);
 
+  React.useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (!ref) {
+      return;
+    }
+
+    fetch(`/api/referrals?ref=${encodeURIComponent(ref)}`).catch((err) =>
+      console.error('Referral capture failed:', err)
+    );
+  }, []);
+
   // Default form data (what user sees in application portal)
   const [formData, setFormData] = React.useState({
     //Email.tsx

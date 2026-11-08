@@ -123,6 +123,14 @@ export default function StatsView() {
     }));
   }, [selectedScopeStats]);
 
+  const referralData: ChartRow[] = useMemo(() => {
+    if (!selectedScopeStats) return [];
+    return selectedScopeStats.referralCounts.map((item) => ({
+      name: item.source,
+      value: item.count,
+    }));
+  }, [selectedScopeStats]);
+
   const stemData: ChartRow[] = useMemo(() => {
     if (!selectedScopeStats) return [];
 
@@ -244,6 +252,9 @@ export default function StatsView() {
 
             <ChartCard title="Acceptance / Rejection Ratio">
               <PieChartBlock data={acceptanceData} />
+            </ChartCard>
+            <ChartCard title="Referrals">
+              <HorizontalBarChartBlock data={referralData} />
             </ChartCard>
           </div>
         </>
