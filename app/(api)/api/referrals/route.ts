@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDatabase } from '@app/(api)/_utils/mongodb/mongoClient.mjs';
+import { getDatabase } from '@utils/mongodb/mongoClient.mjs';
 
 const COOKIE_NAME = 'hd_ref';
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
 
 export async function GET(request: NextRequest) {
-  if (request.cookies.get(COOKIE_NAME)) {
-    return NextResponse.json({ ok: true, captured: false });
-  }
-
   const code = request.nextUrl.searchParams.get('ref') ?? '';
 
   if (!/^[0-9]{6}$/.test(code)) {
@@ -17,7 +13,16 @@ export async function GET(request: NextRequest) {
 
   try {
     const db = await getDatabase();
-    const referral = await db.collection('referrals').findOne({ code });
+    const referrals = db.collection('referrals');
+    const existingCode = request.cookies.get(COOKIE_NAME)?.value;
+    if (existingCode && /^[0-9]{6}$/.test(existingCode)) {
+      const existing = await referrals.findOne({ code: existingCode });
+      if (existing) {
+        return NextResponse.json({ ok: true, captured: false });
+      }
+    }
+
+    const referral = await referrals.findOne({ code });
 
     if (!referral) {
       return NextResponse.json({ ok: true, captured: false });
