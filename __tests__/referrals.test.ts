@@ -133,3 +133,9 @@ test('counts normalized sources within each scope, including legacy applications
     })
   );
 });
+
+test('rejects readable referral names', async () => {
+  const res = await GET(request('instagram'));
+  expect((await res.json()).captured).toBe(false);
+  expect(res.headers.get('set-cookie')).toBeNull();
+});
