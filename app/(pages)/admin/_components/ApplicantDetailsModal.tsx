@@ -98,6 +98,15 @@ export default function ApplicantDetailsModal({
     { label: 'reviewed at', value: applicant.reviewedAt },
     { label: 'processed at', value: applicant.processedAt },
     { label: 'batch', value: applicant.batchNumber },
+    ...(applicant.manualEntry
+      ? [
+          {
+            label: 'manually added by',
+            value: applicant.manualEntry.addedByEmail,
+          },
+          { label: 'manually added at', value: applicant.manualEntry.addedAt },
+        ]
+      : []),
   ];
 
   return (

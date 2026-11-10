@@ -27,13 +27,14 @@ export type LateAcceptanceInput = Omit<
   | 'decisionSource'
   | 'automaticReasons'
   | 'waitlistPool'
+  | 'manualEntry'
 >;
 
 export type LateAcceptanceFieldErrors = Partial<
   Record<keyof LateAcceptanceInput, string>
 >;
 
-// Contract for the #121 server action, matching the other application actions.
+// Result of the createLateAcceptance server action.
 export type LateAcceptanceResult =
   | { ok: true; body: Application; error: null }
   | {

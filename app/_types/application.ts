@@ -9,6 +9,13 @@ export interface ApplicationNote {
   updatedAt?: Date | string;
 }
 
+// Set when an admin enters an application by hand (late acceptances).
+export interface ManualEntry {
+  addedById: string;
+  addedByEmail: string;
+  addedAt: Date | string;
+}
+
 export type WaitlistPool =
   | 'probable_accept'
   | 'probably_waitlist'
@@ -58,6 +65,7 @@ export interface Application {
   processedAt?: Date | string;
   notes?: ApplicationNote[];
   referralSource?: string;
+  manualEntry?: ManualEntry;
 }
 
 // Used for CSV exports
