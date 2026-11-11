@@ -8,8 +8,8 @@ export const generateComprehensiveCSV = (
   hubInviteMap: Map<string, string>,
   autoFixedNotesMap: Map<string, string>,
   titoFailures: string[],
-  mailchimpSuccessIds: Set<string>,
-  mailchimpErrorMap: Map<string, string>
+  nodemailerSuccessIds: Set<string>,
+  nodemailerErrorMap: Map<string, string>
 ): string => {
   const headers = [
     'Email',
@@ -48,17 +48,17 @@ export const generateComprehensiveCSV = (
     const hubUrl = hubInviteMap.get(email) || '';
     const autoFixedNote = autoFixedNotesMap.get(email) || '';
     const hadTitoFailure = titoFailures.some((f) => f.includes(email));
-    const mailchimpSuccess = mailchimpSuccessIds.has(app._id);
-    const mailchimpError = mailchimpErrorMap.get(email);
+    const nodemailerSuccess = nodemailerSuccessIds.has(app._id);
+    const nodemailerError = nodemailerErrorMap.get(email);
 
     // Build error messages array
     const errorMessages: string[] = [];
 
     // Determine success status and notes
     if (isAccepted) {
-      // Accepted applicants should have Tito + Mailchimp
+      // Accepted applicants should have Tito + Nodemailer
       const titoFailed = !titoUrl;
-      const mailchimpFailed = !mailchimpSuccess;
+      const nodemailerFailed = !nodemailerSuccess;
 
       if (titoFailed) {
         errorMessages.push(
@@ -68,8 +68,8 @@ export const generateComprehensiveCSV = (
         );
       }
 
-      if (mailchimpFailed) {
-        errorMessages.push(mailchimpError || 'Mailchimp email failed to send');
+      if (nodemailerFailed) {
+        errorMessages.push(nodemailerError || 'Nodemailer email failed to send');
       }
 
       if (errorMessages.length > 0) {
@@ -80,13 +80,13 @@ export const generateComprehensiveCSV = (
         notes = autoFixedNote;
       }
     } else {
-      // Non-accepted applicants only need Mailchimp
-      if (mailchimpSuccess) {
+      // Non-accepted applicants only need Nodemailer
+      if (nodemailerSuccess) {
         success = 'TRUE';
         notes = autoFixedNote;
       } else {
         success = 'FALSE';
-        notes = mailchimpError || 'Mailchimp email failed to send';
+        notes = nodemailerError || 'Nodemailer email failed to send';
       }
     }
 
