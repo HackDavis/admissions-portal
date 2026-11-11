@@ -8,6 +8,9 @@ jest.mock('@actions/applications/applicationNotes', () => ({
   addApplicationNote: jest.fn(),
   updateApplicationNote: jest.fn(),
 }));
+jest.mock('@actions/applications/sendLateAcceptanceInvite', () => ({
+  sendLateAcceptanceInvite: jest.fn(),
+}));
 
 const applicant = {
   _id: 'one',

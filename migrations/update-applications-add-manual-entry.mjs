@@ -14,6 +14,10 @@ const manualEntrySchema = {
       bsonType: 'date',
       description: 'addedAt must be a date',
     },
+    invitedAt: {
+      bsonType: 'date',
+      description: 'invitedAt must be a date',
+    },
   },
   description: 'manualEntry records which admin added the application and when',
 };

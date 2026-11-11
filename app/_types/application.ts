@@ -14,6 +14,8 @@ export interface ManualEntry {
   addedById: string;
   addedByEmail: string;
   addedAt: Date | string;
+  // Set once the Tito, Hub, and acceptance email invite has been sent.
+  invitedAt?: Date | string;
 }
 
 export type WaitlistPool =

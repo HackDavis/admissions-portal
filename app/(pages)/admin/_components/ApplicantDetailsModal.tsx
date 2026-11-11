@@ -2,6 +2,7 @@
 
 import { Application, ApplicationNote } from '@/app/_types/application';
 import ApplicantNotes from './ApplicantNotes';
+import LateAcceptanceInvite from './LateAcceptanceInvite';
 
 interface ApplicantDetailsModalProps {
   applicant: Application;
@@ -151,6 +152,16 @@ export default function ApplicantDetailsModal({
             </div>
           ))}
         </div>
+
+        {applicant.manualEntry && applicant.status === 'accepted' && (
+          <div className="mt-4">
+            <LateAcceptanceInvite
+              key={applicant._id}
+              applicationId={applicant._id}
+              invitedAt={applicant.manualEntry.invitedAt}
+            />
+          </div>
+        )}
 
         <ApplicantNotes
           applicationId={applicant._id}

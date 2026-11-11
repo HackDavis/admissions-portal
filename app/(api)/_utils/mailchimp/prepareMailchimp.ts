@@ -78,6 +78,7 @@ async function addToMailchimp(
 // Main
 export async function prepareMailchimpInvites(
   targetStatus:
+    | 'accepted' // late acceptances only, always scoped by applicantIds
     | 'tentatively_accepted'
     | 'tentatively_waitlisted'
     | 'tentatively_waitlist_accepted'
@@ -98,9 +99,16 @@ export async function prepareMailchimpInvites(
 
   try {
     const isAccepted =
+      targetStatus === 'accepted' ||
       targetStatus === 'tentatively_accepted' ||
       targetStatus === 'tentatively_waitlist_accepted';
     const rsvpSlug = options?.rsvpListSlug as string;
+
+    // 'accepted' covers everyone already accepted, so it must be scoped to
+    // specific applicants or it would email the whole accepted pool again.
+    if (targetStatus === 'accepted' && !options?.applicantIds?.length) {
+      throw new Error('applicantIds are required for accepted status.');
+    }
 
     // RSVP Reminders REQUIRE the slug
     if (targetStatus === 'rsvp_reminder' && !rsvpSlug) {
