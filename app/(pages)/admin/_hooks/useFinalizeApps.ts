@@ -10,10 +10,7 @@ import {
 import { RsvpList, Release } from '@/app/_types/tito';
 import { generateComprehensiveCSV } from '../_utils/generateComprehensiveCSV';
 import { downloadCSV } from '../_utils/downloadCSV';
-//import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
 import { prepareNodemailerInvites } from '@utils/nodemailer/prepareNodemailer';
-//import { useMailchimp } from '../_hooks/useMailchimp';
-//import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
 import getRsvpLists from '@utils/tito/getRsvpLists';
 import getReleases from '@utils/tito/getReleases';
 import bulkCreateInvitations from '@utils/tito/bulkCreateInvitations';
@@ -55,7 +52,6 @@ export function useFinalizeApps(
   const [selectedRsvpList, setSelectedRsvpList] = useState<string>('');
   const [selectedReleases, setSelectedReleases] = useState<string[]>([]);
 
-  //const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
   const currentBatch = 0; //mailchimp?.batchNumber ?? -1;
 
   // Opens up Tito Modal for user to select RSVP list and releases
@@ -98,12 +94,6 @@ export function useFinalizeApps(
   };
 
   // Processes all applicants
-  /**
-   * isProcessing, processingResults, showTitoModal, showResultsModal, isProcessing (again)
-   * 
-   *  
-   */
-  // awijdw
   const handleProcessAll = async () => {
     if (!selectedRsvpList) {
       alert('Please select an RSVP list');
@@ -276,7 +266,7 @@ export function useFinalizeApps(
           titoFailures.push(...titoResult.errors);
         }
 
-        // Then process Mailchimp for accepted statuses (need Tito map)
+        // Then process Nodemailer for accepted statuses (need Tito map)
         const titoInviteMapRecord = Object.fromEntries(titoInviteMapLocal);
         const okAccepted = await processNodemailerBatch(
           'Acceptances',
@@ -355,8 +345,6 @@ export function useFinalizeApps(
       setShowTitoModal(false);
       setShowResultsModal(true);
     } finally {
-      //await updateMailchimp({ batchNumber: 1, lastUpdate: new Date() });
-      //await refreshMailchimp();
       setIsProcessing(false);
     }
   };

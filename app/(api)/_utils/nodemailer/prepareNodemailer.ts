@@ -1,9 +1,7 @@
 'use server';
 
-//import axios, { AxiosInstance } from 'axios';
 import { AxiosInstance } from 'axios';
 
-//import crypto from 'crypto';
 import { ApplicationCondensed } from '@/app/_types/application';
 import {
     getApplicationsByStatuses,
@@ -13,71 +11,6 @@ import { getUnredeemedRsvpInvitations } from '../tito/getUnredeemedRsvpInvitatio
 import { getHubSession } from '../hub/createHubInvite';
 import { sendHubConfirmationEmail } from './sendHubConfirmationEmail';
 
-
-/*
-// Mailchimp axios client
-function getMailchimpClient(apiKeyIndex: number) {
-    const serverPrefix = process.env[`MAILCHIMP_SERVER_PREFIX_${apiKeyIndex}`];
-    const apiKey = process.env[`MAILCHIMP_API_KEY_${apiKeyIndex}`];
-
-    if (!serverPrefix || !apiKey) {
-        throw new Error(
-            `Missing Mailchimp configuration for API key index ${apiKeyIndex}. Please set MAILCHIMP_SERVER_PREFIX_${apiKeyIndex} and MAILCHIMP_API_KEY_${apiKeyIndex}`
-        );
-    }
-
-    return axios.create({
-        baseURL: `https://${serverPrefix}.api.mailchimp.com/3.0`,
-        headers: {
-            Authorization: `Basic ${Buffer.from(`anystring:${apiKey}`).toString(
-                'base64'
-            )}`,
-        },
-    });
-}
-
-// Mailchimp add/update contact
-async function addToMailchimp(
-    mailchimpClient: AxiosInstance,
-    audienceId: string,
-    email: string,
-    first: string,
-    last: string,
-    titoUrl: string,
-    hubUrl: string,
-    tag: string
-) {
-    const subscriberHash = crypto
-        .createHash('md5')
-        .update(email.toLowerCase())
-        .digest('hex');
-
-    const payload = {
-        email_address: email,
-        status: 'subscribed', // force update for all existing subscribers
-        merge_fields: {
-            FNAME: first,
-            LNAME: last,
-            MMERGE7: titoUrl,
-            MMERGE8: hubUrl,
-        },
-        tags: [tag], // NOTE: This adds to existing tags, and does not replace them
-    };
-
-    try {
-        const res = await mailchimpClient.put(
-            `/lists/${audienceId}/members/${subscriberHash}`,
-            payload
-        );
-        console.log(`Mailchimp updated for ${email}:`, res.data.merge_fields);
-    } catch (err: any) {
-        throw new Error(
-            `Failed to update Mailchimp for ${email}: ${err.response?.data ?? err.message
-            }`
-        );
-    }
-}
-*/
 // Main
 export async function prepareNodemailerInvites(
     targetStatus:
@@ -153,9 +86,6 @@ export async function prepareNodemailerInvites(
                 error: null,
             };
 
-        //const statusTemplate = targetStatus.replace(/^tentatively_/, '');
-        //const tag = `${statusTemplate}_template`; // name of tag in mailchimp
-
         // Double check all required env vars are present
         const requiredEnvs = [
             'HACKDAVIS_HUB_BASE_URL',
@@ -177,18 +107,15 @@ export async function prepareNodemailerInvites(
         let hubSession: AxiosInstance | null = null;
 
         // Note: rsvp_reminder does not require hub/tito info
-        console.log("a");
         if (isAccepted) {
             // Get tito and hub for accepted and waitlist_accepted applicants
             if (options?.titoInviteMap) {
                 for (const [email, url] of Object.entries(options.titoInviteMap)) {
                     titoInvitesMap.set(email.toLowerCase(), url);
                 }
-                console.log("b");
                 hubSession = await getHubSession();
             } else {
                 // handles accepted applicants when no pre-provided titoInviteMap is available
-                console.log("c");
                 const [titoResponse, session] = await Promise.all([
                     getUnredeemedRsvpInvitations(rsvpSlug),
                     getHubSession(),
@@ -204,40 +131,21 @@ export async function prepareNodemailerInvites(
             }
         }
 
-        /*const clientCache = new Map<
-            number,
-            { mailchimpClient: AxiosInstance; audienceId: string }
-        >();
-
-        // Reserve all api key indices in bulk (1 read + 1-2 writes instead of N × 2+)
-        const apiKeyIndices = await reserveMailchimpAPIKeyIndices(
-            dbApplicants.length
-        );
-        const applicantsWithKeys = dbApplicants.map((app, i) => ({
-            app,
-            apiKeyIndex: apiKeyIndices[i],
-        }));*/
-
+        // Note: Hub rate limit is unknown (likely stateless), but have successfully tested with 60+ acceptances at once
+        // Mailchimp rate limit is 10 requests per second for free accounts
+        // Currently kept the same amont of MAX_CONCURRENT_REQUESTS as Hub (which is 10)
         // Process nodemailer for each applicant
         const results: (string | null)[] = [];
 
-
-        console.log("d");
-        console.log(dbApplicants.length)
         for (let i = 0; i < dbApplicants.length; i += MAX_CONCURRENT_REQUESTS) {
-            console.log("e");
             const chunk = dbApplicants.slice(i, i + MAX_CONCURRENT_REQUESTS);
             const chunkResults = await Promise.all(chunk.map(async applicant => {
                 try {
                     // change app status to the acceptable type
-                    console.log("f");
                     const admissionType = applicant.status === "tentatively_accepted" ? "accept" : applicant.status === "tentatively_waitlist_accepted" ? "waitlist_accept" : applicant.status === "tentatively_waitlisted" ? "waitlist" : applicant.status === "tentatively_waitlist_rejected" ? "reject" : "";
                     if (admissionType === "") throw new Error(`Applicant ${applicant._id} (${applicant.firstName} ${applicant.lastName}) does not have an acceptable admission type: ${applicant.status}.`);
-                    console.log("booleans");
-                    console.log(admissionType == "accept" || admissionType == "waitlist");
-                    console.log(rsvpSlug);
-                    console.log(options?.releaseIds);
                     
+                    // send confirmation email (via hub)
                     const response = await sendHubConfirmationEmail(
                         applicant.firstName,
                         applicant.lastName,
@@ -246,21 +154,17 @@ export async function prepareNodemailerInvites(
                         admissionType == "accept" || admissionType == "waitlist" ? rsvpSlug : undefined,
                         admissionType == "accept" || admissionType == "waitlist" ? options?.releaseIds : undefined
                     );
-                    //const response = await sendHubConfirmationEmail("Alex", "Marasigan", "alex2007mara@gmail.com", "reject");
 
                     if (!response) {
                         errorDetails.push(
-                            `[${applicant.email}]: Empty response from Hub confirmation email service.`
+                            `[${applicant.email}]: Empty response from Hub.`
                         );
                         return null;
                     }
 
-                    console.log(response);
                     const result : { ok: boolean, error?: string } = await response.json();
                     
                     if (!(result.ok)) {
-                        console.log("was not ok");
-                        console.log("ok = " + response.ok);
                         if (result.error) {
                             const reason =
                                 `Hub confirmation email request failed with status ${response.status} and error message '${result.error}'`;
@@ -271,8 +175,6 @@ export async function prepareNodemailerInvites(
                                 errorDetails.push(`[${applicant.email}]: ${reason}`);
                         }
                         return null;
-                    } else {
-                        console.log("was ok")
                     }
 
                     return applicant._id;
@@ -288,91 +190,11 @@ export async function prepareNodemailerInvites(
             results.push(...chunkResults);
         }
 
-        // Note: Hub rate limit is unknown (likely stateless), but have successfully tested with 60+ acceptances at once
-        // Mailchimp rate limit is 10 requests per second for free accounts
-        /*for (
-            let i = 0;
-            i < applicantsWithKeys.length;
-            i += MAX_CONCURRENT_REQUESTS
-        ) {
-            const chunk = applicantsWithKeys.slice(i, i + MAX_CONCURRENT_REQUESTS);
-
-            const chunkResults = await Promise.all(
-                chunk.map(async ({ app, apiKeyIndex }) => {
-                    try {
-                        // Cache mailchimp clients by api key index
-                        if (!clientCache.has(apiKeyIndex)) {
-                            clientCache.set(apiKeyIndex, {
-                                mailchimpClient: getMailchimpClient(apiKeyIndex),
-                                audienceId: process.env[
-                                    `MAILCHIMP_AUDIENCE_ID_${apiKeyIndex}`
-                                ] as string,
-                            });
-                        }
-                        const cachedClient = clientCache.get(apiKeyIndex);
-                        if (!cachedClient) {
-                            throw new Error(
-                                `Mailchimp client cache missing for apiKeyIndex ${apiKeyIndex}`
-                            );
-                        }
-                        const { mailchimpClient, audienceId } = cachedClient;
-
-                        let titoUrl = '';
-                        let hubUrl = '';
-                        console.log(`\nProcessing: ${app.email}`);
-
-                        if (isAccepted && hubSession) {
-                            titoUrl = titoInvitesMap.get(app.email.toLowerCase()) || '';
-                            if (!titoUrl) {
-                                const reason = `Skipped: no Tito invite URL for ${app.email}`;
-                                console.warn(`[prepareMailchimp] ${reason}`);
-                                errorDetails.push(`[${app.email}]: ${reason}`);
-                                return null;
-                            }
-
-                            hubUrl = await createHubInvite(
-                                hubSession,
-                                app.firstName,
-                                app.lastName,
-                                app.email
-                            );
-                            if (!hubUrl)
-                                throw new Error(`Hub URL generation failed for ${app.email}`);
-                            hubInviteMap[app.email.toLowerCase()] = hubUrl;
-                        }
-
-                        // Accounts for both accepted and other statuses
-                        await addToMailchimp(
-                            mailchimpClient,
-                            audienceId,
-                            app.email,
-                            app.firstName,
-                            app.lastName,
-                            titoUrl,
-                            hubUrl,
-                            tag
-                        );
-                        return app._id;
-                    } catch (err: any) {
-                        const reason =
-                            err.response?.data?.detail || err.message || 'Unknown Error';
-                        const context = `[${app.email}]: ${reason}`;
-                        console.error(`Failed: ${context}`);
-                        errorDetails.push(context);
-                        return null;
-                    }
-                })
-            );
-            results.push(...chunkResults);
-        }*/
-
         const finalIds = results.filter((id): id is string => id !== null);
         successfulIds.push(...finalIds);
 
         const totalRequested = dbApplicants.length;
         const failedCount = totalRequested - finalIds.length;
-
-        // console.log('Done. Check Mailchimp UI for updated merge fields!');
 
         // NOTE: ALLOWS FOR PARTIAL SUCCESS
         return {

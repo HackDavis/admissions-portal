@@ -1,7 +1,5 @@
 'use server';
 
-//import { NextResponse } from 'next/server';
-
 export type HackerAdmissionType =
     | 'accept'
     | 'waitlist_accept'
@@ -18,23 +16,6 @@ interface HackerResult {
     success: boolean;
     notes: string | null;
 }
-
-/*export async function sendHubConfirmationEmails(
-    firstName: string[],
-    lastName: string[],
-    email: string[],
-    admissionType: string[],
-    RSVPList?: string,
-    ticketReleaseIDs?: string) {
-
-    try {
-        for (let i = 0; i < length; ++i) {
-            await sendHubConfirmationEmail(firstName[i], lastName[i], email[i], admissionType[i], RSVPList ? RSVPList : undefined, ticketReleaseIDs ? ticketReleaseIDs : undefined);
-        }
-    } catch (err: any) {
-        return Response.json({ ok: false, error: err }, { status: 500 });
-    }
-}*/
 
 export async function sendHubConfirmationEmail(
     firstName: string,
