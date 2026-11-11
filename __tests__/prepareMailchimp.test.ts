@@ -149,3 +149,40 @@ test('an empty applicant scope processes nobody', async () => {
   expect(res.ids).toEqual([]);
   expect(mockedAxiosCreate).not.toHaveBeenCalled();
 });
+
+test('refuses accepted status without applicant IDs so the whole pool is not re-emailed', async () => {
+  const res = await prepareMailchimpInvites('accepted', {
+    titoInviteMap: { 'ada@example.com': 'tito-url' },
+  });
+
+  expect(res.ok).toBe(false);
+  expect(res.error).toContain('applicantIds');
+  expect(mockedGetByStatuses).not.toHaveBeenCalled();
+});
+
+test('sends a single accepted applicant with the accepted template tag', async () => {
+  const put = jest.fn().mockResolvedValue({ data: { merge_fields: {} } });
+  mockedAxiosCreate.mockReturnValue({ put });
+  mockedGetByStatuses.mockResolvedValue([
+    { ...baseApplicants[0], status: 'accepted' },
+    {
+      ...baseApplicants[0],
+      _id: '2',
+      email: 'other@example.com',
+      status: 'accepted',
+    },
+  ]);
+
+  const res = await prepareMailchimpInvites('accepted', {
+    applicantIds: ['1'],
+    titoInviteMap: { 'ada@example.com': 'tito-url' },
+  });
+
+  expect(res.ids).toEqual(['1']);
+  expect(mockedGetByStatuses).toHaveBeenCalledWith('accepted');
+  expect(put).toHaveBeenCalledTimes(1);
+  expect(put.mock.calls[0][1]).toMatchObject({
+    tags: ['accepted_template'],
+    merge_fields: { MMERGE7: 'tito-url', MMERGE8: 'hub-url' },
+  });
+});

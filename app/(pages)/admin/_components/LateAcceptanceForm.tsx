@@ -5,6 +5,7 @@ import Link from 'next/link';
 import PhoneInput from 'react-phone-number-input/input';
 
 import useCreateLateAcceptance from '../_hooks/useCreateLateAcceptance';
+import LateAcceptanceInvite from './LateAcceptanceInvite';
 import { MultiSelectGroup } from '@pages/(admissions)/_components/ApplicationCarousel/_components/MultiSelectGroup';
 import { SearchableSelect } from '@pages/(admissions)/_components/ApplicationCarousel/_components/SearchableSelect';
 import { YesNoGroup } from '@pages/(admissions)/_components/ApplicationCarousel/_components/YesNoGroup';
@@ -410,11 +411,7 @@ export default function LateAcceptanceForm() {
           {created.firstName} {created.lastName} ({created.email}) was added as
           accepted.
         </p>
-        {/* TODO(#121): remove once the form saves to the database. */}
-        <p className="text-[11px] text-gray-600">
-          Preview only: nothing is saved until the backend from #121 is
-          connected.
-        </p>
+        <LateAcceptanceInvite applicationId={created._id} />
         <div className="flex gap-2">
           <button
             type="button"

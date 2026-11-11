@@ -31,6 +31,22 @@ async function getReferralSource(db: Db): Promise<string> {
   }
 }
 
+const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Case-insensitive so older applications stored with mixed-case emails still
+// count as duplicates of a normalized email.
+export const findApplicationByEmail = (db: Db, email: string) =>
+  db.collection('applications').findOne(
+    {
+      email: {
+        $regex: `^${escapeRegex(String(email ?? '').trim())}$`,
+        $options: 'i',
+      },
+    },
+    { projection: { _id: 1 } }
+  );
+
 export const CreateApplication = async (body: object) => {
   try {
     // empty
@@ -43,9 +59,7 @@ export const CreateApplication = async (body: object) => {
     const db = await getDatabase();
 
     // unique values have duplicate
-    const hasDuplicate = await db.collection('applications').findOne({
-      email: parsedBody.email,
-    });
+    const hasDuplicate = await findApplicationByEmail(db, parsedBody.email);
 
     if (hasDuplicate) {
       throw new DuplicateError('Duplicate Error: applicant already submitted.');
