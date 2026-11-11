@@ -69,7 +69,9 @@ export const generateComprehensiveCSV = (
       }
 
       if (nodemailerFailed) {
-        errorMessages.push(nodemailerError || 'Nodemailer email failed to send');
+        errorMessages.push(
+          nodemailerError || 'Nodemailer email failed to send'
+        );
       }
 
       if (errorMessages.length > 0) {

@@ -128,7 +128,7 @@ export function useFinalizeApps(
       const processNodemailerBatch = async (
         label: string,
         status: // ?? CHANGE STATUS
-          | 'tentatively_accepted'
+        | 'tentatively_accepted'
           | 'tentatively_waitlisted'
           | 'tentatively_waitlist_accepted'
           | 'tentatively_waitlist_rejected',
@@ -367,8 +367,8 @@ export function useFinalizeApps(
       loadingTitoData,
     },
     actions: {
-      handleFinalize, // 
-      handleProcessAll, // 
+      handleFinalize, //
+      handleProcessAll, //
       toggleRelease,
       setShowTitoModal,
       setShowResultsModal,
