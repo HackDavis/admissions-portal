@@ -52,8 +52,6 @@ export function useFinalizeApps(
   const [selectedRsvpList, setSelectedRsvpList] = useState<string>('');
   const [selectedReleases, setSelectedReleases] = useState<string[]>([]);
 
-  const currentBatch = 0; //mailchimp?.batchNumber ?? -1;
-
   // Opens up Tito Modal for user to select RSVP list and releases
   const handleFinalize = async () => {
     setShowTitoModal(true);
@@ -196,7 +194,6 @@ export function useFinalizeApps(
                     app.status === 'tentatively_waitlisted'
                       ? 'unseen'
                       : 'processed',
-                  batchNumber: currentBatch,
                 }
               )
             )
