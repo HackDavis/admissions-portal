@@ -19,27 +19,13 @@ interface HackerResult {
     notes: string | null;
 }
 
-interface Response {
-    body: {
-        ok: boolean;
-        error?: string;
-        results: HackerResult[];
-        successCount: number;
-        failureCount: number;
-    };
-    status: number;
-}
-
-export async function sendHubConfirmationEmails(
+/*export async function sendHubConfirmationEmails(
     firstName: string[],
     lastName: string[],
     email: string[],
     admissionType: string[],
     RSVPList?: string,
     ticketReleaseIDs?: string) {
-
-    // check if all same length
-    const length = email.length;
 
     try {
         for (let i = 0; i < length; ++i) {
@@ -48,7 +34,7 @@ export async function sendHubConfirmationEmails(
     } catch (err: any) {
         return Response.json({ ok: false, error: err }, { status: 500 });
     }
-}
+}*/
 
 export async function sendHubConfirmationEmail(
     firstName: string,
@@ -57,21 +43,6 @@ export async function sendHubConfirmationEmail(
     admissionType: string,
     RSVPList?: string,
     ticketReleaseIDs?: string) {
-
-    console.log(JSON.stringify({
-        hackers: [
-            {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                type: admissionType,
-            },
-        ],
-        rsvpListSlug: RSVPList ? RSVPList : undefined,
-        releaseIds: ticketReleaseIDs ? ticketReleaseIDs : undefined,
-    }));
-
-    console.log("HERE");
 
     try {
         return await fetch(`${process.env.HACKDAVIS_HUB_BASE_URL}/api/admissions/hackers`, {

@@ -153,7 +153,7 @@ export async function prepareNodemailerInvites(
                 error: null,
             };
 
-        const statusTemplate = targetStatus.replace(/^tentatively_/, '');
+        //const statusTemplate = targetStatus.replace(/^tentatively_/, '');
         //const tag = `${statusTemplate}_template`; // name of tag in mailchimp
 
         // Double check all required env vars are present
