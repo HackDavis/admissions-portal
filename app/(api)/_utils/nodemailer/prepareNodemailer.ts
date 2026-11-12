@@ -1,14 +1,10 @@
 'use server';
 
-import { AxiosInstance } from 'axios';
-
 import { ApplicationCondensed } from '@/app/_types/application';
 import {
   getApplicationsByStatuses,
   getApplicationsForRsvpReminder,
 } from '../getFilteredApplications';
-import { getUnredeemedRsvpInvitations } from '../tito/getUnredeemedRsvpInvitations';
-import { getHubSession } from '../hub/createHubInvite';
 import { sendHubConfirmationEmail } from './sendHubConfirmationEmail';
 
 // Main
