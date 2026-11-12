@@ -1,11 +1,5 @@
 'use server';
 
-export type HackerAdmissionType =
-  | 'accept'
-  | 'waitlist_accept'
-  | 'waitlist'
-  | 'reject';
-
 export async function sendHubConfirmationEmail(
   firstName: string,
   lastName: string,
