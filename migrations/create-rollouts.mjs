@@ -27,6 +27,13 @@ export async function up(db) {
       },
     },
   });
+
+  await db.collection('rollouts').insertOne(
+  {
+    component_key: 'applications',
+    rollout_time: Date.parse('2026-09-04T00:00:00Z'), // change the date???
+    rollback_time: Date.parse('2027-09-04T00:00:00Z'), // this too
+  });
 }
 
 export async function down(db) {
