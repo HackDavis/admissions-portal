@@ -9,6 +9,7 @@ import Confetti from 'react-confetti';
 import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
 import { GetRollbackTime } from '../../_hooks/getRollout';
+import { GetRolloutTime } from '../../_hooks/getRollout';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
 import { sendConfirmationEmail } from '@utils/nodemailer/sendConfirmationEmail';
@@ -57,8 +58,10 @@ function SlideContainer({
 }
 
 export default function ApplicationCarousel() {
-  const dateRes = GetRollbackTime('applications');
-  const applicationsClosed = dateRes == 0 ? true : Date.now() >= dateRes; // May 1st, 2026 at 1:00 AM PDT
+  const dateRollback = GetRollbackTime('applications');
+  const dateRollout = GetRolloutTime('applications');
+  const applicationsClosed = dateRollback == 0 ? true : Date.now() > dateRollback; // May 1st, 2026 at 1:00 AM PDT
+  const applicationsUnopened = dateRollout == 0 ? true : Date.now() < dateRollback;
 
   const [viewportRef, api] = useEmblaCarousel(
     {
@@ -341,7 +344,7 @@ export default function ApplicationCarousel() {
     }
   })();
 
-  if (applicationsClosed) {
+  if (applicationsClosed || applicationsUnopened) {
     return (
       <div>
         <ApplicationFrame>
