@@ -1,6 +1,5 @@
 'use client';
 
-import { automaticWaitlistReasons } from '../../../../_utils/waitlist';
 import React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import AutoHeight from 'embla-carousel-auto-height';
@@ -8,9 +7,10 @@ import Confetti from 'react-confetti';
 
 import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
+import { useResumeUpload } from '../../_hooks/useResumeUpload';
+import { RESUME_EXPIRED_MESSAGE } from '../../../../_utils/resumeLimits';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
-import { sendConfirmationEmail } from '@utils/nodemailer/sendConfirmationEmail';
 
 import Email from './slides/Email';
 import Contact from './slides/Contact';
@@ -85,6 +85,17 @@ export default function ApplicationCarousel() {
     return () => window.removeEventListener('resize', update);
   }, []);
 
+  React.useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (!ref) {
+      return;
+    }
+
+    fetch(`/api/referrals?ref=${encodeURIComponent(ref)}`).catch((err) =>
+      console.error('Referral capture failed:', err)
+    );
+  }, []);
+
   // Default form data (what user sees in application portal)
   const [formData, setFormData] = React.useState({
     //Email.tsx
@@ -117,7 +128,7 @@ export default function ApplicationCarousel() {
     //ABitMore.tsx
     linkedin: 'https://www.linkedin.com/in/',
     githubOrPortfolio: '',
-    resume: '',
+    resumeFileId: '',
     //FinalStretch.tsx
     connectWithHackDavis: null,
     connectWithMLH: null,
@@ -134,44 +145,30 @@ export default function ApplicationCarousel() {
   // console.log('All form fields:', formData);
 
   const { submit } = useSubmitApplication();
+  const resume = useResumeUpload((resumeFileId) =>
+    setFormData((prev) => ({ ...prev, resumeFileId }))
+  );
 
   const handleFinalSubmit = async () => {
-    //modify payload to account for custom university
-    try {
-      const { customUniversity, ...rest } = formData; // remove customUniversity from formData
-      const payload = {
-        ...rest,
-        university:
-          formData.university === 'Other'
-            ? customUniversity
-            : formData.university,
-        status: automaticWaitlistReasons(formData).length
-          ? 'waitlisted'
-          : 'pending',
-      };
-      //submit application
-      const ok = await submit(payload);
-      if (ok) {
-        // send confirmation email
-        const sendEmail = await sendConfirmationEmail({
-          firstName: formData.firstName,
-          email: formData.email.trim().toLowerCase(),
-        });
-        if (!sendEmail) {
-          // if confirmation email sending fails, alert the user to contact hello@ (but still proceed with application submission)
-          console.error('Failed to send confirmation email:', sendEmail);
-          alert(
-            'Your application has been received, but we failed to send a confirmation email. Please contact us at hello@hackdavis.io to confirm your application submission!'
-          );
-        }
-        api?.scrollNext(); // move to confirmation page
-      } else {
-        throw new Error('Submission failed');
-      }
-    } catch (err) {
-      console.error('Error submitting application: ', err);
-      throw new Error('Submission failed');
+    const { ok, emailSent, error } = await submit(formData);
+
+    if (!ok && error === RESUME_EXPIRED_MESSAGE) {
+      resume.reset(error);
+      api?.scrollTo(SLIDES.findIndex((s) => s.key === 'a-bit-more'));
+      return;
     }
+
+    if (!ok) {
+      throw new Error(error ?? 'Submission failed');
+    }
+
+    if (!emailSent) {
+      alert(
+        'Your application has been received, but we failed to send a confirmation email. Please contact us at hello@hackdavis.io to confirm your application submission!'
+      );
+    }
+
+    api?.scrollNext(); // move to confirmation page
   };
 
   const SLIDES: SlideDef[] = [
@@ -245,6 +242,7 @@ export default function ApplicationCarousel() {
       key: 'a-bit-more',
       node: (isActive) => (
         <ABitMore
+          resume={resume}
           formData={formData}
           setFormData={setFormData}
           onNext={() => api?.scrollNext()}

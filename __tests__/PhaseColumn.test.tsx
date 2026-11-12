@@ -42,3 +42,26 @@ it('labels selectable applicants and removes checkboxes from processed cards', (
   expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
   expect(screen.getByText('email: ada@example.com')).toBeInTheDocument();
 });
+
+describe('resume link', () => {
+  const renderWith = (extra: Partial<Application>) =>
+    render(
+      <PhaseColumn
+        apps={[{ ...applicant, ...extra }]}
+        isLoading={false}
+        label="Applications"
+        phase="unseen"
+        selectedApplicants={[]}
+        setSelectedApplicants={jest.fn()}
+        onNotesChange={jest.fn()}
+      />
+    );
+
+  it('links an uploaded resume to the admin download route', () => {
+    renderWith({ resumeFileId: 'file1' });
+    expect(screen.getByTitle('View Resume')).toHaveAttribute(
+      'href',
+      '/api/applications/one/resume'
+    );
+  });
+});
