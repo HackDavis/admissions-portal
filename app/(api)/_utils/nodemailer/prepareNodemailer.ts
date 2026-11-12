@@ -38,6 +38,7 @@ export async function prepareNodemailerInvites(
       targetStatus === 'tentatively_accepted' ||
       targetStatus === 'tentatively_waitlist_accepted';
     const rsvpSlug = options?.rsvpListSlug as string;
+    const releaseIds = options?.releaseIds as string;
 
     // RSVP Reminders REQUIRE the slug
     if (targetStatus === 'rsvp_reminder' && !rsvpSlug) {
@@ -46,10 +47,10 @@ export async function prepareNodemailerInvites(
       );
     }
 
-    // Accepted statuses REQUIRE either a pre-provided map OR a slug to fetch one
-    if (isAccepted && !options?.titoInviteMap && !rsvpSlug) {
+    // Accepted statuses REQUIRE release ids and a slug to fetch one
+    if (isAccepted && (!releaseIds || !rsvpSlug)) {
       throw new Error(
-        'Either a Tito invite map or an RSVP List Slug is required for accepted statuses.'
+        'Release IDs and an RSVP List Slug is required for accepted statuses.'
       );
     }
 
@@ -91,6 +92,7 @@ export async function prepareNodemailerInvites(
       'HACKDAVIS_HUB_BASE_URL',
       'HUB_ADMIN_EMAIL',
       'HUB_ADMIN_PASSWORD',
+      'ADMISSIONS_API_KEY',
     ];
     if (
       targetStatus === 'rsvp_reminder' ||
@@ -133,7 +135,7 @@ export async function prepareNodemailerInvites(
 
     // Note: Hub rate limit is unknown (likely stateless), but have successfully tested with 60+ acceptances at once
     // Mailchimp rate limit is 10 requests per second for free accounts
-    // Currently kept the same amont of MAX_CONCURRENT_REQUESTS as Hub (which is 10)
+    // Currently kept the same amount of MAX_CONCURRENT_REQUESTS as Mailchimp (which is 10)
     // Process nodemailer for each applicant
     const results: (string | null)[] = [];
 
@@ -168,7 +170,7 @@ export async function prepareNodemailerInvites(
                 ? rsvpSlug
                 : undefined,
               admissionType == 'accept' || admissionType == 'waitlist'
-                ? options?.releaseIds
+                ? releaseIds
                 : undefined
             );
 
