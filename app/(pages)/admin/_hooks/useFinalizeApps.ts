@@ -10,9 +10,7 @@ import {
 import { RsvpList, Release } from '@/app/_types/tito';
 import { generateComprehensiveCSV } from '../_utils/generateComprehensiveCSV';
 import { downloadCSV } from '../_utils/downloadCSV';
-import { prepareMailchimpInvites } from '@utils/mailchimp/prepareMailchimp';
-import { useMailchimp } from '../_hooks/useMailchimp';
-import { updateMailchimp } from '@actions/mailchimp/updateMailchimp';
+import { prepareNodemailerInvites } from '@utils/nodemailer/prepareNodemailer';
 import getRsvpLists from '@utils/tito/getRsvpLists';
 import getReleases from '@utils/tito/getReleases';
 import bulkCreateInvitations from '@utils/tito/bulkCreateInvitations';
@@ -32,11 +30,11 @@ export interface FinalizeResults {
   titoSucceeded: number;
   titoTotal: number;
   autoFixedCount: number;
-  mailchimpResults: string;
+  nodemailerResults: string;
   csvFilename: string;
   totalErrors: number;
   titoFailures: string[];
-  mailchimpFailures: string[];
+  nodemailerFailures: string[];
 }
 
 export function useFinalizeApps(
@@ -53,9 +51,6 @@ export function useFinalizeApps(
   const [releases, setReleases] = useState<Release[]>([]);
   const [selectedRsvpList, setSelectedRsvpList] = useState<string>('');
   const [selectedReleases, setSelectedReleases] = useState<string[]>([]);
-
-  const { mailchimp, refresh: refreshMailchimp } = useMailchimp();
-  const currentBatch = mailchimp?.batchNumber ?? -1;
 
   // Opens up Tito Modal for user to select RSVP list and releases
   const handleFinalize = async () => {
@@ -109,7 +104,7 @@ export function useFinalizeApps(
 
     setIsProcessing(true);
     const titoFailures: string[] = [];
-    const mailchimpFailures: string[] = [];
+    const nodemailerFailures: string[] = [];
     let processedResults = '';
 
     try {
@@ -123,27 +118,29 @@ export function useFinalizeApps(
       // All tentative applicants
       const allApps = apps;
 
-      const mailchimpResults: string[] = [];
-      const mailchimpSuccessIds = new Set<string>();
-      const mailchimpErrorMap = new Map<string, string>(); // email -> error message
+      const nodemailerResults: string[] = [];
+      const nodemailerSuccessIds = new Set<string>();
+      const nodemailerErrorMap = new Map<string, string>(); // email -> error message
       const hubInviteMapLocal = new Map<string, string>();
+      const releaseIds = selectedReleases.join(',');
 
-      // Helper: process one Mailchimp batch and collect results
-      const processMailchimpBatch = async (
+      // Helper: process one Nodemailer batch and collect results
+      const processNodemailerBatch = async (
         label: string,
-        status:
-          | 'tentatively_accepted'
+        status: // ?? CHANGE STATUS
+        | 'tentatively_accepted'
           | 'tentatively_waitlisted'
           | 'tentatively_waitlist_accepted'
           | 'tentatively_waitlist_rejected',
         titoInviteMapRecord: Record<string, string>
       ): Promise<boolean> => {
-        const res = await prepareMailchimpInvites(status, {
+        const res = await prepareNodemailerInvites(status, {
           applicantIds: apps
             .filter((app) => app.status === status)
             .map((app) => app._id),
           titoInviteMap: titoInviteMapRecord,
           rsvpListSlug: selectedRsvpList,
+          releaseIds: releaseIds,
         });
         const processedIds: string[] = res.ids ?? [];
         const processedCount = processedIds.length;
@@ -155,7 +152,7 @@ export function useFinalizeApps(
         });
 
         if (processedCount > 0) {
-          processedIds.forEach((id: string) => mailchimpSuccessIds.add(id));
+          processedIds.forEach((id: string) => nodemailerSuccessIds.add(id));
 
           const successfulApps = apps.filter((app) =>
             processedIds.includes(app._id)
@@ -175,8 +172,8 @@ export function useFinalizeApps(
                 console.warn(
                   `[useFinalizeApps] Blocked status update for ${app.email}: no Tito invite URL found`
                 );
-                mailchimpSuccessIds.delete(app._id);
-                mailchimpErrorMap.set(
+                nodemailerSuccessIds.delete(app._id);
+                nodemailerErrorMap.set(
                   email,
                   'Blocked by safety check: no Tito invite URL'
                 );
@@ -197,14 +194,13 @@ export function useFinalizeApps(
                     app.status === 'tentatively_waitlisted'
                       ? 'unseen'
                       : 'processed',
-                  batchNumber: currentBatch,
                 }
               )
             )
           );
         }
 
-        // Track Mailchimp failures with specific error messages
+        // Track Nodemailer failures with specific error messages
         if (res.error) {
           const errorLines = res.error.split('\n').slice(1);
 
@@ -213,7 +209,7 @@ export function useFinalizeApps(
             if (match) {
               const email = match[1].toLowerCase();
               const reason = match[2];
-              mailchimpErrorMap.set(email, reason);
+              nodemailerErrorMap.set(email, reason);
             }
           });
 
@@ -221,10 +217,10 @@ export function useFinalizeApps(
             (app) =>
               app.status === status &&
               !processedIds.includes(app._id) &&
-              !mailchimpErrorMap.has(app.email.toLowerCase())
+              !nodemailerErrorMap.has(app.email.toLowerCase())
           );
           failedApps.forEach((app) => {
-            mailchimpErrorMap.set(
+            nodemailerErrorMap.set(
               app.email.toLowerCase(),
               `Failed during ${label} processing`
             );
@@ -236,9 +232,9 @@ export function useFinalizeApps(
 
         if (res.error) {
           batchMessage += `\n${res.error}`;
-          mailchimpFailures.push(`${label}: ${res.error}`);
+          nodemailerFailures.push(`${label}: ${res.error}`);
         }
-        mailchimpResults.push(batchMessage);
+        nodemailerResults.push(batchMessage);
 
         return res.ok;
       };
@@ -251,7 +247,6 @@ export function useFinalizeApps(
       const acceptedPath = async () => {
         // Create Tito invitations first (accepted only)
         if (acceptedApps.length > 0) {
-          const releaseIds = selectedReleases.join(',');
           const titoResult = await bulkCreateInvitations({
             applicants: acceptedApps,
             rsvpListSlug: selectedRsvpList,
@@ -268,16 +263,16 @@ export function useFinalizeApps(
           titoFailures.push(...titoResult.errors);
         }
 
-        // Then process Mailchimp for accepted statuses (need Tito map)
+        // Then process Nodemailer for accepted statuses (need Tito map)
         const titoInviteMapRecord = Object.fromEntries(titoInviteMapLocal);
-        const okAccepted = await processMailchimpBatch(
+        const okAccepted = await processNodemailerBatch(
           'Acceptances',
           'tentatively_accepted',
           titoInviteMapRecord
         );
         if (!okAccepted) return;
 
-        await processMailchimpBatch(
+        await processNodemailerBatch(
           'Waitlist Acceptances',
           'tentatively_waitlist_accepted',
           titoInviteMapRecord
@@ -286,14 +281,14 @@ export function useFinalizeApps(
 
       const nonAcceptedPath = async () => {
         // Non-accepted statuses don't need Tito map
-        const okWaitlisted = await processMailchimpBatch(
+        const okWaitlisted = await processNodemailerBatch(
           'Waitlists',
           'tentatively_waitlisted',
           {}
         );
         if (!okWaitlisted) return;
 
-        await processMailchimpBatch(
+        await processNodemailerBatch(
           'Waitlist Rejections',
           'tentatively_waitlist_rejected',
           {}
@@ -302,7 +297,7 @@ export function useFinalizeApps(
 
       await Promise.all([acceptedPath(), nonAcceptedPath()]);
 
-      processedResults = mailchimpResults.join('\n');
+      processedResults = nodemailerResults.join('\n');
 
       // STEP 3: Generate comprehensive CSV with all data
       const csvData = generateComprehensiveCSV(
@@ -311,24 +306,24 @@ export function useFinalizeApps(
         hubInviteMapLocal,
         titoAutoFixNotesMapLocal,
         titoFailures,
-        mailchimpSuccessIds,
-        mailchimpErrorMap
+        nodemailerSuccessIds,
+        nodemailerErrorMap
       );
 
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const download = `applicants_finalized_${timestamp}.csv`;
       downloadCSV(csvData, download);
 
-      const totalErrors = titoFailures.length + mailchimpFailures.length;
+      const totalErrors = titoFailures.length + nodemailerFailures.length;
       setProcessingResults({
         titoSucceeded: titoInviteMapLocal.size,
         titoTotal: acceptedApps.length,
         autoFixedCount,
-        mailchimpResults: processedResults,
+        nodemailerResults: processedResults,
         csvFilename: download,
         totalErrors,
         titoFailures,
-        mailchimpFailures,
+        nodemailerFailures,
       });
       setShowTitoModal(false);
       setShowResultsModal(true);
@@ -338,17 +333,15 @@ export function useFinalizeApps(
         titoSucceeded: 0,
         titoTotal: 0,
         autoFixedCount: 0,
-        mailchimpResults: '',
+        nodemailerResults: '',
         csvFilename: '',
         totalErrors: 1,
         titoFailures: [],
-        mailchimpFailures: [`Fatal error: ${err.message ?? err}`],
+        nodemailerFailures: [`Fatal error: ${err.message ?? err}`],
       });
       setShowTitoModal(false);
       setShowResultsModal(true);
     } finally {
-      await updateMailchimp({ batchNumber: 1, lastUpdate: new Date() });
-      await refreshMailchimp();
       setIsProcessing(false);
     }
   };
@@ -374,8 +367,8 @@ export function useFinalizeApps(
       loadingTitoData,
     },
     actions: {
-      handleFinalize,
-      handleProcessAll,
+      handleFinalize, //
+      handleProcessAll, //
       toggleRelease,
       setShowTitoModal,
       setShowResultsModal,

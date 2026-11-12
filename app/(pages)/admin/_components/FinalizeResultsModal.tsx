@@ -6,11 +6,11 @@ interface FinalizeResultsModalProps {
     titoSucceeded: number;
     titoTotal: number;
     autoFixedCount: number;
-    mailchimpResults: string;
+    nodemailerResults: string;
     csvFilename: string;
     totalErrors: number;
     titoFailures: string[];
-    mailchimpFailures: string[];
+    nodemailerFailures: string[];
   } | null;
   onClose: () => void;
 }
@@ -54,11 +54,11 @@ export function FinalizeResultsModal({
           </ul>
         </div>
 
-        {/* Mailchimp Results */}
+        {/* Nodemailer Results */}
         <div className="mb-4 p-4 border-2 border-black bg-gray-50">
-          <p className="text-sm font-semibold mb-2">Mailchimp Results:</p>
+          <p className="text-sm font-semibold mb-2">Nodemailer Results:</p>
           <pre className="text-xs whitespace-pre-wrap">
-            {results.mailchimpResults}
+            {results.nodemailerResults}
           </pre>
         </div>
 
@@ -83,14 +83,14 @@ export function FinalizeResultsModal({
           </div>
         )}
 
-        {/* Mailchimp Failures */}
-        {results.mailchimpFailures.length > 0 && (
+        {/* Nodemailer Failures */}
+        {results.nodemailerFailures.length > 0 && (
           <div className="mb-4 p-4 border-2 border-red-600 bg-red-50">
             <p className="text-sm font-bold text-red-600 mb-2">
-              Mailchimp Failures:
+              Nodemailer Failures:
             </p>
             <div className="text-xs space-y-1">
-              {results.mailchimpFailures.map((failure, idx) => (
+              {results.nodemailerFailures.map((failure, idx) => (
                 <div key={idx} className="text-red-700">
                   {failure}
                 </div>
