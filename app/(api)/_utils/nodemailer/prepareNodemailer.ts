@@ -105,34 +105,6 @@ export async function prepareNodemailerInvites(
         throw new Error(`Missing Environment Variable: ${env}`);
     }
 
-    let titoInvitesMap = new Map<string, string>();
-    let hubSession: AxiosInstance | null = null;
-
-    // Note: rsvp_reminder does not require hub/tito info
-    if (isAccepted) {
-      // Get tito and hub for accepted and waitlist_accepted applicants
-      if (options?.titoInviteMap) {
-        for (const [email, url] of Object.entries(options.titoInviteMap)) {
-          titoInvitesMap.set(email.toLowerCase(), url);
-        }
-        hubSession = await getHubSession();
-      } else {
-        // handles accepted applicants when no pre-provided titoInviteMap is available
-        const [titoResponse, session] = await Promise.all([
-          getUnredeemedRsvpInvitations(rsvpSlug),
-          getHubSession(),
-        ]);
-
-        if (!titoResponse.ok || !titoResponse.body) {
-          throw new Error(
-            `Failed to fetch Tito invites: ${titoResponse.error}`
-          );
-        }
-        titoInvitesMap = titoResponse.body;
-        hubSession = session;
-      }
-    }
-
     // Note: Hub rate limit is unknown (likely stateless), but have successfully tested with 60+ acceptances at once
     // Mailchimp rate limit is 10 requests per second for free accounts
     // Currently kept the same amount of MAX_CONCURRENT_REQUESTS as Mailchimp (which is 10)
