@@ -223,7 +223,7 @@ export default function ApplicationsGrid({
                     </button>
                     <button
                       type="button"
-                      className="border border-yellow-700 bg-yellow-100 px-2 py-1 text-[10px] font-semibold uppercase text-yellow-800"
+                      className="border border-gray-700 bg-gray-100 px-2 py-1 text-[10px] font-semibold uppercase text-gray-800"
                       onClick={() =>
                         onUpdateStatus(
                           app._id,

@@ -110,7 +110,7 @@ export default function AutoWaitlistApplications({
               renderActions={(app) => (
                 <>
                   {id === 'automatic' && (
-                    <p className="w-full text-xs text-amber-800">
+                    <p className="w-full text-xs text-orange-800">
                       Flagged:{' '}
                       {(
                         app.automaticReasons ?? automaticWaitlistReasons(app)
@@ -120,7 +120,7 @@ export default function AutoWaitlistApplications({
                   {id !== 'probable_accept' && (
                     <button
                       type="button"
-                      className="special-button px-2 py-1 text-xs"
+                      className="bg-green-200 px-2 py-1 text-xs text-green-900 hover:bg-green-300"
                       onClick={() =>
                         decide(
                           app,
@@ -137,7 +137,7 @@ export default function AutoWaitlistApplications({
                   {id !== 'probably_waitlist' && (
                     <button
                       type="button"
-                      className="special-button px-2 py-1 text-xs"
+                      className="bg-gray-200 px-2 py-1 text-xs text-gray-900 hover:bg-gray-300"
                       onClick={() =>
                         decide(
                           app,
@@ -154,7 +154,7 @@ export default function AutoWaitlistApplications({
                   {id !== 'automatic' && (
                     <button
                       type="button"
-                      className="border border-green-700 bg-green-100 px-2 py-1 text-xs"
+                      className="bg-orange-200 px-2 py-1 text-xs text-orange-900 hover:bg-orange-300"
                       onClick={() =>
                         decide(
                           app,

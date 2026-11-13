@@ -11,37 +11,61 @@ export default function ProgressBar({
   tentativeCount,
   totalCount,
 }: ProgressBarProps) {
-  const processedPct = totalCount ? (processedCount / totalCount) * 100 : 0;
-  const tentativePct = totalCount ? (tentativeCount / totalCount) * 100 : 0;
-  const unseenPct = Math.max(0, 100 - processedPct - tentativePct);
+  const segments = [
+    {
+      label: 'processed',
+      count: processedCount,
+      fill: 'bg-green-700',
+      text: 'text-green-900',
+    },
+    {
+      label: 'tentative',
+      count: tentativeCount,
+      fill: 'bg-orange-500',
+      text: 'text-orange-800',
+    },
+    {
+      label: 'needs processing',
+      count: Math.max(0, totalCount - processedCount - tentativeCount),
+      fill: 'bg-blue-500',
+      text: 'text-blue-900',
+    },
+  ];
+  const activeSegments = segments.filter(({ count }) => count > 0);
 
   return (
     <section className="mb-4">
-      <h2 className="pb-4 font-medium">progress</h2>
-      <div className="mb-2 flex items-center justify-between text-xs">
-        <span>
-          processed:{' '}
-          <span className="font-semibold text-blue-900">{processedCount}</span>
-        </span>
-        <span>
-          tentative:{' '}
-          <span className="font-semibold text-blue-400">{tentativeCount}</span>
-        </span>
-        <span>total: {totalCount}</span>
+      <div className="mb-2 flex items-baseline justify-between gap-2">
+        <h2 className="font-medium">progress</h2>
+        <span className="text-xs">total: {totalCount}</span>
       </div>
-
-      <div className="h-2 w-full overflow-hidden border-2 border-black bg-slate-200">
-        <div className="flex h-full">
+      <div className="flex h-2 w-full overflow-hidden bg-slate-200">
+        {activeSegments.map(({ label, count, fill }) => (
           <div
-            className="h-full bg-blue-900"
-            style={{ width: `${processedPct}%` }}
+            key={label}
+            className={fill}
+            style={{ width: `${(count / totalCount) * 100}%` }}
           />
+        ))}
+      </div>
+      <div className="mt-1 flex text-xs">
+        {activeSegments.map(({ label, count, text }) => (
           <div
-            className="h-full bg-blue-200"
-            style={{ width: `${tentativePct}%` }}
-          />
-          <div className="h-full bg-white" style={{ width: `${unseenPct}%` }} />
-        </div>
+            key={label}
+            className="min-w-0 px-px text-center"
+            style={{ width: `${(count / totalCount) * 100}%` }}
+          >
+            <span className={`font-semibold ${text}`}>{count}</span>
+            <span className="block break-words">{label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-slate-600">
+        {segments
+          .filter(({ count }) => count === 0)
+          .map(({ label }) => (
+            <span key={label}>{label}: 0</span>
+          ))}
       </div>
     </section>
   );

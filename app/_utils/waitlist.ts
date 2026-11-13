@@ -1,7 +1,6 @@
 import type { Application, WaitlistPool } from '../_types/application';
 
 export const AUTOMATIC_WAITLIST_STUDY_LEVELS = [
-  'Graduate University (Masters, Professional, Doctoral, etc)',
   'Code School / Bootcamp',
   'Other Vocational / Trade Program or Apprenticeship',
   'Post Doctorate',

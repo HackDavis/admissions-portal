@@ -1,7 +1,32 @@
 'use client';
 
 import { Application, ApplicationNote } from '@/app/_types/application';
+import {
+  ACCEPTED_STATUSES,
+  REJECTED_STATUSES,
+  Status,
+} from '@/app/_types/applicationFilters';
+import { prettyStatus } from '../_utils/format';
 import ApplicantNotes from './ApplicantNotes';
+
+export function ApplicationStatusBadge({ status }: { status: Status }) {
+  let color = 'bg-blue-100 text-blue-900';
+  if (ACCEPTED_STATUSES.has(status)) {
+    color = 'bg-green-100 text-green-900';
+  } else if (REJECTED_STATUSES.has(status)) {
+    color = 'bg-red-100 text-red-900';
+  } else if (status === 'waitlisted' || status === 'tentatively_waitlisted') {
+    color = 'bg-gray-100 text-gray-900';
+  }
+
+  return (
+    <span
+      className={`inline-block rounded px-1.5 py-0.5 font-semibold ${color}`}
+    >
+      {prettyStatus(status)}
+    </span>
+  );
+}
 
 interface ApplicantDetailsModalProps {
   applicant: Application;
@@ -127,7 +152,9 @@ export default function ApplicantDetailsModal({
           {rows.map((row) => (
             <div key={row.label} className="border border-black p-2">
               <p className="text-[10px] font-semibold uppercase">{row.label}</p>
-              {row.href ? (
+              {row.label === 'status' ? (
+                <ApplicationStatusBadge status={applicant.status} />
+              ) : row.href ? (
                 <a
                   href={row.href}
                   target="_blank"

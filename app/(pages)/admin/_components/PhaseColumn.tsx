@@ -7,11 +7,18 @@ import { Phase, Status, StatusFilter } from '@/app/_types/applicationFilters';
 import { prettyStatus } from '../_utils/format';
 import { sortNotesByNewest } from '../_utils/notes';
 import ApplicantDetailsModal, {
+  ApplicationStatusBadge,
   getResumeHref,
   getSafeUrl,
 } from './ApplicantDetailsModal';
 import { FaLinkedin, FaRegFileAlt } from 'react-icons/fa';
 import { LuLink } from 'react-icons/lu';
+
+const phaseBackgrounds: Record<Phase, string> = {
+  unseen: 'bg-blue-100',
+  tentative: 'bg-orange-100',
+  processed: 'bg-green-100',
+};
 
 interface PhaseColumnProps {
   phase: Phase;
@@ -62,8 +69,10 @@ export default function PhaseColumn({
   const selectedApplicant = apps.find((app) => app._id === selectedApplicantId);
 
   return (
-    <div className="border-2 border-black p-3 flex h-screen flex-col">
-      <div className="mb-2 flex items-start justify-between gap-3">
+    <div
+      className={`border-2 border-black p-3 flex h-screen flex-col ${phaseBackgrounds[phase]}`}
+    >
+      <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-xs font-semibold uppercase">{label}</h3>
           <p className="text-xs">
@@ -79,7 +88,8 @@ export default function PhaseColumn({
             <select
               value={statusFilter}
               onChange={(e) => onStatusChange(e.target.value as StatusFilter)}
-              className="border-2 border-black px-2 py-1 text-xs"
+              aria-label={`Filter ${label} by status`}
+              className="border-2 border-black bg-white px-2 py-1 text-xs"
             >
               <option value="all">all</option>
               {statusOptions.map((s) => (
@@ -99,7 +109,7 @@ export default function PhaseColumn({
           apps.map((app) => (
             <div
               key={app._id}
-              className="border-2 border-black p-2 flex flex-col gap-1"
+              className="border-2 border-black bg-white p-2 flex flex-col gap-1"
             >
               <div className="flex flex-row justify-between">
                 <p className="text-xs">id: {app._id}</p>
@@ -170,12 +180,11 @@ export default function PhaseColumn({
                 is over 18: {app.isOver18 ? 'yes' : 'no'}
               </p>
               <p className="text-xs">
-                status:{' '}
-                <span className="font-medium">{prettyStatus(app.status)}</span>
+                status: <ApplicationStatusBadge status={app.status} />
               </p>
               <p
                 className={`text-xs ${
-                  app.wasWaitlisted ? 'font-bold text-red-600' : ''
+                  app.wasWaitlisted ? 'font-bold text-gray-800' : ''
                 }`}
               >
                 was waitlisted: {app.wasWaitlisted ? 'yes' : 'no'}
