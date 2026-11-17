@@ -198,3 +198,23 @@ You'll see that there are folders defined with square brackets around the name s
 
 # 📄 Documentation
 Please refer to the HackDavis Notion.
+## Referral links
+
+With the target database configured in `.env`, run:
+
+```bash
+npx migrate-mongo up
+node scripts/seedReferrals.mjs
+```
+
+The migration creates the `referrals` collection. The seed script creates codes
+for Tabling, HackDavis Website, Instagram/Linktree, and Flyers, then prints their
+links. Running it again keeps existing codes and prints the same links.
+
+Links use `https://apply.hackdavis.io/?ref=<code>`. Use codes from the database
+serving that site; for local testing, replace the origin with your local URL.
+
+The first valid referral is kept in an HTTP-only cookie for 30 days. A malformed
+or deleted referral code can be replaced by a new valid link. On submission, the
+application saves the source name; missing or invalid referrals become
+`unattributed`. Admin stats show source counts for the selected applicant scope.
