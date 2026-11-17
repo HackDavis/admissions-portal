@@ -60,8 +60,10 @@ function SlideContainer({
 export default function ApplicationCarousel() {
   const dateRollback = GetRollbackTime('applications');
   const dateRollout = GetRolloutTime('applications');
-  const applicationsClosed = dateRollback == 0 ? true : Date.now() > dateRollback; // May 1st, 2026 at 1:00 AM PDT
-  const applicationsUnopened = dateRollout == 0 ? true : Date.now() < dateRollback;
+  const applicationsClosed =
+    dateRollback == 0 ? true : Date.now() > dateRollback; // May 1st, 2026 at 1:00 AM PDT
+  const applicationsUnopened =
+    dateRollout == 0 ? true : Date.now() < dateRollback;
 
   const [viewportRef, api] = useEmblaCarousel(
     {

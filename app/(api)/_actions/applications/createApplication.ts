@@ -17,7 +17,7 @@ export async function createApplication(body: object) {
     return {
       ok: false,
       body: null,
-      error: "Timeframe to submit applications is over.",
+      error: 'Timeframe to submit applications is over.',
     };
   }
 
