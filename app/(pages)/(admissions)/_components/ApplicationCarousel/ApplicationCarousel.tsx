@@ -9,6 +9,8 @@ import { ApplicationFrame } from './ApplicationFrame';
 import { useSubmitApplication } from '../../_hooks/useSubmitApplication';
 import { useResumeUpload } from '../../_hooks/useResumeUpload';
 import { RESUME_EXPIRED_MESSAGE } from '../../../../_utils/resumeLimits';
+import { GetRollbackTime } from '../../_hooks/getRollout';
+import { GetRolloutTime } from '../../_hooks/getRollout';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { GoPerson } from 'react-icons/go';
 
@@ -56,7 +58,12 @@ function SlideContainer({
 }
 
 export default function ApplicationCarousel() {
-  const applicationsClosed = Date.now() >= Date.parse('2026-05-01T08:00:00Z'); // May 1st, 2026 at 1:00 AM PDT
+  const dateRollback = GetRollbackTime('applications');
+  const dateRollout = GetRolloutTime('applications');
+  const applicationsClosed =
+    dateRollback == 0 ? true : Date.now() > dateRollback; // May 1st, 2026 at 1:00 AM PDT
+  const applicationsUnopened =
+    dateRollout == 0 ? true : Date.now() < dateRollback;
 
   const [viewportRef, api] = useEmblaCarousel(
     {
@@ -337,7 +344,7 @@ export default function ApplicationCarousel() {
     }
   })();
 
-  if (applicationsClosed) {
+  if (applicationsClosed || applicationsUnopened) {
     return (
       <div>
         <ApplicationFrame>
